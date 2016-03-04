@@ -32,3 +32,32 @@ now and n time-buckets into the pass. The following illustration explains the st
    [n] ==> ...
    [0] ==> ...
 ```
+
+Whenever the now time point "moves" forward using:
+
+```java
+public void setNow(final long unixTimeStamp) throws IllegalTimePointMovement
+```
+
+the data structure is updated using:
+
+```
+ Getting the new currentNowIdx is done by calculating the
+ difference between the old now and the new now and moving
+ the currentNowIdx forward.
+
+  [0] [1] [2] [3] [4] [5] [6]
+       ↑
+ currentNowIdx
+
+ Assume we move the now time stamp forward by three buckets:
+
+  [0] [1] [2] [3] [4] [5] [6]
+                       ↑
+                 currentNowIdx
+
+ So the calculation is done in three steps:
+ 1.) get the bucket of the new now
+ 2.) determine the difference between the buckets, if it's negative we are done
+ 3.) erase the fields in between and reset to zero or null
+```
