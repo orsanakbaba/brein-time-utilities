@@ -10,8 +10,7 @@ The current implementation of the library offers two different data structures:
 * com.brein.time.timeseries.BucketTimeSeries
 * com.brein.time.timeseries.ContainerBucketTimeSeries
 
-![Example of a time-series (with buckets)](/img/example.png =300px)
-
+<p align="center"><img src="/img/example.png" width="500px"></p>
 
 ## Available Data Structures
 
