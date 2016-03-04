@@ -16,9 +16,10 @@ for these buckets. As all of the time-series of this library, this time-series i
 a rolling time-series regarding the now time point, i.e., it contains information about
 now and n time-buckets into the pass. The following illustration explains the structure:
 
-The data structure (which is based on an array) can be explained best with
-an illustration (with n == timeSeriesSize):
 ```
+ The data structure (which is based on an array) can be explained best with
+ an illustration (with n == timeSeriesSize):
+
    [0] [1] [2] [3] [4] [5] [6] ... [n]
         ↑
   currentNowIdx
