@@ -10,6 +10,11 @@ The current implementation of the library offers two different data structures:
 * com.brein.time.timeseries.BucketTimeSeries
 * com.brein.time.timeseries.ContainerBucketTimeSeries
 
+![Example of a time-series (with buckets)](https://breinify.github.com/img/example.png)
+
+
+## Available Data Structures
+
 ### BucketTimeSeries
 The BucketTimeSeries is used to group time-points into buckets and keep a time-series
 for these buckets. As all of the time-series of this library, this time-series is also
