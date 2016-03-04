@@ -6,13 +6,22 @@ real-time based time-series, i.e., time-series which change based on the current
 library provides several data structures, to handle and manipulate such time-series.
 
 ## Quick Introduction
-The current implementation of the library offers two different data structures:
-* com.brein.time.timeseries.BucketTimeSeries
-* com.brein.time.timeseries.ContainerBucketTimeSeries
+The library provides data structures used to handle real-time associated data
+(e.g., unixTimestamp, value). In general the operation are fast (e.g., set and changing
+ now is done in O(1)). All implemented data structures support:
+* buckets (i.e., define a range of time-points the data is associated to)
+* moving of "now" without modifying the whole array of the time-series (utilizing rolling)
+* default
+
+An visualization of the data of a time-series of the library with a "now" time-stamp between
+11:30 - 11:35 looks like:
 
 <p align="center"><img src="/img/example.png" width="500px"></p>
 
 ## Available Data Structures
+The current implementation of the library offers two different data structures:
+* com.brein.time.timeseries.BucketTimeSeries
+* com.brein.time.timeseries.ContainerBucketTimeSeries
 
 ### BucketTimeSeries
 The BucketTimeSeries is used to group time-points into buckets and keep a time-series
