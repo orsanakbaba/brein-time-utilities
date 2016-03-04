@@ -10,7 +10,7 @@ The current implementation of the library offers two different data structures:
 * com.brein.time.timeseries.BucketTimeSeries
 * com.brein.time.timeseries.ContainerBucketTimeSeries
 
-![Example of a time-series (with buckets)](https://raw.githubusercontent.com/Breinify/brein-time-utilities/master/img/example.png)
+![Example of a time-series (with buckets)](https://raw.githubusercontent.com/Breinify/brein-time-utilities/master/img/example.png =300x)
 
 
 ## Available Data Structures
