@@ -183,6 +183,11 @@ public class BucketTimeSeries<T> {
         this.timeSeries[idx] = value;
     }
 
+    public T get(final int idx) {
+        validateIdx(idx);
+        return this.timeSeries[idx];
+    }
+
     protected void validateIdx(final int idx) throws IllegalTimePointIndex {
         if (idx < 0 || idx >= config.getTimeSeriesSize()) {
             throw new IllegalTimePointIndex(String.format("The index %d is out of bound [%d, %d].", idx, 0, config.getTimeSeriesSize() - 1));

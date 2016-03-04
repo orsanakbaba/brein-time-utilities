@@ -14,13 +14,16 @@ public class ContainerBucketTimeSeries<T> extends BucketTimeSeries<Collection<T>
 
     public void add(final int idx, final T value) {
         validateIdx(idx);
+        getOrCreate(idx).add(value);
+    }
 
-        final Collection<T> coll = getOrCreate(idx);
-        coll.add(value);
+    public int size(final int idx) {
+        final Collection<T> coll = get(idx);
+        return coll == null ? 0 : coll.size();
     }
 
     protected Collection<T> getOrCreate(final int idx) {
-        final Collection<T> coll = this.timeSeries[idx];
+        final Collection<T> coll = get(idx);
 
         if (coll == null) {
             final Collection<T> newColl = supplier.get();

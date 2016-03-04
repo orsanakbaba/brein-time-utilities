@@ -87,4 +87,9 @@ public class TestBucketTimeSeries {
         minute_10_1_ts.setNow(unixTimeStamp + 60);
         Assert.assertEquals(9, minute_10_1_ts.getNowIdx());
     }
+
+    @Test
+    public void testAdding() {
+
+    }
 }
