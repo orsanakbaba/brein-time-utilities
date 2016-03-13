@@ -4,9 +4,16 @@ import com.brein.time.exceptions.IllegalTimePoint;
 import com.brein.time.exceptions.IllegalTimePointIndex;
 import com.brein.time.exceptions.IllegalTimePointMovement;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 /**
  * This implementation represents a time-series. Each time-point of the series
@@ -32,7 +39,9 @@ import java.util.concurrent.TimeUnit;
  * @param <T> the content held by the time-series
  * @author Philipp
  */
-public class BucketTimeSeries<T> {
+public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Serializable {
+    private static final long serialVersionUID = 1L;
+
     protected final BucketTimeSeriesConfig config;
 
     protected T[] timeSeries = null;
@@ -45,24 +54,49 @@ public class BucketTimeSeries<T> {
         this.timeSeries = createEmptyArray();
     }
 
+    /**
+     * Constructor to create a pre-set time series.
+     *
+     * @param config     the configuration to use
+     * @param timeSeries the initiale time series
+     * @param now        the current now timestamp
+     */
+    public BucketTimeSeries(final BucketTimeSeriesConfig<T> config, final T[] timeSeries, final long now) {
+        this.config = config;
+        this.timeSeries = timeSeries;
+
+        this.now = normalizeUnixTimeStamp(now);
+        this.currentNowIdx = 0;
+    }
+
     @SuppressWarnings("unchecked")
     protected T[] createEmptyArray() {
         final T[] array = (T[]) Array.newInstance(config.getBucketContent(),
-                config.getBucketSize());
+                config.getTimeSeriesSize());
 
-        if (config.isFillNumberWithZero() && Number.class.isAssignableFrom(config.getBucketContent())) {
-            Arrays.fill(array, 0, array.length, 0);
+        if (applyZero()) {
+            Arrays.fill(array, 0, array.length, zero());
         }
 
         return array;
     }
 
+    protected boolean applyZero() {
+        return config.isFillNumberWithZero() && Number.class.isAssignableFrom(config.getBucketContent());
+    }
+
+    /**
+     * Resets the values from [fromIndex, endIndex).
+     *
+     * @param fromIndex the index to start from (included)
+     * @param endIndex  the index to end (excluded)
+     */
     protected void fill(int fromIndex, int endIndex) {
         fromIndex = fromIndex == -1 ? 0 : fromIndex;
         endIndex = endIndex == -1 || endIndex > this.timeSeries.length ? this.timeSeries.length : endIndex;
 
-        if (config.isFillNumberWithZero() && Number.class.isAssignableFrom(config.getBucketContent())) {
-            Arrays.fill(this.timeSeries, fromIndex, endIndex, 0);
+        if (applyZero()) {
+            Arrays.fill(this.timeSeries, fromIndex, endIndex, zero());
         } else {
             Arrays.fill(this.timeSeries, fromIndex, endIndex, null);
         }
@@ -85,10 +119,8 @@ public class BucketTimeSeries<T> {
          * bucketSize is 5, a unix time stamp representing 01/20/1981 08:07:30
          * must be mapped to 01/20/1981 08:10:00 (the next valid bucket).
          */
-        if (currentNowIdx == -1 || this.now == null) {
-            currentNowIdx = 0;
-
-            // keep the new now
+        if (this.currentNowIdx == -1 || this.now == null) {
+            this.currentNowIdx = 0;
             this.now = normalizeUnixTimeStamp(unixTimeStamp);
         } else {
 
@@ -107,10 +139,11 @@ public class BucketTimeSeries<T> {
              *                       ↑
              *                 currentNowIdx
              *
-             * So the calculation is done in three steps:
+             * So the calculation is done in two steps:
              * 1.) get the bucket of the new now
-             * 2.) determine the difference between the buckets, if it's negative we are done
-             * 3.) erase the fields in between and reset to zero or null
+             * 2.) determine the difference between the buckets, if it's negative => error,
+             *     if it is zero => done, otherwise => erase the fields in between and reset
+             *     to zero or null
              */
             final BucketEndPoints newNow = normalizeUnixTimeStamp(unixTimeStamp);
             final long diff = this.now.diff(newNow);
@@ -130,10 +163,10 @@ public class BucketTimeSeries<T> {
                 if (diff >= config.getTimeSeriesSize()) {
                     fill(-1, -1);
                 } else if (newCurrentNowIdx > currentNowIdx) {
-                    fill(currentNowIdx, newCurrentNowIdx);
+                    fill(0, currentNowIdx);
+                    fill(newCurrentNowIdx, -1);
                 } else {
-                    fill(currentNowIdx, -1);
-                    fill(0, newCurrentNowIdx);
+                    fill(newCurrentNowIdx, currentNowIdx);
                 }
 
                 // set the values calculated
@@ -141,6 +174,45 @@ public class BucketTimeSeries<T> {
                 this.now = newNow;
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public T[] order() {
+        final T[] result;
+
+        if (this.timeSeries != null && this.currentNowIdx != -1) {
+            result = (T[]) Array.newInstance(config.getBucketContent(),
+                    config.getTimeSeriesSize());
+
+            final AtomicInteger i = new AtomicInteger(0);
+            forEach(val -> result[i.getAndIncrement()] = val);
+        } else {
+            result = createEmptyArray();
+        }
+
+        return result;
+    }
+
+    public long[] create(final Function<T, Long> supplier) {
+        final long[] result = new long[config.getTimeSeriesSize()];
+
+        if (this.timeSeries != null && this.currentNowIdx != -1) {
+            final AtomicInteger i = new AtomicInteger(0);
+            forEach(val -> result[i.getAndIncrement()] = supplier.apply(val));
+        } else {
+            final boolean applyZero = applyZero();
+
+            // just assume we have nulls everywhere
+            for (int i = 0; i < result.length; i++) {
+                if (applyZero) {
+                    result[i] = supplier.apply(zero());
+                } else {
+                    result[i] = supplier.apply(null);
+                }
+            }
+        }
+
+        return result;
     }
 
     public int getNowIdx() {
@@ -156,25 +228,13 @@ public class BucketTimeSeries<T> {
         return now.move(idx);
     }
 
-    public void add(final long unixTimeStamp, final T value) {
+    public void set(final long unixTimeStamp, final T value) {
+        final int idx = handleDataUnixTimeStamp(unixTimeStamp);
+        if (idx == -1) {
+            return;
+        }
 
-        // first we have to determine the bucket (idx)
-        final BucketEndPoints bucketEndPoints = normalizeUnixTimeStamp(unixTimeStamp);
-        final long diff = this.now.diff(bucketEndPoints);
-
-        // we are in the future, let's move there and set it
-        if (diff > 0) {
-            setNow(unixTimeStamp);
-            set(currentNowIdx, value);
-        }
-        // if we are outside the time, just ignore it
-        else if (Math.abs(diff) >= config.getBucketSize()) {
-            // do nothing
-        }
-        // the absolute index has to be made relative (idx(..))
-        else {
-            set(idx(currentNowIdx + diff), value);
-        }
+        set(idx, value);
     }
 
     public void set(final int idx, final T value) throws IllegalTimePointIndex {
@@ -186,6 +246,35 @@ public class BucketTimeSeries<T> {
     public T get(final int idx) {
         validateIdx(idx);
         return this.timeSeries[idx];
+    }
+
+    protected int handleDataUnixTimeStamp(final long unixTimeStamp) {
+
+        // first we have to determine the bucket (idx)
+        final BucketEndPoints bucketEndPoints = normalizeUnixTimeStamp(unixTimeStamp);
+
+        final long diff;
+        if (this.now == null) {
+            setNow(unixTimeStamp);
+            diff = 0L;
+        } else {
+            diff = this.now.diff(bucketEndPoints);
+        }
+
+        // we are in the future, let's move there and set it
+        if (diff > 0) {
+            setNow(unixTimeStamp);
+            return currentNowIdx;
+        }
+        // if we are outside the time, just ignore it
+        else if (Math.abs(diff) >= config.getTimeSeriesSize()) {
+            // do nothing
+            return -1;
+        }
+        // the absolute index has to be made relative (idx(..))
+        else {
+            return idx(currentNowIdx - diff);
+        }
     }
 
     protected void validateIdx(final int idx) throws IllegalTimePointIndex {
@@ -232,7 +321,82 @@ public class BucketTimeSeries<T> {
                 TimeUnit.SECONDS.convert(end, timeUnit));
     }
 
+    @SuppressWarnings("unchecked")
+    protected T zero() {
+        final Class<?> contentType = config.getBucketContent();
+
+        if (Number.class.isAssignableFrom(contentType)) {
+
+            if (Byte.class.equals(contentType)) {
+                return (T) Byte.valueOf((byte) 0);
+            } else if (Short.class.equals(contentType)) {
+                return (T) Short.valueOf((short) 0);
+            } else if (Integer.class.equals(contentType)) {
+                return (T) Integer.valueOf(0);
+            } else if (Long.class.equals(contentType)) {
+                return (T) Long.valueOf(0L);
+            } else if (Double.class.equals(contentType)) {
+                return (T) Double.valueOf(0.0);
+            } else if (Float.class.equals(contentType)) {
+                return (T) Float.valueOf(0.0f);
+            } else if (BigDecimal.class.equals(contentType)) {
+                return (T) BigDecimal.valueOf(0);
+            } else if (BigInteger.class.equals(contentType)) {
+                return (T) BigInteger.valueOf(0);
+            } else if (AtomicInteger.class.equals(contentType)) {
+                return (T) new AtomicInteger(0);
+            } else if (AtomicLong.class.equals(contentType)) {
+                return (T) new AtomicLong(0);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
     public BucketTimeSeriesConfig getConfig() {
         return config;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            final int currentIdx = getNowIdx();
+            final int size = BucketTimeSeries.this.config.getTimeSeriesSize();
+            int offset = 0;
+
+            @Override
+            public boolean hasNext() {
+                return offset < size;
+            }
+
+            @Override
+            public T next() {
+                final int idx = BucketTimeSeries.this.idx(currentIdx + offset);
+                offset++;
+
+                return BucketTimeSeries.this.timeSeries[idx];
+            }
+        };
+    }
+
+    public long getNow() {
+        if (now == null) {
+            return -1L;
+        } else {
+            return now.getUnixTimeStampEnd() - 1;
+        }
+    }
+
+    public void setTimeSeries(final T[] timeSeries, final long now) {
+        this.now = normalizeUnixTimeStamp(now);
+        this.currentNowIdx = 0;
+        this.timeSeries = timeSeries;
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(order());
     }
 }

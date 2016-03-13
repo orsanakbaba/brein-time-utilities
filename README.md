@@ -69,8 +69,9 @@ the data structure is updated using:
                        ↑
                  currentNowIdx
 
- So the calculation is done in three steps:
+ So the calculation is done in two steps:
  1.) get the bucket of the new now
- 2.) determine the difference between the buckets, if it's negative we are done
- 3.) erase the fields in between and reset to zero or null
+ 2.) determine the difference between the buckets, if it's negative => error,
+     if it is zero => done, otherwise => erase the fields in between and reset
+     to zero or null
 ```

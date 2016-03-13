@@ -3,6 +3,7 @@ package com.brein.time.timeseries;
 import com.brein.time.exceptions.IllegalBucketEndPoints;
 import com.brein.time.utils.TimeUtils;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -13,7 +14,9 @@ import java.util.Objects;
  *
  * @author Philipp Meisen
  */
-public class BucketEndPoints implements Comparable<BucketEndPoints> {
+public class BucketEndPoints implements Serializable, Comparable<BucketEndPoints> {
+    private static final long serialVersionUID = 1L;
+
     private final long start;
     private final long end;
 

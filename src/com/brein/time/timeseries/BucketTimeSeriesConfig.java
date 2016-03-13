@@ -2,11 +2,13 @@ package com.brein.time.timeseries;
 
 import org.apache.log4j.Logger;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.io.Serializable;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class BucketTimeSeriesConfig<T> {
+public class BucketTimeSeriesConfig<T> implements Serializable{
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOG = Logger.getLogger(BucketTimeSeriesConfig.class);
     private static final Set<TimeUnit> SUPPORTED_TIME_UNITS = new HashSet<>();
 

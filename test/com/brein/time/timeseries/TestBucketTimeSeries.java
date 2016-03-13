@@ -5,8 +5,9 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 
 /**
  * Unit tests for the {@code BucketTimeSeries} implementation.
@@ -16,16 +17,27 @@ import java.util.concurrent.TimeUnit;
 public class TestBucketTimeSeries {
     private static final Logger LOG = Logger.getLogger(TestBucketTimeSeries.class);
 
-    private final BucketTimeSeries<Set<Integer>> minute_10_1_ts =
-            new BucketTimeSeries<>(new BucketTimeSeriesConfig<>(Set.class, TimeUnit.MINUTES, 10, 1));
-    private final BucketTimeSeries<Set<Integer>> minute_10_5_ts =
-            new BucketTimeSeries<>(new BucketTimeSeriesConfig<>(Set.class, TimeUnit.MINUTES, 10, 5));
-    private final BucketTimeSeries<Set<Integer>> minute_10_15_ts =
-            new BucketTimeSeries<>(new BucketTimeSeriesConfig<>(Set.class, TimeUnit.MINUTES, 10, 15));
-    private final BucketTimeSeries<Set<Integer>> seconds_10_5_ts =
-            new BucketTimeSeries<>(new BucketTimeSeriesConfig<>(Set.class, TimeUnit.SECONDS, 10, 5));
-    private final BucketTimeSeries<Set<Integer>> seconds_10_1_ts =
-            new BucketTimeSeries<>(new BucketTimeSeriesConfig<>(Set.class, TimeUnit.SECONDS, 10, 1));
+    private final BucketTimeSeries<Integer> minute_10_1_ts =
+            new BucketTimeSeries<>(new BucketTimeSeriesConfig<>(Integer.class, TimeUnit.MINUTES, 10, 1));
+    private final BucketTimeSeries<Integer> minute_10_5_ts =
+            new BucketTimeSeries<>(new BucketTimeSeriesConfig<>(Integer.class, TimeUnit.MINUTES, 10, 5));
+    private final BucketTimeSeries<Integer> minute_10_15_ts =
+            new BucketTimeSeries<>(new BucketTimeSeriesConfig<>(Integer.class, TimeUnit.MINUTES, 10, 15));
+    private final BucketTimeSeries<Integer> seconds_10_5_ts =
+            new BucketTimeSeries<>(new BucketTimeSeriesConfig<>(Integer.class, TimeUnit.SECONDS, 10, 5));
+    private final BucketTimeSeries<Integer> seconds_10_1_ts =
+            new BucketTimeSeries<>(new BucketTimeSeriesConfig<>(Integer.class, TimeUnit.SECONDS, 10, 1));
+
+    private final BiConsumer<Integer[], Integer[]> zeroValidator = (z, ts) -> {
+        final Set<Integer> zeros = new HashSet<>(Arrays.asList(z));
+        for (int i = 0; i < 10; i++) {
+            if (zeros.contains(i)) {
+                Assert.assertTrue(" 0 expected at: " + i, ts[i] == 0);
+            } else {
+                Assert.assertTrue("!0 expected at: " + i, ts[i] != 0);
+            }
+        }
+    };
 
     @Test
     public void testNormalizeUnixTimeStamp() {
@@ -78,18 +90,75 @@ public class TestBucketTimeSeries {
          * 1456980064 -> 03/03/2016 @ 4:41am (UTC)
          */
         long unixTimeStamp = 1456980064;
+        minute_10_1_ts.timeSeries = new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
         // set the now the first time
         minute_10_1_ts.setNow(unixTimeStamp);
         Assert.assertEquals(0, minute_10_1_ts.getNowIdx());
+        zeroValidator.accept(new Integer[]{}, minute_10_1_ts.timeSeries);
 
         // move one minute forward, which is 1 buckets
         minute_10_1_ts.setNow(unixTimeStamp + 60);
         Assert.assertEquals(9, minute_10_1_ts.getNowIdx());
+        zeroValidator.accept(new Integer[]{9}, minute_10_1_ts.timeSeries);
+
+        minute_10_1_ts.setNow(unixTimeStamp + 120);
+        Assert.assertEquals(8, minute_10_1_ts.getNowIdx());
+        zeroValidator.accept(new Integer[]{8, 9}, minute_10_1_ts.timeSeries);
+
+        minute_10_1_ts.setNow(unixTimeStamp + 660);
+        Assert.assertEquals(9, minute_10_1_ts.getNowIdx());
+        zeroValidator.accept(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, minute_10_1_ts.timeSeries);
     }
 
     @Test
-    public void testAdding() {
+    public void testOrder() {
 
+        /*
+         * 1456980064 -> 03/03/2016 @ 4:41am (UTC)
+         */
+        long unixTimeStamp = 1456980064;
+
+        for (int i = 0; i < 10; i++) {
+            minute_10_1_ts.set(unixTimeStamp - i * 60, i);
+        }
+
+        final List<Integer> expected = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            minute_10_1_ts.setNow(unixTimeStamp + i * 60);
+            expected.add(i);
+
+            zeroValidator.accept(expected.toArray(new Integer[expected.size()]),
+                    minute_10_1_ts.order());
+        }
+    }
+
+    @Test
+    public void testTypes() {
+        long[] res;
+
+        final BucketTimeSeries<Integer> subject1 = new BucketTimeSeries<>(
+                new BucketTimeSeriesConfig<>(Integer.class,
+                        TimeUnit.MINUTES, 5, 2));
+        res = subject1.create(Integer::longValue);
+        Assert.assertArrayEquals(new long[]{0L, 0L, 0L, 0L, 0L}, res);
+
+        subject1.set(1L, 100);
+        res = subject1.create(Integer::longValue);
+        Assert.assertArrayEquals(new long[]{100L, 0L, 0L, 0L, 0L}, res);
+
+        final BucketTimeSeries<Double> subject2 = new BucketTimeSeries<>(
+                new BucketTimeSeriesConfig<>(Double.class,
+                TimeUnit.MINUTES, 5, 10));
+        res = subject2.create(Double::longValue);
+        Assert.assertArrayEquals(new long[]{0L, 0L, 0L, 0L, 0L}, res);
+
+        subject2.set(1L, 250.61);
+        res = subject2.create(Double::longValue);
+        Assert.assertArrayEquals(new long[]{250L, 0L, 0L, 0L, 0L}, res);
+
+        subject2.set(1L + 60 * 10L, 350.61);
+        res = subject2.create(Double::longValue);
+        Assert.assertArrayEquals(new long[]{350L, 250L, 0L, 0L, 0L}, res);
     }
 }
