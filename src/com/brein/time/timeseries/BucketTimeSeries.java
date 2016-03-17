@@ -1,18 +1,16 @@
 package com.brein.time.timeseries;
 
-import com.brein.time.exceptions.IllegalTimePoint;
-import com.brein.time.exceptions.IllegalTimePointIndex;
-import com.brein.time.exceptions.IllegalTimePointMovement;
+import com.brein.time.exceptions.*;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -42,7 +40,7 @@ import java.util.function.Function;
 public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Serializable {
     private static final long serialVersionUID = 1L;
 
-    protected final BucketTimeSeriesConfig config;
+    protected final BucketTimeSeriesConfig<T> config;
 
     protected T[] timeSeries = null;
     protected BucketEndPoints now = null;
@@ -61,12 +59,16 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
      * @param timeSeries the initiale time series
      * @param now        the current now timestamp
      */
-    public BucketTimeSeries(final BucketTimeSeriesConfig<T> config, final T[] timeSeries, final long now) {
+    public BucketTimeSeries(final BucketTimeSeriesConfig<T> config, final T[] timeSeries, final long now) throws IllegalValueRegardingConfiguration {
         this.config = config;
         this.timeSeries = timeSeries;
 
         this.now = normalizeUnixTimeStamp(now);
         this.currentNowIdx = 0;
+
+        if (this.timeSeries != null && this.timeSeries.length != config.getTimeSeriesSize()) {
+            throw new IllegalValueRegardingConfiguration("The defined size of the time-series does not satisfy the configured time-series size.");
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -237,6 +239,19 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         set(idx, value);
     }
 
+    public void modify(final long unixTimeStamp, final Function<T, T> mod) {
+        final int idx = handleDataUnixTimeStamp(unixTimeStamp);
+        if (idx == -1) {
+            return;
+        }
+
+        modify(idx, mod);
+    }
+
+    public void modify(final int idx, final Function<T, T> mod) {
+        set(idx, mod.apply(get(idx)));
+    }
+
     public void set(final int idx, final T value) throws IllegalTimePointIndex {
         validateIdx(idx);
 
@@ -355,7 +370,7 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         }
     }
 
-    public BucketTimeSeriesConfig getConfig() {
+    public BucketTimeSeriesConfig<T> getConfig() {
         return config;
     }
 
@@ -395,8 +410,104 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         this.timeSeries = timeSeries;
     }
 
+    public void combine(final BucketTimeSeries<T> timeSeries) throws IllegalConfiguration {
+        combine(timeSeries, this::addition);
+    }
+
+    public void combine(final BucketTimeSeries<T> timeSeries, final BiFunction<T, T, T> cmb) throws IllegalConfiguration {
+        if (!Objects.equals(timeSeries.config, config)) {
+            throw new IllegalConfiguration("The time-series to combine must have the same configuration.");
+        }
+
+        final int cmp = Long.compare(getNow(), timeSeries.getNow());
+        final BucketTimeSeries<T> ts;
+
+        if (cmp != 0 && getNow() == -1) {
+            ts = timeSeries;
+            setNow(timeSeries.getNow());
+        } else if (cmp != 0 && timeSeries.getNow() == -1) {
+            ts = timeSeries;
+        } else {
+            if (cmp == 0) {
+                ts = timeSeries;
+            } else if (cmp > 0) {
+
+                // the passed time-series is in the past
+                ts = new BucketTimeSeries<>(timeSeries.getConfig(), timeSeries.timeSeries, timeSeries.getNow());
+                ts.setNow(this.getNow());
+            } else {
+
+                // the passed time-series is in the future
+                this.setNow(timeSeries.getNow());
+                ts = timeSeries;
+            }
+        }
+
+        for (int i = 0; i < config.getTimeSeriesSize(); i++) {
+            final int idx = idx(currentNowIdx + i);
+            set(idx, cmb.apply(get(idx), ts.get(ts.idx(ts.currentNowIdx + i))));
+        }
+    }
+
     @Override
     public String toString() {
         return Arrays.toString(order());
+    }
+
+    @SuppressWarnings("unchecked")
+    public T addition(final T a, final T b) {
+        if (a == null && b == null) {
+            return null;
+        } else if (a == null) {
+            return addition(zero(), b);
+        } else if (b == null) {
+            return addition(a, zero());
+        }
+
+        final Class<T> contentType = (Class<T>) a.getClass();
+        if (Number.class.isAssignableFrom(contentType)) {
+
+            if (Byte.class.equals(contentType)) {
+                return (T) Byte.valueOf(Integer.valueOf(Byte.class.cast(a) + Byte.class.cast(b)).byteValue());
+            } else if (Short.class.equals(contentType)) {
+                return (T) Short.valueOf(Integer.valueOf(Short.class.cast(a) + Short.class.cast(b)).shortValue());
+            } else if (Integer.class.equals(contentType)) {
+                return (T) Integer.valueOf(Integer.class.cast(a) + Integer.class.cast(b));
+            } else if (Long.class.equals(contentType)) {
+                return (T) Long.valueOf(Long.class.cast(a) + Long.class.cast(b));
+            } else if (Double.class.equals(contentType)) {
+                return (T) Double.valueOf(Double.class.cast(a) + Double.class.cast(b));
+            } else if (Float.class.equals(contentType)) {
+                return (T) Float.valueOf(Float.class.cast(a) + Float.class.cast(b));
+            } else if (BigDecimal.class.equals(contentType)) {
+                return (T) BigDecimal.class.cast(a).add(BigDecimal.class.cast(b));
+            } else if (BigInteger.class.equals(contentType)) {
+                return (T) BigInteger.class.cast(a).add(BigInteger.class.cast(b));
+            } else if (AtomicInteger.class.equals(contentType)) {
+                final int intA = AtomicInteger.class.cast(a).intValue();
+                final int intB = AtomicInteger.class.cast(b).intValue();
+                return (T) new AtomicInteger(intA + intB);
+            } else if (AtomicLong.class.equals(contentType)) {
+                final long longA = AtomicLong.class.cast(a).longValue();
+                final long longB = AtomicLong.class.cast(b).longValue();
+                return (T) new AtomicLong(longA + longB);
+            } else {
+                return null;
+            }
+        } else if (String.class.isAssignableFrom(contentType)) {
+            return (T) (String.class.cast(a) + String.class.cast(b));
+        } else if (List.class.isAssignableFrom(contentType)) {
+            final List<T> list = new ArrayList<>();
+            list.addAll(List.class.cast(a));
+            list.addAll(List.class.cast(b));
+            return (T) list;
+        } else if (Set.class.isAssignableFrom(contentType)) {
+            final Set<T> set = new HashSet<>();
+            set.addAll(Set.class.cast(a));
+            set.addAll(Set.class.cast(b));
+            return (T) set;
+        } else {
+            return null;
+        }
     }
 }

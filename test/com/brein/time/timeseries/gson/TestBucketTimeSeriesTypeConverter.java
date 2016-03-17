@@ -37,23 +37,4 @@ public class TestBucketTimeSeriesTypeConverter {
         final BucketTimeSeries<Integer> res = gson.fromJson(gson.toJson(ts), BucketTimeSeries.class);
         Assert.assertArrayEquals(ts.order(), res.order());
     }
-
-    @Test
-    public void testContainerBucketTimeSeries() {
-        BucketTimeSeries res;
-
-        final Random rnd = new Random();
-        final ContainerBucketTimeSeries<HashSet<Integer>, Integer> ts =
-                new ContainerBucketTimeSeries<>(HashSet::new, new BucketTimeSeriesConfig<>(HashSet.class, TimeUnit.SECONDS, 10, 1));
-
-        res = gson.fromJson(gson.toJson(ts), ContainerBucketTimeSeries.class);
-        Assert.assertArrayEquals(ts.order(), res.order());
-
-        for (int i = 0; i < 2; i++) {
-            ts.add(System.currentTimeMillis() / 1000L - rnd.nextInt(10), rnd.nextInt(1000));
-        }
-
-        res = gson.fromJson(gson.toJson(ts), ContainerBucketTimeSeries.class);
-        Assert.assertArrayEquals(ts.order(), res.order());
-    }
 }

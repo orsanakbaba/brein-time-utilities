@@ -28,6 +28,10 @@ public class ContainerBucketTimeSeries<E extends Serializable & Collection<T>, T
     }
 
     public void add(final int idx, final T value) {
+        if (idx == -1) {
+            return;
+        }
+
         validateIdx(idx);
         getOrCreate(idx).add(value);
     }

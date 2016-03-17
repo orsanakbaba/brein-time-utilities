@@ -3,10 +3,12 @@ package com.brein.time.timeseries;
 import org.apache.log4j.Logger;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public class BucketTimeSeriesConfig<T> implements Serializable{
+public class BucketTimeSeriesConfig<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = Logger.getLogger(BucketTimeSeriesConfig.class);
@@ -71,5 +73,31 @@ public class BucketTimeSeriesConfig<T> implements Serializable{
                 getTimeSeriesSize(),
                 getBucketSize(),
                 getBucketContent().getSimpleName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.timeUnit, this.timeSeriesSize,
+                this.bucketSize, this.bucketContent, this.fillNumberWithZero);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+
+        if (obj == this) {
+            return true;
+        } else if (obj == null) {
+            return false;
+        } else if (BucketTimeSeriesConfig.class.equals(obj.getClass())) {
+            final BucketTimeSeriesConfig btsc = (BucketTimeSeriesConfig) obj;
+            
+            return Objects.equals(this.timeUnit, btsc.timeUnit) &&
+                    Objects.equals(this.timeSeriesSize, btsc.timeSeriesSize) &&
+                    Objects.equals(this.bucketSize, btsc.bucketSize) &&
+                    Objects.equals(this.bucketContent, btsc.bucketContent) &&
+                    Objects.equals(this.fillNumberWithZero, btsc.fillNumberWithZero);
+        } else {
+            return false;
+        }
     }
 }
