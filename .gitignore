@@ -1,0 +1,26 @@
+# Libraries          #
+######################
+lib/**/*
+webApplication/WEB-INF/lib/**/*
+bower_components/**/*
+node_modules/**/*
+testLib/**/*
+
+# Targets            #
+######################
+target/**/*
+webApplication/WEB-INF/classes/**/*
+testTarget/**/*
+
+# Temporary          #
+######################
+tmp/**/*
+
+# Configurations     #
+######################
+src/config/dev-*.properties
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
