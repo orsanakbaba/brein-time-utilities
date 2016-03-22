@@ -28,8 +28,6 @@ public class ContainerBucketTimeSeriesTypeConverter implements JsonSerializer<Co
 
     @Override
     public ContainerBucketTimeSeries deserialize(final JsonElement jsonElement, final Type type, final JsonDeserializationContext context) throws JsonParseException {
-        System.out.println(jsonElement.toString());
-
         final JsonObject jsonObject = jsonElement.getAsJsonObject();
 
         final Class<? extends Collection> supplierClass = TypeConverterHelper.resolveClass("supplier", jsonObject, context);

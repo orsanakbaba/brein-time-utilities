@@ -67,7 +67,7 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         this.currentNowIdx = 0;
 
         if (this.timeSeries != null && this.timeSeries.length != config.getTimeSeriesSize()) {
-            throw new IllegalValueRegardingConfiguration("The defined size of the time-series does not satisfy the configured time-series size.");
+            throw new IllegalValueRegardingConfiguration("The defined size of the time-series does not satisfy the configured time-series size (" + this.timeSeries.length + " vs. " + config.getTimeSeriesSize() + ").");
         }
     }
 

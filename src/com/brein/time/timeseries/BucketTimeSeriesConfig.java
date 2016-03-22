@@ -90,7 +90,7 @@ public class BucketTimeSeriesConfig<T> implements Serializable {
             return false;
         } else if (BucketTimeSeriesConfig.class.equals(obj.getClass())) {
             final BucketTimeSeriesConfig btsc = (BucketTimeSeriesConfig) obj;
-            
+
             return Objects.equals(this.timeUnit, btsc.timeUnit) &&
                     Objects.equals(this.timeSeriesSize, btsc.timeSeriesSize) &&
                     Objects.equals(this.bucketSize, btsc.bucketSize) &&

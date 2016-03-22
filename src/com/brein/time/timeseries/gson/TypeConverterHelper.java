@@ -43,7 +43,7 @@ public class TypeConverterHelper {
         final boolean fillNumberWithZero = context.deserialize(jsonObject.get("fillNumberWithZero"), boolean.class);
 
         // the values
-        final long now = context.deserialize(jsonObject.get("now"), long.class);
+        final Long now = context.deserialize(jsonObject.get("now"), Long.class);
         final Serializable[] timeSeries = timeSeriesDeserializer.apply(bucketContent, jsonObject.get("timeSeries"));
 
         @SuppressWarnings("unchecked")
