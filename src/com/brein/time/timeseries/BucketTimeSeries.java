@@ -40,6 +40,7 @@ import java.util.function.Function;
 public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Serializable {
     private static final long serialVersionUID = 1L;
 
+
     protected final BucketTimeSeriesConfig<T> config;
 
     protected T[] timeSeries = null;
@@ -415,12 +416,22 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
     }
 
     public void combine(final BucketTimeSeries<T> timeSeries, final BiFunction<T, T, T> cmb) throws IllegalConfiguration {
+        final BucketTimeSeries<T> syncedTs = sync(timeSeries, (ts) -> new BucketTimeSeries<>(ts.getConfig(), ts.timeSeries, ts.getNow()));
+
+        for (int i = 0; i < config.getTimeSeriesSize(); i++) {
+            final int idx = idx(currentNowIdx + i);
+            set(idx, cmb.apply(get(idx), syncedTs.get(syncedTs.idx(syncedTs.currentNowIdx + i))));
+        }
+    }
+
+    protected <B extends BucketTimeSeries<T>> B sync(final B timeSeries, final Function<B, B> copy) throws IllegalConfiguration {
+
         if (!Objects.equals(timeSeries.config, config)) {
             throw new IllegalConfiguration("The time-series to combine must have the same configuration.");
         }
 
         final int cmp = Long.compare(getNow(), timeSeries.getNow());
-        final BucketTimeSeries<T> ts;
+        final B ts;
 
         if (cmp != 0 && getNow() == -1) {
             ts = timeSeries;
@@ -433,7 +444,7 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
             } else if (cmp > 0) {
 
                 // the passed time-series is in the past
-                ts = new BucketTimeSeries<>(timeSeries.getConfig(), timeSeries.timeSeries, timeSeries.getNow());
+                ts = copy.apply(timeSeries);
                 ts.setNow(this.getNow());
             } else {
 
@@ -443,10 +454,7 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
             }
         }
 
-        for (int i = 0; i < config.getTimeSeriesSize(); i++) {
-            final int idx = idx(currentNowIdx + i);
-            set(idx, cmb.apply(get(idx), ts.get(ts.idx(ts.currentNowIdx + i))));
-        }
+        return ts;
     }
 
     @Override

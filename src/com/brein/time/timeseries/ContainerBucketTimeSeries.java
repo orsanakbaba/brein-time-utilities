@@ -1,7 +1,11 @@
 package com.brein.time.timeseries;
 
+import com.brein.time.exceptions.IllegalConfiguration;
+
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
 
@@ -22,6 +26,46 @@ public class ContainerBucketTimeSeries<E extends Serializable & Collection<T>, T
         this.supplier = supplier;
     }
 
+    public void combineByContent(final ContainerBucketTimeSeries<E, T> timeSeries, final BiConsumer<E, E> combine) throws IllegalConfiguration {
+        combineByContent(timeSeries, (coll1, coll2) -> {
+
+            final E in1, in2;
+            if (coll1 == null && coll2 == null) {
+                in1 = getSupplier().get();
+                in2 = getSupplier().get();
+            } else if (coll1 == null) {
+                in1 = getSupplier().get();
+                in2 = coll2;
+            } else if (coll2 == null) {
+                in1 = coll1;
+                in2 = getSupplier().get();
+            } else {
+                in1 = coll1;
+                in2 = coll2;
+            }
+
+            combine.accept(in1, in2);
+            return in1;
+        });
+    }
+
+    public void combineByContent(final ContainerBucketTimeSeries<E, T> timeSeries, final BiFunction<E, E, E> combine) throws IllegalConfiguration {
+        final ContainerBucketTimeSeries<E, T> syncedTs = sync(timeSeries, (ts) -> new ContainerBucketTimeSeries<>(ts.getSupplier(), ts.getConfig(), ts.timeSeries, ts.getNow()));
+
+        for (int i = 0; i < config.getTimeSeriesSize(); i++) {
+            final int idx = idx(currentNowIdx + i);
+
+            final E coll = get(idx);
+            final E syncedColl = syncedTs.get(syncedTs.idx(syncedTs.currentNowIdx + i));
+            final E result = combine.apply(coll, syncedColl);
+
+            // let's see if the collection changed, if so we set it
+            if (coll != result) {
+                set(idx, result);
+            }
+        }
+    }
+
     public void add(final long unixTimeStamp, final T value) {
         final int idx = handleDataUnixTimeStamp(unixTimeStamp);
         add(idx, value);
@@ -39,6 +83,10 @@ public class ContainerBucketTimeSeries<E extends Serializable & Collection<T>, T
     public int size(final int idx) {
         final Collection<T> coll = get(idx);
         return coll == null ? 0 : coll.size();
+    }
+
+    public Supplier<E> getSupplier() {
+        return supplier;
     }
 
     @SuppressWarnings("unchecked")
