@@ -26,6 +26,23 @@ public class ContainerBucketTimeSeries<E extends Serializable & Collection<T>, T
         this.supplier = supplier;
     }
 
+    public long[] createByContent(final ContainerBucketTimeSeries<E, T> timeSeries, final BiFunction<E, E, Long> create) {
+        final ContainerBucketTimeSeries<E, T> syncedTs = sync(timeSeries, (ts) -> new ContainerBucketTimeSeries<>(ts.getSupplier(), ts.getConfig(), ts.timeSeries, ts.getNow()));
+
+        final long[] result = new long[config.getTimeSeriesSize()];
+        for (int i = 0; i < config.getTimeSeriesSize(); i++) {
+            final int idx = idx(currentNowIdx + i);
+
+            final E coll = get(idx);
+            final E syncedColl = syncedTs.get(syncedTs.idx(syncedTs.currentNowIdx + i));
+
+            final Long val = create.apply(coll, syncedColl);
+            result[i] = val == null ? -1L : val;
+        }
+
+        return result;
+    }
+
     public void combineByContent(final ContainerBucketTimeSeries<E, T> timeSeries, final BiConsumer<E, E> combine) throws IllegalConfiguration {
         combineByContent(timeSeries, (coll1, coll2) -> {
 
