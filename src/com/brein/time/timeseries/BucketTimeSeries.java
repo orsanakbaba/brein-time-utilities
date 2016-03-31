@@ -152,7 +152,7 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
             final long diff = this.now.diff(newNow);
 
             if (diff < 0) {
-                throw new IllegalTimePointMovement("Cannot move to the past");
+                throw new IllegalTimePointMovement(String.format("Cannot move to the past (current: %s, update: %s)", this.now, newNow));
             } else if (diff > 0) {
                 final int newCurrentNowIdx = idx(currentNowIdx - diff);
 
