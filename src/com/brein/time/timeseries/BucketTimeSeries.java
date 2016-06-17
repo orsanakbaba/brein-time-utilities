@@ -40,7 +40,6 @@ import java.util.function.Function;
 public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Serializable {
     private static final long serialVersionUID = 1L;
 
-
     protected final BucketTimeSeriesConfig<T> config;
 
     protected T[] timeSeries = null;
