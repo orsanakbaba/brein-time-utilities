@@ -36,6 +36,4 @@
         <delete dir="testLib" failonerror="false"/>
         <mavenCopyTestDependencies dir="testLib"/>
     </target>
-
-    <target name="distribute" depends="build"/>
 </project>
