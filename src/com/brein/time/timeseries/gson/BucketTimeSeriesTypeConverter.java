@@ -6,6 +6,7 @@ import com.google.gson.*;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.stream.Stream;
 
 public class BucketTimeSeriesTypeConverter implements JsonSerializer<BucketTimeSeries>, JsonDeserializer<BucketTimeSeries> {
 
@@ -18,13 +19,19 @@ public class BucketTimeSeriesTypeConverter implements JsonSerializer<BucketTimeS
         return TypeConverterHelper.serialize(bucketTimeSeries, context);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public BucketTimeSeries deserialize(final JsonElement jsonElement, final Type type, final JsonDeserializationContext context) throws JsonParseException {
         final Object[] values = TypeConverterHelper.deserialize(jsonElement, context);
 
-        @SuppressWarnings("unchecked")
-        final BucketTimeSeries res = new BucketTimeSeries((BucketTimeSeriesConfig) values[0], (Serializable[]) values[1], (long) values[2]);
-
-        return res;
+        if (values == null || values.length != 3 ||
+                Stream.of(values)
+                        .filter(v -> v != null)
+                        .findAny()
+                        .orElse(null) == null) {
+            return null;
+        } else {
+            return new BucketTimeSeries((BucketTimeSeriesConfig) values[0], (Serializable[]) values[1], (long) values[2]);
+        }
     }
 }

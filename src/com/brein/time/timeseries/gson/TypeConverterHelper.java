@@ -3,6 +3,7 @@ package com.brein.time.timeseries.gson;
 import com.brein.time.timeseries.BucketTimeSeries;
 import com.brein.time.timeseries.BucketTimeSeriesConfig;
 import com.google.gson.*;
+import org.apache.log4j.Logger;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -10,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
 public class TypeConverterHelper {
+    private static final Logger LOG = Logger.getLogger(TypeConverterHelper.class);
 
     public static JsonObject serialize(final BucketTimeSeries<?> o, final JsonSerializationContext context) {
         final JsonObject jsonObject = new JsonObject();
@@ -34,8 +36,17 @@ public class TypeConverterHelper {
     public static Object[] deserialize(final JsonElement jsonElement, final JsonDeserializationContext context, final BiFunction<Class<?>, JsonElement, Serializable[]> timeSeriesDeserializer) {
         final JsonObject jsonObject = jsonElement.getAsJsonObject();
 
+        if (LOG.isTraceEnabled()) {
+            LOG.trace(String.format("Trying to deserialize the element '%s'.", jsonElement.toString()));
+        }
+
         // get the important classes
         final Class<?> bucketContent = resolveClass("bucketContent", jsonObject, context);
+
+        // it may happen that we have an invalid version or type
+        if (bucketContent == null) {
+            return null;
+        }
 
         // configuration
         final TimeUnit timeUnit = context.deserialize(jsonObject.get("timeUnit"), TimeUnit.class);
@@ -53,10 +64,15 @@ public class TypeConverterHelper {
 
     @SuppressWarnings("unchecked")
     public static <T> Class<T> resolveClass(final String key, final JsonObject jsonObject, final JsonDeserializationContext context) {
-        try {
-            return (Class<T>) Class.forName(context.deserialize(jsonObject.get(key), String.class));
-        } catch (final ClassNotFoundException e) {
-            throw new JsonParseException("Cannot resolve class.", e);
+        final String clazz = context.deserialize(jsonObject.get(key), String.class);
+        if (clazz == null) {
+            return null;
+        } else {
+            try {
+                return (Class<T>) Class.forName(clazz);
+            } catch (final ClassNotFoundException e) {
+                throw new JsonParseException("Cannot resolve class.", e);
+            }
         }
     }
 
