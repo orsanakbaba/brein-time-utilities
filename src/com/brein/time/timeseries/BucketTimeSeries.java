@@ -1,9 +1,11 @@
 package com.brein.time.timeseries;
 
 import com.brein.time.exceptions.*;
+import org.apache.log4j.Logger;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.lang.Number;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -102,6 +104,10 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         } else {
             Arrays.fill(this.timeSeries, fromIndex, endIndex, null);
         }
+    }
+
+    public T[] getTimeSeries() {
+        return timeSeries;
     }
 
     /**
@@ -516,5 +522,11 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         } else {
             return null;
         }
+    }
+
+    public long sumTimeSeries() {
+        long totalSum = 0;
+        for (T i: this.timeSeries) { totalSum += ((Number) i).longValue(); }
+        return totalSum;
     }
 }
