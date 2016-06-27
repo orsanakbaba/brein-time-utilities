@@ -1,7 +1,6 @@
 package com.brein.time.timeseries;
 
 import com.brein.time.exceptions.*;
-import org.apache.log4j.Logger;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;

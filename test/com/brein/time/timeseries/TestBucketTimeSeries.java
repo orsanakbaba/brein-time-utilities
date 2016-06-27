@@ -203,9 +203,9 @@ public class TestBucketTimeSeries {
     @Test
     public void testSum() {
         final BucketTimeSeries<Double> subject = new BucketTimeSeries<>(
-                new BucketTimeSeriesConfig<>(Long.class,
-                        TimeUnit.MINUTES, 5, 10));
+                new BucketTimeSeriesConfig<>(Long.class, TimeUnit.MINUTES, 5, 10));
+        subject.setTimeSeries(new Double[]{1., 0., 2.}, 0);
 
-        Assert.assertEquals(0, subject.sumTimeSeries());
+        Assert.assertEquals(3, subject.sumTimeSeries());
     }
 }
