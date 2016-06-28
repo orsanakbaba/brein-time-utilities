@@ -110,6 +110,7 @@ public class TestBucketTimeSeries {
         minute_10_1_ts.setNow(unixTimeStamp + 660);
         Assert.assertEquals(9, minute_10_1_ts.getNowIdx());
         zeroValidator.accept(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, minute_10_1_ts.timeSeries);
+
     }
 
     @Test
@@ -197,5 +198,14 @@ public class TestBucketTimeSeries {
         seconds_10_1_ts.combine(new BucketTimeSeries<>(seconds_10_1_ts.getConfig(), new Integer[]{6, 6, 6, 6, 6, 6, 6, 6, 6, 6}, 10L));
         Assert.assertEquals(100L, seconds_10_1_ts.getNow());
         Assert.assertArrayEquals(new Integer[]{5, 5, 5, 5, 5, 5, 5, 5, 5, 5}, seconds_10_1_ts.order());
+    }
+
+    @Test
+    public void testSum() {
+        final BucketTimeSeries<Double> subject = new BucketTimeSeries<>(
+                new BucketTimeSeriesConfig<>(Long.class, TimeUnit.MINUTES, 5, 10));
+        subject.setTimeSeries(new Double[]{1., 0., 2.}, 0);
+
+        Assert.assertEquals(3, subject.sumTimeSeries());
     }
 }
