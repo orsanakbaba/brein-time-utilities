@@ -7,10 +7,9 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * The {@code BucketEndPoints} represents the end-points of a bucket, which
- * is used by an {@code BucketTimeSeries}. In mathematics it would be represented
- * as an interval, which includes the start and excludes the end, i.e.,
- * [{@code start}, {@code unixTimeStampEnd}).
+ * The {@code BucketEndPoints} represents the end-points of a bucket, which is used by an {@code BucketTimeSeries}. In
+ * mathematics it would be represented as an interval, which includes the start and excludes the end, i.e., [{@code
+ * start}, {@code unixTimeStampEnd}).
  *
  * @author Philipp Meisen
  */
@@ -25,8 +24,8 @@ public class BucketEndPoints implements Serializable, Comparable<BucketEndPoints
      *
      * @param unixTimeStampStart the start endpoint (inclusive)
      * @param unixTimeStampEnd   the end endpoint (exclusive)
-     * @throws IllegalBucketEndPoints if the endpoints are invalid, i.e.,
-     *                                if the end is smaller or eqaul to the start
+     *
+     * @throws IllegalBucketEndPoints if the endpoints are invalid, i.e., if the end is smaller or eqaul to the start
      */
     public BucketEndPoints(final long unixTimeStampStart, final long unixTimeStampEnd) throws IllegalBucketEndPoints {
         if (unixTimeStampEnd <= unixTimeStampStart) {

@@ -2,7 +2,11 @@ package com.brein.time.timeseries.gson;
 
 import com.brein.time.timeseries.BucketTimeSeries;
 import com.brein.time.timeseries.BucketTimeSeriesConfig;
-import com.google.gson.*;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
 import org.apache.log4j.Logger;
 
 import java.io.Serializable;

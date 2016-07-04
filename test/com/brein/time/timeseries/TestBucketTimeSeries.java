@@ -6,7 +6,11 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
@@ -82,7 +86,6 @@ public class TestBucketTimeSeries {
         Assert.assertEquals(1456980064, res.getUnixTimeStampStart());
         Assert.assertEquals(1456980065, res.getUnixTimeStampEnd());
     }
-
 
     @Test
     public void testMoveNow() {

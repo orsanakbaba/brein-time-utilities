@@ -1,13 +1,22 @@
 package com.brein.time.timeseries;
 
-import com.brein.time.exceptions.*;
+import com.brein.time.exceptions.IllegalConfiguration;
+import com.brein.time.exceptions.IllegalTimePoint;
+import com.brein.time.exceptions.IllegalTimePointIndex;
+import com.brein.time.exceptions.IllegalTimePointMovement;
+import com.brein.time.exceptions.IllegalValueRegardingConfiguration;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.lang.Number;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,8 +24,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
- * This implementation represents a time-series. Each time-point of the series
- * represents several actual time-points on the underlying time-axis (buckets).
+ * This implementation represents a time-series. Each time-point of the series represents several actual time-points on
+ * the underlying time-axis (buckets).
  * <p>
  * <pre>
  * The data structure (which is based on an array) can be explained best with
@@ -36,6 +45,7 @@ import java.util.function.Function;
  * </pre>
  *
  * @param <T> the content held by the time-series
+ *
  * @author Philipp
  */
 public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Serializable {
@@ -107,80 +117,6 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
 
     public T[] getTimeSeries() {
         return timeSeries;
-    }
-
-    /**
-     * Modifies the "now" unix time stamp of the time-series. This modifies,
-     * the time-series, i.e., data might be removed if the data is pushed.
-     *
-     * @param unixTimeStamp the new now to be used
-     * @throws IllegalTimePointMovement if the new unix time stamp it moved
-     *                                  into the past, e.g., if the current
-     *                                  time stamp is newers
-     */
-    public void setNow(final long unixTimeStamp) throws IllegalTimePointMovement {
-
-        /*
-         * "now" strongly depends on the TimeUnit used for the timeSeries, as
-         * well as the bucketSize. If, e.g., the TimeUnit is MINUTES and the
-         * bucketSize is 5, a unix time stamp representing 01/20/1981 08:07:30
-         * must be mapped to 01/20/1981 08:10:00 (the next valid bucket).
-         */
-        if (this.currentNowIdx == -1 || this.now == null) {
-            this.currentNowIdx = 0;
-            this.now = normalizeUnixTimeStamp(unixTimeStamp);
-        } else {
-
-            /*
-             * Getting the new currentNowIdx is done by calculating the
-             * difference between the old now and the new now and moving
-             * the currentNowIdx forward.
-             *
-             *  [0] [1] [2] [3] [4] [5] [6]
-             *       ↑
-             * currentNowIdx
-             *
-             * Assume we move the now time stamp forward by three buckets:
-             *
-             *  [0] [1] [2] [3] [4] [5] [6]
-             *                       ↑
-             *                 currentNowIdx
-             *
-             * So the calculation is done in two steps:
-             * 1.) get the bucket of the new now
-             * 2.) determine the difference between the buckets, if it's negative => error,
-             *     if it is zero => done, otherwise => erase the fields in between and reset
-             *     to zero or null
-             */
-            final BucketEndPoints newNow = normalizeUnixTimeStamp(unixTimeStamp);
-            final long diff = this.now.diff(newNow);
-
-            if (diff < 0) {
-                throw new IllegalTimePointMovement(String.format("Cannot move to the past (current: %s, update: %s)", this.now, newNow));
-            } else if (diff > 0) {
-                final int newCurrentNowIdx = idx(currentNowIdx - diff);
-
-                /*
-                 * Remove the "passed" information. There are several things we have to
-                 * consider:
-                 *  1.) the whole array has to be reset
-                 *  2.) the array has to be reset partly forward
-                 *  3.) the array has to be reset "around the corner"
-                 */
-                if (diff >= config.getTimeSeriesSize()) {
-                    fill(-1, -1);
-                } else if (newCurrentNowIdx > currentNowIdx) {
-                    fill(0, currentNowIdx);
-                    fill(newCurrentNowIdx, -1);
-                } else {
-                    fill(newCurrentNowIdx, currentNowIdx);
-                }
-
-                // set the values calculated
-                this.currentNowIdx = newCurrentNowIdx;
-                this.now = newNow;
-            }
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -409,6 +345,80 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         }
     }
 
+    /**
+     * Modifies the "now" unix time stamp of the time-series. This modifies, the time-series, i.e., data might be
+     * removed if the data is pushed.
+     *
+     * @param unixTimeStamp the new now to be used
+     *
+     * @throws IllegalTimePointMovement if the new unix time stamp it moved into the past, e.g., if the current time
+     *                                  stamp is newers
+     */
+    public void setNow(final long unixTimeStamp) throws IllegalTimePointMovement {
+
+        /*
+         * "now" strongly depends on the TimeUnit used for the timeSeries, as
+         * well as the bucketSize. If, e.g., the TimeUnit is MINUTES and the
+         * bucketSize is 5, a unix time stamp representing 01/20/1981 08:07:30
+         * must be mapped to 01/20/1981 08:10:00 (the next valid bucket).
+         */
+        if (this.currentNowIdx == -1 || this.now == null) {
+            this.currentNowIdx = 0;
+            this.now = normalizeUnixTimeStamp(unixTimeStamp);
+        } else {
+
+            /*
+             * Getting the new currentNowIdx is done by calculating the
+             * difference between the old now and the new now and moving
+             * the currentNowIdx forward.
+             *
+             *  [0] [1] [2] [3] [4] [5] [6]
+             *       ↑
+             * currentNowIdx
+             *
+             * Assume we move the now time stamp forward by three buckets:
+             *
+             *  [0] [1] [2] [3] [4] [5] [6]
+             *                       ↑
+             *                 currentNowIdx
+             *
+             * So the calculation is done in two steps:
+             * 1.) get the bucket of the new now
+             * 2.) determine the difference between the buckets, if it's negative => error,
+             *     if it is zero => done, otherwise => erase the fields in between and reset
+             *     to zero or null
+             */
+            final BucketEndPoints newNow = normalizeUnixTimeStamp(unixTimeStamp);
+            final long diff = this.now.diff(newNow);
+
+            if (diff < 0) {
+                throw new IllegalTimePointMovement(String.format("Cannot move to the past (current: %s, update: %s)", this.now, newNow));
+            } else if (diff > 0) {
+                final int newCurrentNowIdx = idx(currentNowIdx - diff);
+
+                /*
+                 * Remove the "passed" information. There are several things we have to
+                 * consider:
+                 *  1.) the whole array has to be reset
+                 *  2.) the array has to be reset partly forward
+                 *  3.) the array has to be reset "around the corner"
+                 */
+                if (diff >= config.getTimeSeriesSize()) {
+                    fill(-1, -1);
+                } else if (newCurrentNowIdx > currentNowIdx) {
+                    fill(0, currentNowIdx);
+                    fill(newCurrentNowIdx, -1);
+                } else {
+                    fill(newCurrentNowIdx, currentNowIdx);
+                }
+
+                // set the values calculated
+                this.currentNowIdx = newCurrentNowIdx;
+                this.now = newNow;
+            }
+        }
+    }
+
     public void setTimeSeries(final T[] timeSeries, final long now) {
         this.now = normalizeUnixTimeStamp(now);
         this.currentNowIdx = 0;
@@ -525,7 +535,9 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
 
     public long sumTimeSeries() {
         long totalSum = 0;
-        for (T i: this.timeSeries) { totalSum += ((Number) i).longValue(); }
+        for (T i : this.timeSeries) {
+            totalSum += ((Number) i).longValue();
+        }
         return totalSum;
     }
 }
