@@ -25,7 +25,7 @@ public class TypeConverterHelper {
         jsonObject.add("bucketSize", context.serialize(o.getConfig().getBucketSize()));
         jsonObject.add("bucketContent", TypeConverterHelper.serializeClass(o.getConfig().getBucketContent(), context));
         jsonObject.add("fillNumberWithZero", context.serialize(o.getConfig().isFillNumberWithZero()));
-
+        //TODO: Check if contents are containers and store their template classes as well
         // the values
         jsonObject.add("timeSeries", context.serialize(o.order()));
         jsonObject.add("now", context.serialize(o.getNow()));
