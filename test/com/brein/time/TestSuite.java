@@ -5,11 +5,13 @@ import com.brein.time.timeseries.TestBucketTimeSeries;
 import com.brein.time.timeseries.TestContainerBucketTimeSeries;
 import com.brein.time.timeseries.gson.TestBucketTimeSeriesTypeConverter;
 import com.brein.time.timeseries.gson.TestContainerBucketTimeSeriesTypeConverter;
+import com.brein.time.utils.TestTimeUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+        TestTimeUtils.class,
         TestBucketTimeSeries.class,
         TestContainerBucketTimeSeries.class,
         TestBucketEndPoints.class,
