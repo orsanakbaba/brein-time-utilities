@@ -12,7 +12,7 @@ import java.util.stream.StreamSupport;
 public class ContainerBucketTimeSeries<E extends Serializable & Collection<T>, T> extends BucketTimeSeries<E> {
     private static final long serialVersionUID = 1L;
 
-    private final Supplier<E> supplier;
+    private transient final Supplier<E> supplier;
 
     public ContainerBucketTimeSeries(final Supplier<E> supplier, final BucketTimeSeriesConfig<E> config) {
         super(config);
@@ -20,14 +20,19 @@ public class ContainerBucketTimeSeries<E extends Serializable & Collection<T>, T
         this.supplier = supplier;
     }
 
-    public ContainerBucketTimeSeries(final Supplier<E> supplier, final BucketTimeSeriesConfig<E> config, final E[] timeSeries, final long now) {
+    public ContainerBucketTimeSeries(final Supplier<E> supplier,
+                                     final BucketTimeSeriesConfig<E> config,
+                                     final E[] timeSeries,
+                                     final long now) {
         super(config, timeSeries, now);
 
         this.supplier = supplier;
     }
 
-    public long[] createByContent(final ContainerBucketTimeSeries<E, T> timeSeries, final BiFunction<E, E, Long> create) {
-        final ContainerBucketTimeSeries<E, T> syncedTs = sync(timeSeries, (ts) -> new ContainerBucketTimeSeries<>(ts.getSupplier(), ts.getConfig(), ts.timeSeries, ts.getNow()));
+    public long[] createByContent(final ContainerBucketTimeSeries<E, T> timeSeries,
+                                  final BiFunction<E, E, Long> create) {
+        final ContainerBucketTimeSeries<E, T> syncedTs = sync(timeSeries,
+                (ts) -> new ContainerBucketTimeSeries<>(ts.getSupplier(), ts.getConfig(), ts.timeSeries, ts.getNow()));
 
         final long[] result = new long[config.getTimeSeriesSize()];
         for (int i = 0; i < config.getTimeSeriesSize(); i++) {
@@ -43,7 +48,8 @@ public class ContainerBucketTimeSeries<E extends Serializable & Collection<T>, T
         return result;
     }
 
-    public void combineByContent(final ContainerBucketTimeSeries<E, T> timeSeries, final BiConsumer<E, E> combine) throws IllegalConfiguration {
+    public void combineByContent(final ContainerBucketTimeSeries<E, T> timeSeries,
+                                 final BiConsumer<E, E> combine) throws IllegalConfiguration {
         combineByContent(timeSeries, (coll1, coll2) -> {
 
             final E in1, in2;
@@ -66,8 +72,10 @@ public class ContainerBucketTimeSeries<E extends Serializable & Collection<T>, T
         });
     }
 
-    public void combineByContent(final ContainerBucketTimeSeries<E, T> timeSeries, final BiFunction<E, E, E> combine) throws IllegalConfiguration {
-        final ContainerBucketTimeSeries<E, T> syncedTs = sync(timeSeries, (ts) -> new ContainerBucketTimeSeries<>(ts.getSupplier(), ts.getConfig(), ts.timeSeries, ts.getNow()));
+    public void combineByContent(final ContainerBucketTimeSeries<E, T> timeSeries,
+                                 final BiFunction<E, E, E> combine) throws IllegalConfiguration {
+        final ContainerBucketTimeSeries<E, T> syncedTs = sync(timeSeries,
+                (ts) -> new ContainerBucketTimeSeries<>(ts.getSupplier(), ts.getConfig(), ts.timeSeries, ts.getNow()));
 
         for (int i = 0; i < config.getTimeSeriesSize(); i++) {
             final int idx = idx(currentNowIdx + i);
