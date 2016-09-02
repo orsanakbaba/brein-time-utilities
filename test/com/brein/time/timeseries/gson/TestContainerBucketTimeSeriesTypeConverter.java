@@ -55,7 +55,7 @@ public class TestContainerBucketTimeSeriesTypeConverter {
         res = gson.fromJson(gson.toJson(ts), ContainerBucketTimeSeries.class);
         Assert.assertArrayEquals(ts.order(), res.order());
 
-        int rounds = Math.max(1000, rnd.nextInt(10000));
+        final int rounds = Math.max(500, rnd.nextInt(3000));
         for (int i = 0; i < rounds; i++) {
             ts.add(System.currentTimeMillis() / 100000L - (rnd.nextInt(20) * 60), UUID.randomUUID());
 

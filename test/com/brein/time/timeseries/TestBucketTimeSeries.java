@@ -45,15 +45,25 @@ public class TestBucketTimeSeries {
     };
 
     @Test
+    public void testGetBucketSize() {
+        Assert.assertEquals(1, minute_10_1_ts.getBucketSize(60));
+        Assert.assertEquals(1, minute_10_1_ts.getBucketSize(60));
+        Assert.assertEquals(1, minute_10_15_ts.getBucketSize(60));
+        Assert.assertEquals(1, minute_10_15_ts.getBucketSize(15 * 60));
+        Assert.assertEquals(2, minute_10_15_ts.getBucketSize(15 * 60 + 1));
+        Assert.assertEquals(2, minute_10_15_ts.getBucketSize(30 * 60));
+        Assert.assertEquals(3, minute_10_15_ts.getBucketSize(30 * 60 + 1));
+    }
+
+    @Test
     public void testNormalizeUnixTimeStamp() {
 
         BucketEndPoints res;
-        long unixTimeStamp;
+        final long unixTimeStamp = 1456980064;
 
         /*
          * 1456980064 -> 03/03/2016 @ 4:41am (UTC)
          */
-        unixTimeStamp = 1456980064;
         LOG.info(String.format("Testing %d (%s):", unixTimeStamp, TimeUtils.format(unixTimeStamp)));
 
         // [2016-03-03 04:40:00 UTC, 2016-03-03 04:45:00 UTC)
@@ -93,7 +103,7 @@ public class TestBucketTimeSeries {
         /*
          * 1456980064 -> 03/03/2016 @ 4:41am (UTC)
          */
-        long unixTimeStamp = 1456980064;
+        final long unixTimeStamp = 1456980064;
         minute_10_1_ts.timeSeries = new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
         // set the now the first time
@@ -122,7 +132,7 @@ public class TestBucketTimeSeries {
         /*
          * 1456980064 -> 03/03/2016 @ 4:41am (UTC)
          */
-        long unixTimeStamp = 1456980064;
+        final long unixTimeStamp = 1456980064;
 
         for (int i = 0; i < 10; i++) {
             minute_10_1_ts.set(unixTimeStamp - i * 60, i);
@@ -182,23 +192,78 @@ public class TestBucketTimeSeries {
         seconds_10_1_ts.combine(seconds_10_1_ts);
         Assert.assertArrayEquals(new Integer[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, seconds_10_1_ts.order());
 
-        seconds_10_1_ts.combine(new BucketTimeSeries<>(seconds_10_1_ts.getConfig(), new Integer[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 1L));
+        seconds_10_1_ts.combine(new BucketTimeSeries<>(seconds_10_1_ts.getConfig(), new Integer[]{
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+        }, 1L));
         Assert.assertEquals(1L, seconds_10_1_ts.getNow());
         Assert.assertArrayEquals(new Integer[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, seconds_10_1_ts.order());
 
-        seconds_10_1_ts.combine(new BucketTimeSeries<>(seconds_10_1_ts.getConfig(), new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 2L));
+        seconds_10_1_ts.combine(new BucketTimeSeries<>(seconds_10_1_ts.getConfig(), new Integer[]{
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+        }, 2L));
         Assert.assertEquals(2L, seconds_10_1_ts.getNow());
         Assert.assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, seconds_10_1_ts.order());
 
-        seconds_10_1_ts.combine(new BucketTimeSeries<>(seconds_10_1_ts.getConfig(), new Integer[]{-2, -3, -4, -5, -6, -7, -8, -9, -10, -100}, 1L));
+        seconds_10_1_ts.combine(new BucketTimeSeries<>(seconds_10_1_ts.getConfig(), new Integer[]{
+                -2,
+                -3,
+                -4,
+                -5,
+                -6,
+                -7,
+                -8,
+                -9,
+                -10,
+                -100
+        }, 1L));
         Assert.assertEquals(2L, seconds_10_1_ts.getNow());
         Assert.assertArrayEquals(new Integer[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0}, seconds_10_1_ts.order());
 
-        seconds_10_1_ts.combine(new BucketTimeSeries<>(seconds_10_1_ts.getConfig(), new Integer[]{5, 5, 5, 5, 5, 5, 5, 5, 5, 5}, 100L));
+        seconds_10_1_ts.combine(new BucketTimeSeries<>(seconds_10_1_ts.getConfig(), new Integer[]{
+                5,
+                5,
+                5,
+                5,
+                5,
+                5,
+                5,
+                5,
+                5,
+                5
+        }, 100L));
         Assert.assertEquals(100L, seconds_10_1_ts.getNow());
         Assert.assertArrayEquals(new Integer[]{5, 5, 5, 5, 5, 5, 5, 5, 5, 5}, seconds_10_1_ts.order());
 
-        seconds_10_1_ts.combine(new BucketTimeSeries<>(seconds_10_1_ts.getConfig(), new Integer[]{6, 6, 6, 6, 6, 6, 6, 6, 6, 6}, 10L));
+        seconds_10_1_ts.combine(new BucketTimeSeries<>(seconds_10_1_ts.getConfig(), new Integer[]{
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6,
+                6
+        }, 10L));
         Assert.assertEquals(100L, seconds_10_1_ts.getNow());
         Assert.assertArrayEquals(new Integer[]{5, 5, 5, 5, 5, 5, 5, 5, 5, 5}, seconds_10_1_ts.order());
     }
