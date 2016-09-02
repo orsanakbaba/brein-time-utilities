@@ -207,6 +207,20 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         return this.timeSeries[idx];
     }
 
+    /**
+     * Determines the number of buckets used to cover the seconds.
+     *
+     * @param diffInSeconds the difference in seconds
+     *
+     * @return the amount of buckets used to cover this amount
+     */
+    public int getBucketSize(final long diffInSeconds) {
+
+        // convert one unit of this into seconds
+        final long secondsPerBucket = TimeUnit.SECONDS.convert(config.getBucketSize(), config.getTimeUnit());
+        return (int) Math.ceil((double) diffInSeconds / secondsPerBucket);
+    }
+
     protected int handleDataUnixTimeStamp(final long unixTimeStamp) {
 
         // first we have to determine the bucket (idx)
