@@ -70,7 +70,8 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
      * @param timeSeries the initiale time series
      * @param now        the current now timestamp
      */
-    public BucketTimeSeries(final BucketTimeSeriesConfig<T> config, final T[] timeSeries, final long now) throws IllegalValueRegardingConfiguration {
+    public BucketTimeSeries(final BucketTimeSeriesConfig<T> config, final T[] timeSeries, final long now) throws
+            IllegalValueRegardingConfiguration {
         this.config = config;
         this.timeSeries = timeSeries;
 
@@ -78,7 +79,9 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         this.currentNowIdx = 0;
 
         if (this.timeSeries != null && this.timeSeries.length != config.getTimeSeriesSize()) {
-            throw new IllegalValueRegardingConfiguration("The defined size of the time-series does not satisfy the configured time-series size (" + this.timeSeries.length + " vs. " + config.getTimeSeriesSize() + ").");
+            throw new IllegalValueRegardingConfiguration("The defined size of the time-series does not satisfy the " +
+                    "configured time-series size (" + this.timeSeries.length + " vs. " + config
+                    .getTimeSeriesSize() + ").");
         }
     }
 
@@ -235,7 +238,8 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
 
     protected void validateIdx(final int idx) throws IllegalTimePointIndex {
         if (idx < 0 || idx >= config.getTimeSeriesSize()) {
-            throw new IllegalTimePointIndex(String.format("The index %d is out of bound [%d, %d].", idx, 0, config.getTimeSeriesSize() - 1));
+            throw new IllegalTimePointIndex(String.format("The index %d is out of bound [%d, %d].", idx, 0, config
+                    .getTimeSeriesSize() - 1));
         }
     }
 
@@ -392,7 +396,8 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
             final long diff = this.now.diff(newNow);
 
             if (diff < 0) {
-                throw new IllegalTimePointMovement(String.format("Cannot move to the past (current: %s, update: %s)", this.now, newNow));
+                throw new IllegalTimePointMovement(String.format("Cannot move to the past (current: %s, update: %s)",
+                        this.now, newNow));
             } else if (diff > 0) {
                 final int newCurrentNowIdx = idx(currentNowIdx - diff);
 
@@ -429,8 +434,11 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         combine(timeSeries, this::addition);
     }
 
-    public void combine(final BucketTimeSeries<T> timeSeries, final BiFunction<T, T, T> cmb) throws IllegalConfiguration {
-        final BucketTimeSeries<T> syncedTs = sync(timeSeries, (ts) -> new BucketTimeSeries<>(ts.getConfig(), ts.timeSeries, ts.getNow()));
+    public void combine(final BucketTimeSeries<T> timeSeries, final BiFunction<T, T, T> cmb) throws
+            IllegalConfiguration {
+        final BucketTimeSeries<T> syncedTs = sync(timeSeries, (ts) -> new BucketTimeSeries<>(ts.getConfig(), ts
+                .timeSeries, ts
+                .getNow()));
 
         for (int i = 0; i < config.getTimeSeriesSize(); i++) {
             final int idx = idx(currentNowIdx + i);
@@ -438,7 +446,8 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         }
     }
 
-    protected <B extends BucketTimeSeries<T>> B sync(final B timeSeries, final Function<B, B> copy) throws IllegalConfiguration {
+    protected <B extends BucketTimeSeries<T>> B sync(final B timeSeries, final Function<B, B> copy) throws
+            IllegalConfiguration {
 
         if (!Objects.equals(timeSeries.config, config)) {
             throw new IllegalConfiguration("The time-series to combine must have the same configuration.");
@@ -535,7 +544,7 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
 
     public long sumTimeSeries() {
         long totalSum = 0;
-        for (T i : this.timeSeries) {
+        for (final T i : this.timeSeries) {
             totalSum += ((Number) i).longValue();
         }
         return totalSum;
