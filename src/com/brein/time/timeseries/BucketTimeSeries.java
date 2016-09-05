@@ -165,13 +165,23 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         return currentNowIdx;
     }
 
-    public BucketEndPoints getEndPoints(final int idx) throws IllegalTimePoint {
+    /**
+     * Gets the end-points by an offset to now, i.e., 0 means to get the now bucket, -1 gets the previous bucket, and +1
+     * will get the next bucket.
+     *
+     * @param bucketsFromNow the amount of buckets to retrieve using now as anchor
+     *
+     * @return the end-point (bucket) with an offset of {@code bucketsFromNow} from now
+     *
+     * @throws IllegalTimePoint if the current now is not defined
+     */
+    public BucketEndPoints getEndPoints(final int bucketsFromNow) throws IllegalTimePoint {
 
         if (currentNowIdx == -1 || now == null) {
             throw new IllegalTimePoint("The now is not set yet, thus no end-points can be returned");
         }
 
-        return now.move(idx);
+        return now.move(bucketsFromNow);
     }
 
     public void set(final long unixTimeStamp, final T value) {
