@@ -16,4 +16,15 @@ public class TestTimeUtils {
         Assert.assertEquals(unixTimestamp, TimeUtils.firstOfLastMonthTime(augustTime));
         Assert.assertTrue(TimeUtils.isSameMonth(TimeUtils.firstOfLastMonthTime(augustTime), unixTimestamp));
     }
+
+    @Test
+    public void testSecondsToFullMinute() {
+        Assert.assertEquals(46, TimeUtils.secondsToFullMinute(1473887714L));
+
+        int secondCounter = 0;
+        for (long i = 0; i < 10000; i++) {
+            Assert.assertEquals((60 - secondCounter) % 60, TimeUtils.secondsToFullMinute(i));
+            secondCounter = (secondCounter + 1) % 60;
+        }
+    }
 }

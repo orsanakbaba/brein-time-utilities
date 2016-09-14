@@ -19,6 +19,11 @@ public class TimeUtils {
         return Instant.now().getEpochSecond();
     }
 
+    public static int secondsToFullMinute(final long now) {
+        final int value = Long.valueOf(60 - (now % 60)).intValue();
+        return value == 60 ? 0 : value;
+    }
+
     public static Calendar createFirstOfMonthCal(final long unixTimestamp) {
         /*
          * Calendar set method doesn't know that Calendar.get(...) will return one of the months it expects. Thus, we
