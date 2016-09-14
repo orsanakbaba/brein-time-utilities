@@ -20,6 +20,7 @@ public class TestTimeUtils {
     @Test
     public void testSecondsToFullMinute() {
         Assert.assertEquals(46, TimeUtils.secondsToFullMinute(1473887714L));
+        Assert.assertEquals(0, TimeUtils.secondsToFullMinute(1473887700L));
 
         int secondCounter = 0;
         for (long i = 0; i < 10000; i++) {

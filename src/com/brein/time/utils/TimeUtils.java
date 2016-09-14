@@ -19,6 +19,13 @@ public class TimeUtils {
         return Instant.now().getEpochSecond();
     }
 
+    /**
+     * Calculate the rest of seconds to a full minute, i.e. at 10:44:14 the method returns 46.
+     *
+     * @param now the current time
+     *
+     * @return the seconds until the full minute
+     */
     public static int secondsToFullMinute(final long now) {
         final int value = Long.valueOf(60 - (now % 60)).intValue();
         return value == 60 ? 0 : value;
