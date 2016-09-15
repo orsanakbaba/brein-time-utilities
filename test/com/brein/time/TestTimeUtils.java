@@ -22,6 +22,11 @@ public class TestTimeUtils {
         Assert.assertEquals(46, TimeUtils.secondsToFullMinute(1473887714L));
         Assert.assertEquals(0, TimeUtils.secondsToFullMinute(1473887700L));
 
+        Assert.assertEquals(16, TimeUtils.secondsToFullMinute(1473887714L, 30));
+        Assert.assertEquals(30, TimeUtils.secondsToFullMinute(1473887700L, 30));
+        Assert.assertEquals(30, TimeUtils.secondsToFullMinute(1473887700L, 30));
+        Assert.assertEquals(0, TimeUtils.secondsToFullMinute(1473887700L, 60));
+
         int secondCounter = 0;
         for (long i = 0; i < 10000; i++) {
             Assert.assertEquals((60 - secondCounter) % 60, TimeUtils.secondsToFullMinute(i));
