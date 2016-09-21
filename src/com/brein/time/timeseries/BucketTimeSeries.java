@@ -175,12 +175,12 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
      */
     public T getFromZeroBasedIdx(final int idx) {
         if (this.timeSeries != null && this.currentNowIdx != -1) {
-            return null;
-        } else {
 
             // we can use the default validation, because the index still must be in the borders of the time-series
             validateIdx(idx);
             return get(idx(currentNowIdx + idx));
+        } else {
+            return null;
         }
     }
 
