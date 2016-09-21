@@ -130,7 +130,7 @@ public class ContainerBucketTimeSeries<E extends Serializable & Collection<T>, T
                 .findFirst()
                 .orElse(null);
 
-        return res == null ? null : (Class<T>) res.stream().findFirst().get().getClass();
+        return res == null ? null : (Class<T>) res.stream().findFirst().orElse(null).getClass();
     }
 
     protected E getOrCreate(final int idx) {
