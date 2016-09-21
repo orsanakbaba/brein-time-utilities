@@ -1,18 +1,27 @@
 package com.brein.time.utils;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 public class TimeUtils {
+    private static final ZoneId UTC = ZoneId.of("UTC");
 
     public static String format(final long unixTimeStamp) {
-        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return formatUnixTimeStamp("yyyy-MM-dd HH:mm:ss z", unixTimeStamp);
+    }
 
-        return sdf.format(new Date(unixTimeStamp * 1000L));
+    public static String formatUnixTimeStamp(final long unixTimeStamp) {
+        return formatUnixTimeStamp("yyyy/MM/dd HH:mm:ss", unixTimeStamp);
+    }
+
+    public static String formatUnixTimeStamp(final String format, final long unixTimeStamp) {
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+        return Instant.ofEpochSecond(unixTimeStamp)
+                .atZone(UTC)
+                .format(formatter);
     }
 
     public static long now() {

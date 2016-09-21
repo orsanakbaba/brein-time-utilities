@@ -278,7 +278,16 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         return idx < 0 ? idx + config.getTimeSeriesSize() : idx;
     }
 
-    protected BucketEndPoints normalizeUnixTimeStamp(final long unixTimeStamp) {
+    /**
+     * This method is used to determine the bucket the {@code unixTimeStamp} belongs into. The bucket is represented by
+     * a {@link BucketEndPoints} instance, which defines the end-points of the bucket and provides methods to calculate
+     * the distance between buckets.
+     *
+     * @param unixTimeStamp the time-stamp to determine the bucket for
+     *
+     * @return the bucket for the specified {@code unixTimeStamp} based on the configuration of the time-series
+     */
+    public BucketEndPoints normalizeUnixTimeStamp(final long unixTimeStamp) {
         final TimeUnit timeUnit = config.getTimeUnit();
 
         // first get the time stamp in the unit of the time-series
