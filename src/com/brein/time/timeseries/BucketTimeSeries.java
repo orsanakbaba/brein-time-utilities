@@ -166,6 +166,25 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
     }
 
     /**
+     * This method returns the value from the time-series as if it would be ordered (i.e., zero is now, 1 is the
+     * previous moment, ...).
+     *
+     * @param idx the zero based index
+     *
+     * @return the value associated to the zero based index
+     */
+    public T getFromZeroBasedIdx(final int idx) {
+        if (this.timeSeries != null && this.currentNowIdx != -1) {
+            return null;
+        } else {
+
+            // we can use the default validation, because the index still must be in the borders of the time-series
+            validateIdx(idx);
+            return get(idx(currentNowIdx + idx));
+        }
+    }
+
+    /**
      * Gets the end-points by an offset to now, i.e., 0 means to get the now bucket, -1 gets the previous bucket, and +1
      * will get the next bucket.
      *
@@ -212,6 +231,15 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         this.timeSeries[idx] = value;
     }
 
+    /**
+     * Gets the value for the specified {@code idx}.
+     *
+     * @param idx the index of the bucket to get the current value for; must be a valid index
+     *
+     * @return the current value for selected bucket
+     *
+     * @see #getNowIdx()
+     */
     public T get(final int idx) {
         validateIdx(idx);
         return this.timeSeries[idx];
