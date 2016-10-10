@@ -1,8 +1,11 @@
 package com.brein.time.utils;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -88,5 +91,24 @@ public class TimeUtils {
         final Calendar cal2 = createCal(unixTimestamp2);
         return (cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR))
                 && (cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH));
+    }
+
+    public static boolean validateDate(final String day,
+                                       final String month,
+                                       final String year) {
+
+        if (day == null || month == null || year == null) {
+            return false;
+        }
+
+        final String format = "dd-MM-uuuu";
+        final String date = String.format("%02d-%02d-%s", Integer.parseInt(day), Integer.parseInt(month), year);
+
+        try {
+            LocalDate.parse(date, DateTimeFormatter.ofPattern(format).withResolverStyle(ResolverStyle.STRICT));
+            return true;
+        } catch (final DateTimeParseException e) {
+            return false;
+        }
     }
 }
