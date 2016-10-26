@@ -3,6 +3,7 @@ package com.brein.time.utils;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
@@ -10,7 +11,7 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 public class TimeUtils {
-    private static final ZoneId UTC = ZoneId.of("UTC");
+    public static final ZoneId UTC = ZoneId.of("UTC");
 
     public static String format(final long unixTimeStamp) {
         return formatUnixTimeStamp("yyyy-MM-dd HH:mm:ss z", unixTimeStamp);
@@ -21,9 +22,13 @@ public class TimeUtils {
     }
 
     public static String formatUnixTimeStamp(final String format, final long unixTimeStamp) {
+        return format(format, unixTimeStamp, UTC);
+    }
+
+    public static String format(final String format, final long unixTimeStamp, final ZoneId zone) {
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
         return Instant.ofEpochSecond(unixTimeStamp)
-                .atZone(UTC)
+                .atZone(zone)
                 .format(formatter);
     }
 
@@ -111,4 +116,32 @@ public class TimeUtils {
             return false;
         }
     }
+
+    public static ZonedDateTime toZone(final long utc, final String zoneId) {
+        return toZone(utc, zoneId(zoneId));
+    }
+
+    public static ZonedDateTime toZone(final long utc, final ZoneId toZone) {
+        final Instant instant = Instant.ofEpochSecond(utc);
+        final ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, UTC);
+
+        return toZone(zdt, toZone);
+    }
+
+    public static ZonedDateTime toZone(final ZonedDateTime utc, final String zoneId) {
+        return toZone(utc, zoneId(zoneId));
+    }
+
+    public static ZonedDateTime toZone(final ZonedDateTime utc, final ZoneId toZone) {
+        if (!UTC.equals(utc.getZone())) {
+            throw new IllegalArgumentException("Expecting UTC time.");
+        }
+
+        return utc.withZoneSameInstant(toZone);
+    }
+
+    public static ZoneId zoneId(final String tzId) {
+        return TimeZone.getTimeZone(tzId).toZoneId();
+    }
+
 }
