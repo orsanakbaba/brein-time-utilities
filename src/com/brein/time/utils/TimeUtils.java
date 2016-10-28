@@ -8,10 +8,20 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class TimeUtils {
     public static final ZoneId UTC = ZoneId.of("UTC");
+    public static final Map<String, ZoneId> ZONES = new HashMap<>();
+
+    // fill the zones
+    static {
+        ZoneId.getAvailableZoneIds().stream()
+                .map(ZoneId::of)
+                .forEach(zoneId -> ZONES.put(zoneId.getId().toLowerCase(), zoneId));
+    }
 
     public static String format(final long unixTimeStamp) {
         return formatUnixTimeStamp("yyyy-MM-dd HH:mm:ss z", unixTimeStamp);
@@ -141,7 +151,20 @@ public class TimeUtils {
     }
 
     public static ZoneId zoneId(final String tzId) {
-        return TimeZone.getTimeZone(tzId).toZoneId();
+        return zoneId(tzId, true);
     }
 
+    public static ZoneId zoneId(final String tzId, final boolean caseSensitive) {
+        if (tzId == null) {
+            return null;
+        } else if (caseSensitive) {
+            try {
+                return ZoneId.of(tzId);
+            } catch (final Exception e) {
+                return null;
+            }
+        } else {
+            return ZONES.get(tzId.toLowerCase());
+        }
+    }
 }
