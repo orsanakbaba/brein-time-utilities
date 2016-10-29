@@ -167,4 +167,22 @@ public class TimeUtils {
             return ZONES.get(tzId.toLowerCase());
         }
     }
+
+    /**
+     * Converts a time to it's midnight
+     *
+     * @param time the base time in seconds
+     *
+     * @return the midnight's time
+     */
+    public static long toMidnight(final long time) {
+        final Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        calendar.setTimeInMillis(time * 1000);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        return calendar.getTimeInMillis() / 1000;
+    }
 }
