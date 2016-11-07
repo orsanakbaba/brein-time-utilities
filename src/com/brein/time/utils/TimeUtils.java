@@ -1,5 +1,10 @@
 package com.brein.time.utils;
 
+import org.apache.log4j.Logger;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -13,6 +18,8 @@ import java.util.Map;
 import java.util.TimeZone;
 
 public class TimeUtils {
+    private static final Logger LOGGER = Logger.getLogger(TimeUtils.class);
+
     public static final ZoneId UTC = ZoneId.of("UTC");
     public static final Map<String, ZoneId> ZONES = new HashMap<>();
 
@@ -184,5 +191,16 @@ public class TimeUtils {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         return calendar.getTimeInMillis() / 1000;
+    }
+
+    public static long dateStringToUnixTimestamp(final String dateString,
+                                                 final String format) {
+        final DateFormat dateFormat = new SimpleDateFormat(format);
+        try {
+            return dateFormat.parse(dateString).getTime() / 1000L;
+        } catch (final ParseException e) {
+            LOGGER.error("Unable to parse date format: " + format);
+            return -1;
+        }
     }
 }
