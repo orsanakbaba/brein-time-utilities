@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -201,6 +202,20 @@ public class TimeUtils {
         } catch (final ParseException e) {
             LOGGER.error("Unable to parse date format: " + format);
             return -1;
+        }
+    }
+
+    public static String convertDateFormat(final String dateString,
+                                           final String fromFormat,
+                                           final String toFormat) {
+        final SimpleDateFormat dateFormat = new SimpleDateFormat(fromFormat);
+        try {
+            final Date date = dateFormat.parse(dateString);
+            dateFormat.applyPattern(toFormat);
+            return dateFormat.format(date);
+        } catch (final ParseException e) {
+            LOGGER.error("Unable to parse date format: " + fromFormat);
+            return null;
         }
     }
 }
