@@ -205,6 +205,13 @@ public class TimeUtils {
         }
     }
 
+    public static long dateStringToUnixTimestamp(final String dateString,
+                                                 final String format,
+                                                 final String timezone) {
+        //todo: implement/merge with dateStringToUnixTimestamp(String,String)
+        return -1;
+    }
+
     public static String convertDateFormat(final String dateString,
                                            final String fromFormat,
                                            final String toFormat) {

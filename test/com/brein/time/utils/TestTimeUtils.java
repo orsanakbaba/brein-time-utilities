@@ -24,4 +24,10 @@ public class TestTimeUtils {
         Assert.assertFalse(TimeUtils.validateDate("11", null, null));
         Assert.assertFalse(TimeUtils.validateDate("32", "11", "2010"));
     }
+
+    @Test
+    public void testDateStringToUnixTimestamp() {
+        Assert.assertEquals(1480446690L, TimeUtils.dateStringToUnixTimestamp("2016-11-29 11:11:30",
+                "yyyy-MM-dd HH:mm:ss", "America/Los_Angeles"));
+    }
 }
