@@ -29,5 +29,8 @@ public class TestTimeUtils {
     public void testDateStringToUnixTimestamp() {
         Assert.assertEquals(1480446690L, TimeUtils.dateStringToUnixTimestamp("2016-11-29 11:11:30",
                 "yyyy-MM-dd HH:mm:ss", "America/Los_Angeles"));
+
+        Assert.assertEquals(1480447581L, TimeUtils.dateStringToUnixTimestamp("2016-11-30 4:26:21",
+                "yyyy-MM-dd HH:mm:ss", "Asia/Seoul"));
     }
 }
