@@ -194,13 +194,32 @@ public class TimeUtils {
         return calendar.getTimeInMillis() / 1000;
     }
 
+    /**
+     * Converts specified date string with given format to a unix timestamp. Returns -1 if there was a failure
+     *
+     * @param dateString Date string value
+     * @param format     Format that date string is in
+     *
+     * @return Unix timestamp, or -1 if something went wrong
+     */
     public static long dateStringToUnixTimestamp(final String dateString,
                                                  final String format) {
+        if (dateString == null) {
+            LOGGER.error("No date string provided");
+            return -1;
+        }
+
         final DateFormat dateFormat = new SimpleDateFormat(format);
+
         try {
-            return dateFormat.parse(dateString).getTime() / 1000L;
+            final Date parsedDate = dateFormat.parse(dateString);
+            if (parsedDate == null) {
+                return -1;
+            } else {
+                return parsedDate.getTime() / 1000L;
+            }
         } catch (final ParseException e) {
-            LOGGER.error("Unable to parse date format: " + format);
+            LOGGER.error("Unable to parse date '" + dateString + "' with format: " + format);
             return -1;
         }
     }
