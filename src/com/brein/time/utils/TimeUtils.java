@@ -101,6 +101,10 @@ public class TimeUtils {
         return cal.getTimeInMillis() / 1000L;
     }
 
+    /**
+     * @param unixTimestamp Current time
+     * @return Timestamp for the beginning of the previous month relative to current time
+     */
     public static long firstOfLastMonthTime(final long unixTimestamp) {
         final Calendar cal = createFirstOfMonthCal(unixTimestamp);
         cal.add(Calendar.MONTH, -1);
