@@ -103,6 +103,7 @@ public class TimeUtils {
 
     /**
      * @param unixTimestamp Current time
+     *
      * @return Timestamp for the beginning of the previous month relative to current time
      */
     public static long firstOfLastMonthTime(final long unixTimestamp) {
@@ -208,12 +209,21 @@ public class TimeUtils {
      */
     public static long dateStringToUnixTimestamp(final String dateString,
                                                  final String format) {
+        return dateStringToUnixTimestamp(dateString, format, null);
+    }
+
+    public static long dateStringToUnixTimestamp(final String dateString,
+                                                 final String format,
+                                                 final String timezone) {
         if (dateString == null) {
             LOGGER.error("No date string provided");
             return -1;
         }
 
         final DateFormat dateFormat = new SimpleDateFormat(format);
+        if (timezone != null) {
+            dateFormat.setTimeZone(TimeZone.getTimeZone(timezone));
+        }
 
         try {
             final Date parsedDate = dateFormat.parse(dateString);
@@ -226,13 +236,6 @@ public class TimeUtils {
             LOGGER.error("Unable to parse date '" + dateString + "' with format: " + format);
             return -1;
         }
-    }
-
-    public static long dateStringToUnixTimestamp(final String dateString,
-                                                 final String format,
-                                                 final String timezone) {
-        //todo: implement/merge with dateStringToUnixTimestamp(String,String)
-        return -1;
     }
 
     public static String convertDateFormat(final String dateString,
