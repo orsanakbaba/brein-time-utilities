@@ -17,6 +17,7 @@ public class BucketTimeSeriesConfig<T> implements Serializable {
     static {
         SUPPORTED_TIME_UNITS.add(TimeUnit.SECONDS);
         SUPPORTED_TIME_UNITS.add(TimeUnit.MINUTES);
+        SUPPORTED_TIME_UNITS.add(TimeUnit.HOURS);
     }
 
     private final TimeUnit timeUnit;
@@ -29,11 +30,13 @@ public class BucketTimeSeriesConfig<T> implements Serializable {
         this(bucketContent, timeUnit, timeSeriesSize, 1);
     }
 
-    public BucketTimeSeriesConfig(final Class<?> bucketContent, final TimeUnit timeUnit, final int timeSeriesSize, final int bucketSize) {
+    public BucketTimeSeriesConfig(final Class<?> bucketContent, final TimeUnit timeUnit, final int timeSeriesSize,
+                                  final int bucketSize) {
         this(bucketContent, timeUnit, timeSeriesSize, bucketSize, Number.class.isAssignableFrom(bucketContent));
     }
 
-    public BucketTimeSeriesConfig(final Class<?> bucketContent, final TimeUnit timeUnit, final int timeSeriesSize, final int bucketSize, final boolean fillNumberWithZero) {
+    public BucketTimeSeriesConfig(final Class<?> bucketContent, final TimeUnit timeUnit, final int timeSeriesSize,
+                                  final int bucketSize, final boolean fillNumberWithZero) {
         this.timeUnit = timeUnit;
         this.timeSeriesSize = timeSeriesSize;
         this.bucketSize = bucketSize;
