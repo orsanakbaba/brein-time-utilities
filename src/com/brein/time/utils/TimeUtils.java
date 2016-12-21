@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -21,7 +22,7 @@ import java.util.TimeZone;
 public class TimeUtils {
     private static final Logger LOGGER = Logger.getLogger(TimeUtils.class);
 
-    public static final ZoneId UTC = ZoneId.of("UTC");
+    public static final ZoneId UTC = ZoneOffset.UTC;
     public static final Map<String, ZoneId> ZONES = new HashMap<>();
 
     // fill the zones

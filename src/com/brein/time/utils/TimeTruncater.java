@@ -3,10 +3,11 @@ package com.brein.time.utils;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 public class TimeTruncater {
-    private static final ZoneId UTC = ZoneId.of("UTC");
+    private static final ZoneId UTC = ZoneOffset.UTC;
 
     /**
      * Truncates the passed time-stamp to the first of the month information only, i.e., the 09/10/2016 00:14:43 will be
