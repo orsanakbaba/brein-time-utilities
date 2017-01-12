@@ -216,7 +216,7 @@ public class TimeUtils {
     public static long dateStringToUnixTimestamp(final String dateString,
                                                  final String format,
                                                  final String timezone) {
-        if (dateString == null) {
+        if (dateString == null || dateString.isEmpty()) {
             return -1;
         }
 
