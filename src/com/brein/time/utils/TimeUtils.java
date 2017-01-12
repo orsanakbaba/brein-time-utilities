@@ -217,7 +217,6 @@ public class TimeUtils {
                                                  final String format,
                                                  final String timezone) {
         if (dateString == null) {
-            LOGGER.error("No date string provided");
             return -1;
         }
 
