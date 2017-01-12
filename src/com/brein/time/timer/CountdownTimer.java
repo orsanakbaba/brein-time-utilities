@@ -32,9 +32,20 @@ public class CountdownTimer {
         return intervalStartInNanos == -1 || timeUnit.toNanos(now) - intervalStartInNanos >= timeIntervalInNanos;
     }
 
+    /**
+     * @param now      Current unix time
+     * @param timeUnit Time unit that current time is given in
+     *
+     * @return Amount of time left on the timer, in the time unit that the timer was initialized with. If the timer
+     * never started to begin with, or if the timer has ended, then return a 0.
+     */
     public long getRemainingTime(final long now,
                                  final TimeUnit timeUnit) {
-        final long remainingNanos = timeUnit.toNanos(now) - intervalStartInNanos;
+        if (intervalStartInNanos == -1) {
+            return 0;
+        }
+
+        final long remainingNanos = Math.max(0, timeIntervalInNanos - (timeUnit.toNanos(now) - intervalStartInNanos));
         return TimeUnit.NANOSECONDS.convert(remainingNanos, this.timeUnit);
     }
 }
