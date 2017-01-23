@@ -7,7 +7,7 @@ node('master') {
         }
 
         dir ('brein-miscellaneous') {
-            git credentialsId: 'BREIN-STAGE-ACCESS', url: 'https://github.com/Breinify/brein-miscellaneous.git'
+            git url: 'https://github.com/Breinify/brein-time-utilities.git'
         }
     }
 
