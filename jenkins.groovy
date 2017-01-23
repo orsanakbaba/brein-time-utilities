@@ -6,7 +6,7 @@ node('master') {
             git credentialsId: 'BREIN-STAGE-ACCESS', url: 'https://github.com/Breinify/brein-workspace.git'
         }
 
-        dir ('brein-time-utilities/brein-time-utilities') {
+        dir ('brein-time-utilities') {
             git url: 'https://github.com/Breinify/brein-time-utilities.git'
         }
     }
@@ -14,7 +14,7 @@ node('master') {
     // it is enough to run the test, it will resolve, build and test
     stage ('Test & Build') {
         try {
-            dir ('brein-time-utilities/brein-time-utilities') {
+            dir ('brein-time-utilities') {
                 sh 'ant 06-run-test-suite'
             }
         } catch (err) {
@@ -26,7 +26,7 @@ node('master') {
     // now we should just publish the new version, it made it through the test
     stage ('Deploy') {
         try {
-            dir ('brein-time-utilities/brein-time-utilities') {
+            dir ('brein-time-utilities') {
                 sh 'ant 04-publish-results'
             }
         } catch (err) {
