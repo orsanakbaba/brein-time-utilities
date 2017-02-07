@@ -29,10 +29,6 @@ public class TimeUtils {
     static {
         ZoneId.getAvailableZoneIds().stream()
                 .map(ZoneId::of)
-                .map(s -> {
-                    System.out.println(s+","+s.getId());
-                    return s;
-                })
                 .forEach(zoneId -> ZONES.put(zoneId.getId().toLowerCase(), zoneId));
     }
 
