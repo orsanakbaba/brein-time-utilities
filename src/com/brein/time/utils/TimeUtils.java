@@ -22,13 +22,17 @@ import java.util.TimeZone;
 public class TimeUtils {
     private static final Logger LOGGER = Logger.getLogger(TimeUtils.class);
 
-    public static final ZoneId UTC = ZoneOffset.UTC;
+    public static final ZoneId UTC = ZoneId.of("UTC");
     public static final Map<String, ZoneId> ZONES = new HashMap<>();
 
     // fill the zones
     static {
         ZoneId.getAvailableZoneIds().stream()
                 .map(ZoneId::of)
+                .map(s -> {
+                    System.out.println(s+","+s.getId());
+                    return s;
+                })
                 .forEach(zoneId -> ZONES.put(zoneId.getId().toLowerCase(), zoneId));
     }
 
