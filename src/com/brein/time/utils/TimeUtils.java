@@ -251,7 +251,7 @@ public class TimeUtils {
         }
     }
 
-    public static String secondsToPrettyString(final int seconds) {
+    public static String secondsToPrettyString(final long seconds) {
         if (seconds < 0) {
             return "-" + secondsToPrettyString(-seconds);
         } else {
