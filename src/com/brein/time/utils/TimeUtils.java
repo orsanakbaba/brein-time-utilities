@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -249,6 +248,38 @@ public class TimeUtils {
         } catch (final ParseException e) {
             LOGGER.error("Unable to parse date format: " + fromFormat);
             return null;
+        }
+    }
+
+    public static String secondsToPrettyString(final int seconds) {
+        if (seconds < 0) {
+            return "-" + secondsToPrettyString(-seconds);
+        } else {
+            final double converted;
+            final String type;
+            if (seconds >= 2 * 365 * 24 * 60 * 60) {
+                converted = seconds / 365 / 24 / 60 / 60.0;
+                type = "years";
+            } else if (seconds >= 2 * 7 * 24 * 60 * 60) {
+                converted = seconds / 7 / 24 / 60 / 60.0;
+                type = "weeks";
+            } else if (seconds >= 2 * 24 * 60 * 60) {
+                converted = seconds / 24 / 60 / 60.0;
+                type = "days";
+            } else if (seconds >= 2 * 60 * 60) {
+                converted = seconds / 60 / 60.0;
+                type = "hours";
+            } else if (seconds >= 2 * 60) {
+                converted = seconds / 60.0;
+                type = "minutes";
+            } else if (seconds == 1) {
+                converted = 1;
+                type = "second";
+            } else {
+                converted = seconds;
+                type = "seconds";
+            }
+            return Math.round(converted) + " " + type;
         }
     }
 }

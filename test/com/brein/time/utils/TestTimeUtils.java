@@ -66,4 +66,36 @@ public class TestTimeUtils {
     public void testResolveUTC(){
         Assert.assertNotNull(TimeUtils.zoneId(TimeUtils.UTC.getId(), false));
     }
+
+    @Test
+    public void testSecondsToPrettyString(){
+        Assert.assertEquals("0 seconds", TimeUtils.secondsToPrettyString(0));
+        Assert.assertEquals("1 second", TimeUtils.secondsToPrettyString(1));
+        Assert.assertEquals("10 seconds", TimeUtils.secondsToPrettyString(10));
+        Assert.assertEquals("100 seconds", TimeUtils.secondsToPrettyString(100));
+        Assert.assertEquals("17 minutes", TimeUtils.secondsToPrettyString(1000));
+
+        Assert.assertEquals("3 hours", TimeUtils.secondsToPrettyString(10000));
+        Assert.assertEquals("28 hours", TimeUtils.secondsToPrettyString(100000));
+        Assert.assertEquals("12 days", TimeUtils.secondsToPrettyString(1000000));
+        Assert.assertEquals("17 weeks", TimeUtils.secondsToPrettyString(10000000));
+        Assert.assertEquals("3 years", TimeUtils.secondsToPrettyString(100000000));
+
+        Assert.assertEquals("0 seconds", TimeUtils.secondsToPrettyString(-0));
+        Assert.assertEquals("-1 second", TimeUtils.secondsToPrettyString(-1));
+        Assert.assertEquals("-10 seconds", TimeUtils.secondsToPrettyString(-10));
+        Assert.assertEquals("-100 seconds", TimeUtils.secondsToPrettyString(-100));
+        Assert.assertEquals("-17 minutes", TimeUtils.secondsToPrettyString(-1000));
+
+        Assert.assertEquals("-3 hours", TimeUtils.secondsToPrettyString(-10000));
+        Assert.assertEquals("-28 hours", TimeUtils.secondsToPrettyString(-100000));
+        Assert.assertEquals("-12 days", TimeUtils.secondsToPrettyString(-1000000));
+        Assert.assertEquals("-17 weeks", TimeUtils.secondsToPrettyString(-10000000));
+        Assert.assertEquals("-3 years", TimeUtils.secondsToPrettyString(-100000000));
+
+
+        Assert.assertEquals("119 seconds", TimeUtils.secondsToPrettyString(119));
+        Assert.assertEquals("2 minutes", TimeUtils.secondsToPrettyString(120));
+        Assert.assertEquals("2 minutes", TimeUtils.secondsToPrettyString(121));
+    }
 }
