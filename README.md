@@ -18,8 +18,7 @@ The current implementation of the library offers the following index structures:
 
 ### IntervalTree
 The `IntervalTree` is an often used index-structure to find intervals within a data-set. There 
-are several implementations available Java (e.g., [[1]](https://github.com/kevinjdolan/intervaltree)
-[[2]](https://github.com/search?l=Java&p=1&q=intervaltree&type=Repositories&utf8=%E2%9C%93), and for 
+are several implementations available Java (e.g., [[1]](https://github.com/kevinjdolan/intervaltree)[[2]](https://github.com/search?l=Java&p=1&q=intervaltree&type=Repositories&utf8=%E2%9C%93), and for 
 other languages [[3]](https://github.com/chaimleib/intervaltree)[[4]](http://code.google.com/p/intervaltree/), 
 as well as the [relational interval tree](http://blogs.solidq.com/en/sqlserver/static-relational-interval-tree/), 
 which can be used within relational database management systems. The presented implementation 
