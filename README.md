@@ -1,16 +1,8 @@
 # brein-time-utilities
 
 ## When should I use the brein-time-utilities library
-This library was mainly developed to make the life of developers easier, when dealing with
-real-time based time-series, i.e., time-series which change based on the current time. The
-library provides several data structures, to handle and manipulate such time-series.
-
-## Quick Introduction
-The library provides index and data structures used to handle real-time associated data
-(e.g., unixTimestamp, value). In general the operation are fast (e.g., set and changing
- now is done in O(1)). All implemented data structures support:
-* buckets (i.e., define a range of time-points the data is associated to)
-* moving of "now" without modifying the whole array of the time-series (utilizing rolling)
+This library was mainly developed to make the life of developers easier, when working with temporal data.
+The library provides index- and data-structures used to handle real-time temporal data (e.g., unixTimestamp, value).
 
 ## Available Index Structures
 The current implementation of the library offers the following index structures:
