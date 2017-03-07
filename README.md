@@ -6,22 +6,46 @@ real-time based time-series, i.e., time-series which change based on the current
 library provides several data structures, to handle and manipulate such time-series.
 
 ## Quick Introduction
-The library provides data structures used to handle real-time associated data
+The library provides index and data structures used to handle real-time associated data
 (e.g., unixTimestamp, value). In general the operation are fast (e.g., set and changing
  now is done in O(1)). All implemented data structures support:
 * buckets (i.e., define a range of time-points the data is associated to)
 * moving of "now" without modifying the whole array of the time-series (utilizing rolling)
-* default
 
 An visualization of the data of a time-series of the library with a "now" time-stamp between
 11:30 - 11:35 looks like:
 
 <p align="center"><img src="/img/example.png" width="500px"></p>
 
+## Available Index Structures
+The current implementation of the library offers the following index structures:
+- `com.brein.time.timeintervals.indexes.IntervalTree` (since v1.5.0)
+
+### IntervalTree
+The `IntervalTree` is an often used index-structure to find intervals within a data-set. There 
+are several implementations available Java (e.g., [1](https://github.com/kevinjdolan/intervaltree)
+[2](https://github.com/search?l=Java&p=1&q=intervaltree&type=Repositories&utf8=%E2%9C%93) and for 
+other languages [3](https://github.com/chaimleib/intervaltree)[4](http://code.google.com/p/intervaltree/), 
+as well as the [relational interval tree](http://blogs.solidq.com/en/sqlserver/static-relational-interval-tree/), 
+which can be used within relational database management systems. The presented implementation 
+is not only well tested and handles multiple million intervals a day, it can also be persisted 
+and can use a database management system to retrieve the different intervals data from an established
+database system, as well as utilize caching techniques.
+
+Further information regarding the actual information can be found here [5](http://www.geeksforgeeks.org/interval-tree/)
+and [6](http://www.davismol.net/2016/02/07/data-structures-augmented-interval-tree-to-search-for-interval-overlapping/).
+
+In the following you can find a usage example, nevertheless for more advanced examples it is recommended
+to have a look at the tests, maintained in this repository.
+
+```java
+
+```
+
 ## Available Data Structures
-The current implementation of the library offers two different data structures:
-* com.brein.time.timeseries.BucketTimeSeries
-* com.brein.time.timeseries.ContainerBucketTimeSeries
+The current implementation of the library offers the following data structures:
+- `com.brein.time.timeseries.BucketTimeSeries` (since v1.0.0)
+- `com.brein.time.timeseries.ContainerBucketTimeSeries` (since v1.0.0)
 
 ### BucketTimeSeries
 The BucketTimeSeries is used to group time-points into buckets and keep a time-series

@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -185,19 +184,14 @@ public class TimeUtils {
     /**
      * Converts a time to it's midnight
      *
-     * @param time the base time in seconds
+     * @param time unix-timestamp (in seconds)
      *
      * @return the midnight's time
+     * @deprecated since 1.1.0 use {@link TimeTruncater#toDay(long)} instead
      */
+    @Deprecated()
     public static long toMidnight(final long time) {
-        final Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        calendar.setTimeInMillis(time * 1000);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        return calendar.getTimeInMillis() / 1000;
+        return TimeTruncater.toDay(time);
     }
 
     /**
