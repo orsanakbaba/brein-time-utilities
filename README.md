@@ -18,17 +18,17 @@ The current implementation of the library offers the following index structures:
 
 ### IntervalTree
 The `IntervalTree` is an often used index-structure to find intervals within a data-set. There 
-are several implementations available Java (e.g., [1](https://github.com/kevinjdolan/intervaltree)
-[2](https://github.com/search?l=Java&p=1&q=intervaltree&type=Repositories&utf8=%E2%9C%93) and for 
-other languages [3](https://github.com/chaimleib/intervaltree)[4](http://code.google.com/p/intervaltree/), 
+are several implementations available Java (e.g., [[1]](https://github.com/kevinjdolan/intervaltree)
+[[2]](https://github.com/search?l=Java&p=1&q=intervaltree&type=Repositories&utf8=%E2%9C%93) and for 
+other languages [[3]](https://github.com/chaimleib/intervaltree)[[4]](http://code.google.com/p/intervaltree/), 
 as well as the [relational interval tree](http://blogs.solidq.com/en/sqlserver/static-relational-interval-tree/), 
 which can be used within relational database management systems. The presented implementation 
 is not only well tested and handles multiple million intervals a day, it can also be persisted 
 and can use a database management system to retrieve the different intervals data from an established
 database system, as well as utilize caching techniques.
 
-Further information regarding the actual information can be found here [5](http://www.geeksforgeeks.org/interval-tree/)
-and [6](http://www.davismol.net/2016/02/07/data-structures-augmented-interval-tree-to-search-for-interval-overlapping/).
+Further information regarding the actual information can be found here [[5]](http://www.geeksforgeeks.org/interval-tree/)
+and [[6]](http://www.davismol.net/2016/02/07/data-structures-augmented-interval-tree-to-search-for-interval-overlapping/).
 
 In the following you can find a usage example, nevertheless for more advanced examples it is recommended
 to have a look at the tests, maintained in this repository.
