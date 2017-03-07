@@ -12,11 +12,6 @@ The library provides index and data structures used to handle real-time associat
 * buckets (i.e., define a range of time-points the data is associated to)
 * moving of "now" without modifying the whole array of the time-series (utilizing rolling)
 
-An visualization of the data of a time-series of the library with a "now" time-stamp between
-11:30 - 11:35 looks like:
-
-<p align="center"><img src="/img/example.png" width="500px"></p>
-
 ## Available Index Structures
 The current implementation of the library offers the following index structures:
 - `com.brein.time.timeintervals.indexes.IntervalTree` (since v1.5.0)
