@@ -11,6 +11,12 @@ public class Interval implements Comparable<Interval>, Cloneable {
     private final boolean openStart;
     private final boolean openEnd;
 
+    public Interval(final Integer start,
+                    final Integer end) {
+        this(start == null ? null : start.longValue(),
+                end == null ? null : end.longValue());
+    }
+
     public Interval(final Long start,
                     final Long end) {
         this(start, end, false, false);
@@ -27,7 +33,8 @@ public class Interval implements Comparable<Interval>, Cloneable {
         this.openEnd = openEnd;
 
         if (getNormEnd() < getNormStart()) {
-            throw new IllegalTimeInterval("The end value cannot be smaller than the start value.");
+            throw new IllegalTimeInterval("The end value '" + end + "' " +
+                    "cannot be smaller than the start value '" + start + "'.");
         }
     }
 

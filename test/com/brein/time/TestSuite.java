@@ -1,5 +1,7 @@
 package com.brein.time;
 
+import com.brein.time.timeintervals.indexes.TestIntervalTree;
+import com.brein.time.timeintervals.intervals.TestInterval;
 import com.brein.time.timeseries.TestBucketEndPoints;
 import com.brein.time.timeseries.TestBucketTimeSeries;
 import com.brein.time.timeseries.TestContainerBucketTimeSeries;
@@ -18,7 +20,9 @@ import org.junit.runners.Suite;
         TestContainerBucketTimeSeries.class,
         TestBucketEndPoints.class,
         TestBucketTimeSeriesTypeConverter.class,
-        TestContainerBucketTimeSeriesTypeConverter.class
+        TestContainerBucketTimeSeriesTypeConverter.class,
+        TestInterval.class,
+        TestIntervalTree.class
 })
 public class TestSuite {
 }
