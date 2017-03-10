@@ -35,7 +35,7 @@ which can be used within relational database management systems). The presented 
 is not only well tested, it can also be persisted and can use a database management system to retrieve the different 
 intervals data from an established database system, as well as utilize caching techniques.
 
-Further information regarding the actual information can be found here [[5]](http://www.geeksforgeeks.org/interval-tree/)
+Further information regarding the actual implementation can be found here [[5]](http://www.geeksforgeeks.org/interval-tree/)
 and [[6]](http://www.davismol.net/2016/02/07/data-structures-augmented-interval-tree-to-search-for-interval-overlapping/).
 
 In the following you can find a usage example, nevertheless for more advanced examples it is recommended

@@ -3,22 +3,42 @@ package com.brein.time.timeintervals.indexes;
 import com.brein.time.timeintervals.collections.SetIntervalCollection;
 import com.brein.time.timeintervals.intervals.IdInterval;
 import com.brein.time.timeintervals.intervals.Interval;
+import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TestIntervalTree {
+    private static final Logger LOGGER = Logger.getLogger(TestIntervalTree.class);
 
     @Test
     public void testEmptyTree() {
         assertIsEmpty(new IntervalTree());
+    }
+
+    @Test
+    public void testTrees() {
+        final int nrOfRuns = 100;
+        final int minNrOfInserts = 500;
+        final int maxNrOfInserts = 1000;
+
+        final Random rnd = new Random();
+
+        for (int i = 0; i < nrOfRuns; i++) {
+            final int variableInserts = minNrOfInserts + rnd.nextInt(maxNrOfInserts - minNrOfInserts);
+            final int variableRemoves = (int) Math.floor(variableInserts * rnd.nextDouble());
+
+            LOGGER.trace("Validated:" + System.lineSeparator() + createRandomTree(variableInserts, variableRemoves));
+        }
     }
 
     @Test
@@ -171,5 +191,93 @@ public class TestIntervalTree {
         Assert.assertFalse(tree.iterator().hasNext());
         Assert.assertFalse(tree.nodeIterator().hasNext());
         Assert.assertFalse(tree.positionIterator().hasNext());
+    }
+
+    @SuppressWarnings("SimplifiableIfStatement")
+    public IntervalTree createRandomTree(final int inserts, final int deletes) {
+        final IntervalTree tree = new IntervalTree();
+
+        final int totalOperations = inserts + deletes;
+        final List<Interval> intervals = new ArrayList<>();
+        final Random rnd = new Random();
+
+        // create the intervals that will be inserted
+        while (intervals.size() < inserts) {
+            final int start = rnd.nextInt(900);
+            final Interval interval = new Interval(start, start + rnd.nextInt(100));
+
+            if (!intervals.contains(interval)) {
+                intervals.add(interval);
+            }
+        }
+
+        int totalInserts = 0;
+        int totalDeletes = 0;
+        final List<Interval> added = new ArrayList<>();
+
+        try {
+            for (int i = 0; i < totalOperations; i++) {
+                final boolean insert;
+                if (added.size() == 0) {
+                    insert = true;
+                } else if (totalInserts >= inserts) {
+                    insert = false;
+                } else if (totalDeletes >= deletes) {
+                    insert = true;
+                } else {
+                    insert = rnd.nextInt(2) == 0;
+                }
+
+                if (insert) {
+                    final Interval interval = intervals.remove(rnd.nextInt(intervals.size()));
+                    tree.insert(interval);
+                    Assert.assertTrue(added.add(interval));
+                    totalInserts++;
+                } else {
+                    final Interval interval = added.remove(rnd.nextInt(added.size()));
+                    Assert.assertTrue(tree.remove(interval));
+                    totalDeletes++;
+                }
+
+                // validate the tree after each operation
+                tree.nodeIterator().forEachRemaining(node -> {
+                    if (node.isRoot()) {
+                        Assert.assertEquals(0, node.getLevel());
+                    }
+                    if (node.hasLeft()) {
+                        Assert.assertSame(node.getLeft().getParent(), node);
+                        Assert.assertEquals(node.getLevel() + 1, node.getLeft().getLevel());
+                        Assert.assertTrue(node + " < " + node.getLeft(),
+                                (
+                                        node.getStart() > node.getLeft().getStart()
+                                ) || (
+                                        node.getStart() == node.getLeft().getStart() &&
+                                                node.getEnd() > node.getLeft().getEnd()
+                                )
+                        );
+                    }
+                    if (node.hasRight()) {
+                        Assert.assertSame(node.getRight().getParent(), node);
+                        Assert.assertEquals(node.getLevel() + 1, node.getRight().getLevel());
+                        Assert.assertTrue(node + " > " + node.getRight(),
+                                (
+                                        node.getStart() < node.getRight().getStart()
+                                ) || (
+                                        node.getStart() == node.getRight().getStart() &&
+                                                node.getEnd() < node.getRight().getEnd()
+                                )
+                        );
+                    }
+                });
+            }
+
+            LOGGER.info(String.format("inserts: %d (planned: %d), deletes: %d (planned: %d)",
+                    totalInserts, inserts, totalDeletes, deletes));
+        } catch (final Throwable t) {
+            LOGGER.error("Validation failed for: " + System.lineSeparator() + tree.toString(), t);
+            throw t;
+        }
+
+        return tree;
     }
 }

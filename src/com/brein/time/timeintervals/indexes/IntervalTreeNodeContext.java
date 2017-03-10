@@ -31,6 +31,16 @@ public class IntervalTreeNodeContext {
         this.parent = parent;
     }
 
+    public IntervalTreeNode getChild(final IntervalTreeNodeChildType childType) {
+        if (childType.equals(IntervalTreeNodeChildType.LEFT)) {
+            return getLeft();
+        } else if (childType.equals(IntervalTreeNodeChildType.RIGHT)) {
+            return getRight();
+        } else {
+            return null;
+        }
+    }
+
     public IntervalTreeNode getLeft() {
         return left;
     }
@@ -71,6 +81,10 @@ public class IntervalTreeNodeContext {
         return hasLeft() ^ hasRight();
     }
 
+    public boolean isFullParent() {
+        return hasLeft() && hasRight();
+    }
+
     public IntervalTreeNode getSingleChild() {
         if (!isSingleParent()) {
             throw new IllegalStateException("Cannot retrieve single child from not single parent, " +
@@ -92,5 +106,10 @@ public class IntervalTreeNodeContext {
 
     public boolean isRoot() {
         return !hasParent();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("P: %s, L: %s, R: %s", this.parent, this.left, this.right);
     }
 }

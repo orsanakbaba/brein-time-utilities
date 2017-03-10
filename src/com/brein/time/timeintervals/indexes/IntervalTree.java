@@ -250,6 +250,7 @@ public class IntervalTree implements Collection<Interval> {
                         node.getParent().replaceChild(node, replacementNode);
                     } else {
                         replacementNode.setParent(null);
+                        replacementNode.setLevel(0);
                         this.root = replacementNode;
                     }
                 } else {
@@ -263,6 +264,8 @@ public class IntervalTree implements Collection<Interval> {
 
                     final IntervalTreeNode replacementNode = replaceNode(node, smallestNode);
                     if (!node.hasParent()) {
+                        replacementNode.setParent(null);
+                        replacementNode.setLevel(0);
                         this.root = replacementNode;
                     }
                 }
@@ -281,9 +284,20 @@ public class IntervalTree implements Collection<Interval> {
     }
 
     protected IntervalTreeNode replaceNode(final IntervalTreeNode replacee, final IntervalTreeNode replacement) {
-        final IntervalTreeNodeChildType childType = replacee.determineChildType();
+        if (replacement.isFullParent()) {
+            LOGGER.warn("Replacing '" + replacee + "' with a full parent '" + replacee + "', " +
+                    "might have unforeseen site-effects.");
+        }
+
+        final IntervalTreeNodeChildType replaceeChildType = replacee.determineChildType();
         final IntervalTreeNodeContext replaceeCtx = replacee.detach();
+        final IntervalTreeNodeChildType replacementChildType = replacement.determineChildType();
         final IntervalTreeNodeContext replacementCtx = replacement.detach();
+
+        // if the replacementCtx has children, we have to move them to the old parent (can only have one)
+        if (replacementCtx.isSingleParent()) {
+            replacementCtx.getParent().setChild(replacementCtx.getSingleChild(), replacementChildType);
+        }
 
         // it may be that the replacee had the replacement as child, in that case we have to keep the old child
         if (replaceeCtx.getLeft() == replacement) {
@@ -301,7 +315,7 @@ public class IntervalTree implements Collection<Interval> {
         }
 
         if (replaceeCtx.hasParent()) {
-            replaceeCtx.getParent().replaceChild(replacement, childType);
+            replaceeCtx.getParent().replaceChild(replacement, replaceeChildType);
         }
 
         return replacement;
@@ -502,5 +516,31 @@ public class IntervalTree implements Collection<Interval> {
         }
 
         return intervals;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        toString("", this.root, sb, true);
+        return sb.toString();
+    }
+
+    private void toString(final String prefix,
+                          final IntervalTreeNode node,
+                          final StringBuilder sb,
+                          final boolean tail) {
+
+        sb.append(prefix)
+                .append(tail ? "└── " : "├── ")
+                .append(node)
+                .append(System.lineSeparator());
+
+        if (node == null || node.isLeaf()) {
+            return;
+        }
+
+        final String newPrefix = prefix + (tail ? "    " : "│   ");
+        toString(newPrefix, node.getLeft(), sb, false);
+        toString(newPrefix, node.getRight(), sb, true);
     }
 }

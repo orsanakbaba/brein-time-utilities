@@ -19,12 +19,14 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
     private final long end;
 
     private long max;
+    private long level;
 
     public IntervalTreeNode(final Interval interval,
                             final IntervalCollection collection) {
         this.start = interval.getNormStart();
         this.end = interval.getNormEnd();
         this.max = interval.getNormEnd();
+        this.level = 0L;
 
         this.collection = collection;
 
@@ -56,6 +58,24 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
 
         if (hasParent()) {
             getParent().updateMax();
+        }
+    }
+
+    public long getLevel() {
+        return level;
+    }
+
+    public void setLevel(final long level) {
+        if (this.level == level) {
+            return;
+        }
+        this.level = level;
+
+        if (hasLeft()) {
+            getLeft().setLevel(level + 1);
+        }
+        if (hasRight()) {
+            getRight().setLevel(level + 1);
         }
     }
 
@@ -105,7 +125,8 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
 
     @Override
     public String toString() {
-        return String.format("[%d, %d] (max: %d, count: %d)", this.start, this.end, this.max, this.collection.size());
+        return String.format("[%d, %d] (max: %d, count: %d, level: %d)",
+                this.start, this.end, this.max, this.collection.size(), this.level);
     }
 
     @Override
@@ -136,21 +157,25 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
 
     @Override
     public void setLeft(final IntervalTreeNode left) {
-        super.setLeft(left);
         setChild(left, IntervalTreeNodeChildType.LEFT);
     }
 
     @Override
     public void setRight(final IntervalTreeNode right) {
-        super.setRight(right);
         setChild(right, IntervalTreeNodeChildType.RIGHT);
     }
 
     protected void setChild(final IntervalTreeNode node, final IntervalTreeNodeChildType childType) {
+        if (IntervalTreeNodeChildType.LEFT.equals(childType)) {
+            super.setLeft(node);
+        } else if (IntervalTreeNodeChildType.RIGHT.equals(childType)) {
+            super.setRight(node);
+        }
 
         // set the new parent
         if (node != null) {
             node.setParent(this);
+            node.setLevel(this.level + 1);
         }
 
         updateMax();
@@ -178,6 +203,7 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         this.setLeft(null);
         this.setRight(null);
         this.max = this.getEnd();
+        this.level = 0L;
 
         return ctx;
     }
