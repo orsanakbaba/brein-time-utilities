@@ -6,7 +6,7 @@ The library provides index- and data-structures used to handle real-time tempora
 
 ## Available Index Structures
 The current implementation of the library offers the following index structures:
-- `com.brein.time.timeintervals.indexes.IntervalTree` (since v1.5.0)
+- `com.brein.time.timeintervals.indexes.IntervalTree` (since 1.5.0)
 
 ### IntervalTree
 The `IntervalTree` is an often used index-structure to find intervals within a data-set. There 
