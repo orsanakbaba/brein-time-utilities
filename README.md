@@ -65,7 +65,7 @@ Furthermore, the provided implementation offers the following features:
 - auto-balancing, disable balancing, and manuel balancing (to be added in 1.6.0)
 - time optimized (handling temporal intervals) (to be added in 1.6.0)
 
-Further information regarding this implementation of the `IntervalTree` are documented [here](TODO).
+Further information regarding this implementation of the `IntervalTree` are documented [here](docs/IntervalTree.md).
 
 ## Available Data Structures
 The current implementation of the library offers the following data structures:

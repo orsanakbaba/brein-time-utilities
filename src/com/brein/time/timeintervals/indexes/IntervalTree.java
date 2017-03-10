@@ -1,5 +1,7 @@
 package com.brein.time.timeintervals.indexes;
 
+import com.brein.time.timeintervals.collections.IntervalCollection.IntervalFilter;
+import com.brein.time.timeintervals.collections.IntervalCollection.IntervalFilters;
 import com.brein.time.timeintervals.collections.IntervalCollectionFactory;
 import com.brein.time.timeintervals.collections.ListIntervalCollection;
 import com.brein.time.timeintervals.intervals.Interval;
@@ -22,8 +24,8 @@ public class IntervalTree implements Collection<Interval> {
 
     private final IntervalCollectionFactory factory;
 
-    private IntervalTreeNode root;
-    private long size;
+    private IntervalTreeNode root = null;
+    private long size = 0L;
 
     public IntervalTree() {
         this(ListIntervalCollection::new);
@@ -37,24 +39,28 @@ public class IntervalTree implements Collection<Interval> {
     @SuppressWarnings("SimplifiableIfStatement")
     public boolean contains(final Object o) {
 
-        if (this.root == null) {
-            return false;
-        } else if (o instanceof Interval) {
-            return !_find(this.root, Interval.class.cast(o)).isEmpty();
+        if (o instanceof Interval) {
+            return find(Interval.class.cast(o)).isEmpty();
         } else {
             return false;
         }
     }
 
     public Collection<Interval> find(final Interval query) {
+        return find(query, IntervalFilters.STRICT_EQUAL);
+    }
+
+    public Collection<Interval> find(final Interval query, final IntervalFilter filter) {
         if (this.root == null) {
             return Collections.emptyList();
         } else {
-            return _find(this.root, query);
+            return _find(this.root, query, filter);
         }
     }
 
-    protected Collection<Interval> _find(final IntervalTreeNode node, final Interval query) {
+    protected Collection<Interval> _find(final IntervalTreeNode node,
+                                         final Interval query,
+                                         final IntervalFilter filter) {
         if (node == null) {
             return Collections.emptyList();
         }
@@ -62,11 +68,11 @@ public class IntervalTree implements Collection<Interval> {
         // check if the current node overlaps
         final int cmpNode = node.compareTo(query);
         if (cmpNode == 0) {
-            return node.find(query);
+            return node.find(query, filter);
         } else if (cmpNode < 0) {
-            return _find(node.getRight(), query);
+            return _find(node.getRight(), query, filter);
         } else {
-            return _find(node.getLeft(), query);
+            return _find(node.getLeft(), query, filter);
         }
     }
 

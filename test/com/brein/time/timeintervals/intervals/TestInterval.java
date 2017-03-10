@@ -13,7 +13,7 @@ public class TestInterval {
         Assert.assertTrue(interval.equals(interval));
         Assert.assertEquals(0, interval.compareTo(interval));
 
-        final Interval interval1 = new Interval(null, null);
+        final Interval interval1 = new Interval((Long) null, null);
         Assert.assertEquals(1, interval.compareTo(interval1));
         Assert.assertEquals(-1, interval1.compareTo(interval));
 

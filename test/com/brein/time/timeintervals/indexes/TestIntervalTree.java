@@ -93,18 +93,18 @@ public class TestIntervalTree {
     public void testFind() {
         Collection<Interval> found;
 
-        final IntervalTree tree = new IntervalTree();
+        final IntervalTree tree = new IntervalTree(SetIntervalCollection::new);
 
         tree.insert(new IdInterval<>("ID1", 1L, 5L));
-        found = tree.find(new Interval(1L, 5L));
+        found = tree.find(new IdInterval<>("ID1", 1L, 5L));
         Assert.assertEquals(1, found.size());
 
         tree.insert(new IdInterval<>("ID2", 1L, 5L));
-        found = tree.find(new Interval(1L, 5L));
-        Assert.assertEquals(2, found.size());
-
         found = tree.find(new IdInterval<>("ID2", 1L, 5L));
         Assert.assertEquals(1, found.size());
+
+        found = tree.find(new Interval(1L, 5L));
+        Assert.assertEquals(2, found.size());
     }
 
     @Test

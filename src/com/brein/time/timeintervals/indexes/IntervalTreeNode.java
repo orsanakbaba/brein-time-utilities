@@ -1,6 +1,8 @@
 package com.brein.time.timeintervals.indexes;
 
 import com.brein.time.timeintervals.collections.IntervalCollection;
+import com.brein.time.timeintervals.collections.IntervalCollection.IntervalFilter;
+import com.brein.time.timeintervals.collections.IntervalCollection.IntervalFilters;
 import com.brein.time.timeintervals.intervals.Interval;
 import org.apache.log4j.Logger;
 
@@ -90,7 +92,11 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
     }
 
     public Collection<Interval> find(final Interval interval) {
-        return this.collection.find(interval);
+        return find(interval, IntervalFilters.EQUAL);
+    }
+
+    public Collection<Interval> find(final Interval interval, final IntervalFilter filter) {
+        return this.collection.find(interval, filter);
     }
 
     public String getId() {
