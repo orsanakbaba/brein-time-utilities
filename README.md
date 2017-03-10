@@ -3,7 +3,7 @@
 </p>
 
 
-# Time-Utilities: IntervalTree, BucketTimeSeries, ContainerBucketTimeSeries
+# Time-Utilities
 
 ## When should I use the brein-time-utilities library
 This library was mainly developed to make the life of developers easier, when working with temporal data.
