@@ -1,4 +1,4 @@
-# `IntervalTree`: Understanding `IntervalFilter`
+# Understanding `IntervalFilter`
 
 In general, it is assumed that an `IntervalTree` contains the same types of intervals, i.e.,
 every interval added is of the same class (i.e., `Interval` or any sub-class). This is mostly 
