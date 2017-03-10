@@ -1,4 +1,9 @@
-# Time-Utilities: `IntervalTree`, `BucketTimeSeries`, `ContainerBucketTimeSeries`
+<p align="center">
+  <img src="https://www.breinify.com/img/Breinify_logo.png" alt="Breinify: Leading Temporal AI Engine" width="250">
+</p>
+
+
+# Time-Utilities: IntervalTree, BucketTimeSeries, ContainerBucketTimeSeries
 
 ## When should I use the brein-time-utilities library
 This library was mainly developed to make the life of developers easier, when working with temporal data.
