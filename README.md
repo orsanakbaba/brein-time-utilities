@@ -9,6 +9,19 @@
 This library was mainly developed to make the life of developers easier, when working with temporal data.
 The library provides index- and data-structures used to handle real-time temporal data (e.g., time-points, time-intervals).
 
+## Usage: Maven Central
+
+The library is available on [Maven Central](https://search.maven.org/#search%7Cga%7C1%7Ca%3A%22brein-time-utilities%22). Just 
+download the library or add it as dependency.
+
+```pom
+<dependency>
+    <groupId>com.breinify</groupId>
+    <artifactId>brein-time-utilities</artifactId>
+    <version>${currentVersion}</version>
+</dependency>
+```
+
 ## Available Index Structures
 The current implementation of the library offers the following index structures:
 - `com.brein.time.timeintervals.indexes.IntervalTree` (since 1.5.0)
