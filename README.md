@@ -5,6 +5,8 @@
 
 # Time-Utilities
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities)
+
 ## When should I use the brein-time-utilities library
 This library was mainly developed to make the life of developers easier, when working with temporal data.
 The library provides index- and data-structures used to handle real-time temporal data (e.g., time-points, time-intervals).
