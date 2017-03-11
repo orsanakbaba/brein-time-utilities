@@ -26,15 +26,62 @@ public class TestIntervalTree {
     }
 
     @Test
+    public void testBalancing() {
+        final IntervalTree tree = new IntervalTree();
+
+        tree.insert(new Interval(1, 10));
+        tree.insert(new Interval(1, 33));
+        tree.insert(new Interval(1, 36));
+
+        tree.nodeIterator().forEachRemaining(node -> assertNode(node, tree));
+
+        tree.clear();
+
+        tree.insert(new Interval(36, 100));
+        tree.insert(new Interval(33, 100));
+        tree.insert(new Interval(10, 100));
+
+        tree.nodeIterator().forEachRemaining(node -> assertNode(node, tree));
+
+        tree.clear();
+
+        // create a balanced tree through insertion
+        tree.insert(new Interval(50, 1000));
+        tree.insert(new Interval(25, 1000));
+        tree.insert(new Interval(75, 1000));
+        tree.insert(new Interval(10, 1000));
+        tree.insert(new Interval(30, 1000));
+        tree.insert(new Interval(60, 1000));
+        tree.insert(new Interval(80, 1000));
+        tree.insert(new Interval(82, 1000));
+        tree.insert(new Interval(5, 1000));
+        tree.insert(new Interval(15, 1000));
+        tree.insert(new Interval(27, 1000));
+        tree.insert(new Interval(55, 1000));
+        tree.insert(new Interval(65, 1000));
+        tree.insert(new Interval(1, 1000));
+        tree.insert(new Interval(66, 1000));
+
+        System.out.println(tree);
+        System.out.println(tree.isBalanced());
+
+//        tree.remove(new Interval(80, 1000));
+        tree.remove(new Interval(50, 1000));
+
+        System.out.println(tree);
+        System.out.println(tree.isBalanced());
+    }
+
+    @Test
     public void testTrees() {
-        final int nrOfRuns = 100;
-        final int minNrOfInserts = 500;
-        final int maxNrOfInserts = 1000;
+        final int nrOfRuns = 10;
+        final int minNrOfInserts = 50;
+        final int maxNrOfInserts = 2000;
 
         final Random rnd = new Random();
 
         for (int i = 0; i < nrOfRuns; i++) {
-            final int variableInserts = minNrOfInserts + rnd.nextInt(maxNrOfInserts - minNrOfInserts);
+            final int variableInserts = minNrOfInserts + rnd.nextInt(maxNrOfInserts - minNrOfInserts + 1);
             final int variableRemoves = (int) Math.floor(variableInserts * rnd.nextDouble());
 
             LOGGER.trace("Validated:" + System.lineSeparator() + createRandomTree(variableInserts, variableRemoves));
@@ -231,44 +278,16 @@ public class TestIntervalTree {
                 if (insert) {
                     final Interval interval = intervals.remove(rnd.nextInt(intervals.size()));
                     tree.insert(interval);
-                    Assert.assertTrue(added.add(interval));
+                    Assert.assertTrue(interval.toString(), added.add(interval));
                     totalInserts++;
                 } else {
                     final Interval interval = added.remove(rnd.nextInt(added.size()));
-                    Assert.assertTrue(tree.remove(interval));
+                    Assert.assertTrue(interval.toString(), tree.remove(interval));
                     totalDeletes++;
                 }
 
                 // validate the tree after each operation
-                tree.nodeIterator().forEachRemaining(node -> {
-                    if (node.isRoot()) {
-                        Assert.assertEquals(0, node.getLevel());
-                    }
-                    if (node.hasLeft()) {
-                        Assert.assertSame(node.getLeft().getParent(), node);
-                        Assert.assertEquals(node.getLevel() + 1, node.getLeft().getLevel());
-                        Assert.assertTrue(node + " < " + node.getLeft(),
-                                (
-                                        node.getStart() > node.getLeft().getStart()
-                                ) || (
-                                        node.getStart() == node.getLeft().getStart() &&
-                                                node.getEnd() > node.getLeft().getEnd()
-                                )
-                        );
-                    }
-                    if (node.hasRight()) {
-                        Assert.assertSame(node.getRight().getParent(), node);
-                        Assert.assertEquals(node.getLevel() + 1, node.getRight().getLevel());
-                        Assert.assertTrue(node + " > " + node.getRight(),
-                                (
-                                        node.getStart() < node.getRight().getStart()
-                                ) || (
-                                        node.getStart() == node.getRight().getStart() &&
-                                                node.getEnd() < node.getRight().getEnd()
-                                )
-                        );
-                    }
-                });
+                tree.nodeIterator().forEachRemaining(node -> assertNode(node, tree));
             }
 
             LOGGER.info(String.format("inserts: %d (planned: %d), deletes: %d (planned: %d)",
@@ -279,5 +298,46 @@ public class TestIntervalTree {
         }
 
         return tree;
+    }
+
+    public void assertNode(final IntervalTreeNode node, final IntervalTree tree) {
+        if (node.isRoot()) {
+            Assert.assertEquals(0, node.getLevel());
+        }
+        if (node.hasLeft()) {
+            Assert.assertSame(node.getLeft().getParent(), node);
+            Assert.assertEquals(node.getLevel() + 1, node.getLeft().getLevel());
+            Assert.assertTrue(node + " < " + node.getLeft(),
+                    (
+                            node.getStart() > node.getLeft().getStart()
+                    ) || (
+                            node.getStart() == node.getLeft().getStart() &&
+                                    node.getEnd() > node.getLeft().getEnd()
+                    )
+            );
+        }
+        if (node.hasRight()) {
+            Assert.assertSame(node.getRight().getParent(), node);
+            Assert.assertEquals(node.getLevel() + 1, node.getRight().getLevel());
+            Assert.assertTrue(node + " > " + node.getRight(),
+                    (
+                            node.getStart() < node.getRight().getStart()
+                    ) || (
+                            node.getStart() == node.getRight().getStart() &&
+                                    node.getEnd() < node.getRight().getEnd()
+                    )
+            );
+        }
+
+        Assert.assertEquals(node.getHeight(),
+                Math.max(
+                        node.hasLeft() ? node.getLeft().getHeight() : 0,
+                        node.hasRight() ? node.getRight().getHeight() : 0
+                ) + 1);
+        Assert.assertEquals(node.toString(), 1, node.getIntervals().size());
+        Assert.assertTrue(tree.contains(node.getIntervals().iterator().next()));
+        Assert.assertTrue(tree.overlap(node.getIntervals().iterator().next()).size() > 0);
+
+        Assert.assertTrue(tree.toString(), tree.isBalanced());
     }
 }

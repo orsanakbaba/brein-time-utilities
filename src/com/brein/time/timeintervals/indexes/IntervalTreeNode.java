@@ -20,6 +20,7 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
 
     private long max;
     private long level;
+    private long height;
 
     public IntervalTreeNode(final Interval interval,
                             final IntervalCollection collection) {
@@ -27,6 +28,7 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         this.end = interval.getNormEnd();
         this.max = interval.getNormEnd();
         this.level = 0L;
+        this.height = 1L;
 
         this.collection = collection;
 
@@ -89,6 +91,31 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         }
     }
 
+    public long getHeight() {
+        return height;
+    }
+
+    public void setHeight(final long height) {
+        if (this.height == height) {
+            return;
+        }
+        this.height = height;
+
+        if (hasParent()) {
+            getParent().updateHeight();
+        }
+    }
+
+    public void updateHeight() {
+        if (isLeaf()) {
+            setHeight(1L);
+        } else if (isSingleParent()) {
+            setHeight(getSingleChild().getHeight() + 1);
+        } else {
+            setHeight(Math.max(getLeft().getHeight(), getRight().getHeight()) + 1);
+        }
+    }
+
     public Collection<Interval> getIntervals() {
         return Collections.unmodifiableCollection(collection);
     }
@@ -125,8 +152,8 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
 
     @Override
     public String toString() {
-        return String.format("[%d, %d] (max: %d, count: %d, level: %d)",
-                this.start, this.end, this.max, this.collection.size(), this.level);
+        return String.format("[%d, %d] (max: %d, count: %d, level: %d, height: %d)",
+                this.start, this.end, this.max, this.collection.size(), this.level, this.height);
     }
 
     @Override
@@ -179,6 +206,7 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         }
 
         updateMax();
+        updateHeight();
     }
 
     protected IntervalTreeNode get(final IntervalTreeNodeChildType childType) {
@@ -200,6 +228,7 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
             parent.removeChild(this);
         }
 
+        this.setParent(null);
         this.setLeft(null);
         this.setRight(null);
         this.max = this.getEnd();

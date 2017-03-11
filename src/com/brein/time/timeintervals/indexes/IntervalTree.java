@@ -26,13 +26,31 @@ public class IntervalTree implements Collection<Interval> {
 
     private IntervalTreeNode root = null;
     private long size = 0L;
+    private boolean autoBalancing = true;
 
     public IntervalTree() {
-        this(ListIntervalCollection::new);
+        this(null, null);
     }
 
     public IntervalTree(final IntervalCollectionFactory factory) {
-        this.factory = factory;
+        this(null, factory);
+    }
+
+    public IntervalTree(final IntervalTreeNode root) {
+        this(root, null);
+    }
+
+    public IntervalTree(final IntervalTreeNode root, final IntervalCollectionFactory factory) {
+        this.root = root;
+        this.factory = factory == null ? ListIntervalCollection::new : factory;
+    }
+
+    public boolean isAutoBalancing() {
+        return this.autoBalancing;
+    }
+
+    public void setAutoBalancing(final boolean autoBalancing) {
+        this.autoBalancing = autoBalancing;
     }
 
     @Override
@@ -40,7 +58,7 @@ public class IntervalTree implements Collection<Interval> {
     public boolean contains(final Object o) {
 
         if (o instanceof Interval) {
-            return find(Interval.class.cast(o)).isEmpty();
+            return !find(Interval.class.cast(o)).isEmpty();
         } else {
             return false;
         }
@@ -155,18 +173,12 @@ public class IntervalTree implements Collection<Interval> {
 
     @Override
     public boolean add(final Interval interval) {
-        final boolean result;
+        final AtomicBoolean changed = new AtomicBoolean(false);
 
-        if (this.root == null) {
-            this.root = new IntervalTreeNode(interval, factory.get());
-            result = true;
-        } else {
-            result = _add(this.root, interval) != null;
-        }
+        this.root = _add(this.root, interval, changed);
+        this.size += changed.get() ? 1 : 0;
 
-        this.size += result ? 1 : 0;
-
-        return result;
+        return changed.get();
     }
 
     public IntervalTree insert(final Interval interval) {
@@ -174,41 +186,88 @@ public class IntervalTree implements Collection<Interval> {
         return this;
     }
 
-    protected IntervalTreeNode _add(final IntervalTreeNode node, final Interval interval) {
+    protected IntervalTreeNode _add(final IntervalTreeNode node,
+                                    final Interval interval,
+                                    final AtomicBoolean changed) {
         if (node == null) {
+            changed.set(true);
             return new IntervalTreeNode(interval, factory.get());
         }
 
+        final IntervalTreeNodeChildType childType;
         final int cmpNode = node.compareTo(interval);
         if (cmpNode == 0) {
-            if (!node.addInterval(interval)) {
-                return null;
-            }
+            changed.set(node.addInterval(interval));
+            return node;
         } else if (cmpNode < 0) {
-            node.setRight(_add(node.getRight(), interval));
+            childType = IntervalTreeNodeChildType.RIGHT;
         } else {
-            node.setLeft(_add(node.getLeft(), interval));
+            childType = IntervalTreeNodeChildType.LEFT;
         }
 
-        return node;
+        // add the node to the child and replace the returned value
+        node.setChild(_add(node.getChild(childType), interval, changed), childType);
+
+        // the node may have changed, thus we may have to re-balance
+        return isAutoBalancing() ? balance(node) : node;
     }
 
-    @Override
-    @SuppressWarnings("SimplifiableIfStatement")
-    public boolean remove(final Object o) {
-        final boolean result;
+    public void balance() {
+        balance(this.root);
+    }
 
-        if (this.root == null) {
-            result = false;
-        } else if (o instanceof Interval) {
-            result = _remove(this.root, Interval.class.cast(o));
-        } else {
-            result = false;
+    public boolean isBalanced() {
+        return isBalanced(this.root);
+    }
+
+    @SuppressWarnings("SimplifiableIfStatement")
+    protected boolean isBalanced(final IntervalTreeNode node) {
+        if (node == null) {
+            return true;
+        }
+        return Math.abs(determineBalance(node)) <= 1L &&
+                isBalanced(node.getLeft()) && isBalanced(node.getRight());
+    }
+
+    protected IntervalTreeNode balance(final IntervalTreeNode node) {
+
+        // check the balance
+        final long balance = determineBalance(node);
+        if (Math.abs(balance) <= 1) {
+            return node;
         }
 
-        size -= result ? 1 : 0;
+        // find the deepest unbalanced sub-tree (there may be more down the road)
 
-        return result;
+        // validate the different four cases four unbalanced tree's
+        final long balanceLeft = balance > 1L ? determineBalance(node.getLeft()) : 0L;
+        final long balanceRight = balance < -1L ? determineBalance(node.getRight()) : 0L;
+
+        // Left Left Case
+        if (balance > 1 && balanceLeft >= 0) {
+            return rightRotate(node);
+        }
+        // Right Right Case
+        else if (balance < -1 && balanceRight <= 0) {
+            return leftRotate(node);
+        }
+        // Left Right Case
+        else if (balance > 1 && balanceLeft < 0) {
+            node.setLeft(leftRotate(node.getLeft()));
+            return rightRotate(node);
+        }
+        // Right Left Case
+        else if (balance < -1 && balanceRight > 0) {
+            node.setRight(rightRotate(node.getRight()));
+            return leftRotate(node);
+        }
+        // any other Case, no changes - should never happen
+        else {
+            LOGGER.warn(String.format("Balancing node '%s' reached an unexpected state (b: %d, l: %d, r: %d)",
+                    node, balance, balanceLeft, balanceRight));
+            LOGGER.warn(this);
+            return node;
+        }
     }
 
     public IntervalTree delete(final Interval interval) {
@@ -216,109 +275,218 @@ public class IntervalTree implements Collection<Interval> {
         return this;
     }
 
-    protected boolean _remove(final IntervalTreeNode node, final Interval interval) {
-        if (node == null) {
+    @Override
+    @SuppressWarnings("SimplifiableIfStatement")
+    public boolean remove(final Object o) {
+        final Interval interval;
+        if (o instanceof Interval) {
+            interval = Interval.class.cast(o);
+        } else {
             return false;
         }
 
+        final AtomicBoolean changed = new AtomicBoolean(false);
+
+        this.root = _remove(this.root, interval, changed);
+        this.size -= changed.get() ? 1 : 0;
+
+        return changed.get();
+    }
+
+    protected IntervalTreeNode _remove(final IntervalTreeNode node,
+                                       final Interval interval,
+                                       final AtomicBoolean changed) {
+        if (node == null) {
+            changed.set(false);
+            return null;
+        }
+
+        final IntervalTreeNodeChildType childType;
         final int cmpNode = node.compareTo(interval);
         if (cmpNode == 0) {
-            final boolean result = node.removeInterval(interval);
-
-            if (node.isEmpty()) {
-
-                // we have to remove the node and see if we have someone as replacement
-                if (node.isLeaf()) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Removing leaf '" + node + "' from tree.");
-                    }
-
-                    if (node.hasParent()) {
-                        node.getParent().removeChild(node);
-                    } else {
-                        this.root = null;
-                    }
-                } else if (node.isSingleParent()) {
-                    final IntervalTreeNode replacementNode = node.getSingleChild();
-
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Removing node '" + node + "' and replacing with '" +
-                                replacementNode + "' from tree.");
-                    }
-
-                    if (node.hasParent()) {
-                        node.getParent().replaceChild(node, replacementNode);
-                    } else {
-                        replacementNode.setParent(null);
-                        replacementNode.setLevel(0);
-                        this.root = replacementNode;
-                    }
-                } else {
-
-                    // determine which node to replace the deleted one with (right sub-tree, smallest value)
-                    final IntervalTreeNode smallestNode = findLeftLeaf(node.getRight());
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Removing node '" + node + "' and replacing with smallest '" +
-                                smallestNode + "' from tree.");
-                    }
-
-                    final IntervalTreeNode replacementNode = replaceNode(node, smallestNode);
-                    if (!node.hasParent()) {
-                        replacementNode.setParent(null);
-                        replacementNode.setLevel(0);
-                        this.root = replacementNode;
-                    }
-                }
-            } else {
+            if (node.removeInterval(interval)) {
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace("Removed interval '" + interval + "' from node '" + node + "'.");
                 }
+
+                changed.set(true);
+                return removeEmptyNode(node);
+            } else {
+                changed.set(false);
+                return node;
+            }
+        } else if (cmpNode < 0) {
+            childType = IntervalTreeNodeChildType.RIGHT;
+        } else {
+            childType = IntervalTreeNodeChildType.LEFT;
+        }
+
+        // add the node to the child and replace the returned value
+        node.setChild(_remove(node.getChild(childType), interval, changed), childType);
+
+        return isAutoBalancing() ? balance(node) : node;
+    }
+
+    /**
+     * Removes an empty node (i.e., does not contain any intervals). When removing an empty node, the resulting tree
+     * must be rebalanced (if activated, see {@link #isAutoBalancing()}). The method returns the re-organized, balanced
+     * sub-tree. The returned sub-tree can be at most better (in height) by one - if the tree was balanced before.
+     * <p>
+     * - http://www.mathcs.emory.edu/~cheung/Courses/323/Syllabus/Trees/AVL-delete.html<br/>
+     * - http://quiz.geeksforgeeks.org/binary-search-tree-set-2-delete/
+     *
+     * @param node the node which contained the removed interval
+     *
+     * @return the new root to be used in replacement for the passed {@code node}
+     */
+    protected IntervalTreeNode removeEmptyNode(final IntervalTreeNode node) {
+        if (!node.isEmpty()) {
+            return node;
+        }
+
+        /*
+         * There is a different between the new root (rootNode) of the sub-tree and the position where the
+         * action really took place (i.e., the parent of the node, which was modified). To understand the difference,
+          * it is best to look at:
+         *
+         * - http://www.mathcs.emory.edu/~cheung/Courses/323/Syllabus/Trees/AVL-delete.html
+         */
+        final IntervalTreeNode rootNode;
+        final IntervalTreeNode actionNode;
+
+        // the empty not is a leaf, just remove it
+        if (node.isLeaf()) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Removing leaf '" + node + "' from tree.");
             }
 
-            return result;
-        } else if (cmpNode < 0) {
-            return _remove(node.getRight(), interval);
+            rootNode = null;
+            actionNode = null; // the action-node would be node.getParent(), but will be balanced in the _remove
+        }
+        // we have an empty node, which just have one parent, so we just keep that one parent
+        else if (node.isSingleParent()) {
+            rootNode = node.getSingleChild();
+            actionNode = null; // the action-node would be node.getParent(), but will be balanced in the _remove
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Removing node '" + node + "' and replacing with '" +
+                        rootNode + "' from tree.");
+            }
+        }
+        // we have two sub-trees
+        else {
+            rootNode = findLeftLeaf(node.getRight());
+            actionNode = node == rootNode.getParent() ? null : rootNode.getParent();
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Removing node '" + node + "' and replacing with smallest '" +
+                        rootNode + "' from tree.");
+            }
+
+            final IntervalTreeNodeChildType nodeChildType = node.determineChildType();
+            final IntervalTreeNodeContext nodeCtx = node.detach();
+            final IntervalTreeNodeChildType replacementChildType = rootNode.determineChildType();
+            final IntervalTreeNodeContext replacementCtx = rootNode.detach();
+
+            // if the replacementCtx has children, we have to move them to the old parent (can only have one)
+            if (replacementCtx.isSingleParent()) {
+                replacementCtx.getParent().setChild(replacementCtx.getSingleChild(), replacementChildType);
+            }
+
+            // it may be that the node had the smallestNode as child, in that case we have to keep the old child
+            if (nodeCtx.getLeft() == rootNode) {
+                rootNode.setLeft(replacementCtx.getLeft());
+
+                rootNode.setRight(nodeCtx.getRight());
+                rootNode.setParent(nodeCtx.getParent());
+            } else if (nodeCtx.getRight() == rootNode) {
+                rootNode.setRight(replacementCtx.getRight());
+
+                rootNode.setLeft(nodeCtx.getLeft());
+                rootNode.setParent(nodeCtx.getParent());
+            } else {
+                rootNode.setContext(nodeCtx);
+            }
+        }
+
+        // if we replace the root, we have to let the
+        if (rootNode != null && node.isRoot()) {
+            rootNode.setParent(null);
+            rootNode.setLevel(0L);
+        }
+
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("rootNode: " + rootNode);
+            LOGGER.trace("actionNode: " + actionNode);
+        }
+
+        if (!isAutoBalancing()) {
+            return rootNode;
+        } else if (rootNode == null) {
+            return null;
+        } else if (actionNode == null) {
+            return balance(rootNode);
         } else {
-            return _remove(node.getLeft(), interval);
+
+            /*
+             * In this case, we have to follow up from the actionNode up to the rootNode
+             * and make sure everything is balanced within this area.
+             */
+            IntervalTreeNodeChildType childType = actionNode.determineChildType();
+            IntervalTreeNode n = actionNode.getParent();
+
+            do {
+                final IntervalTreeNode child = n.getChild(childType);
+                n.setChild(balance(child), childType);
+
+                if (n == rootNode) {
+                    break;
+                }
+
+                childType = n.determineChildType();
+                n = n.getParent();
+            } while (true);
+
+            return balance(rootNode);
         }
     }
 
-    protected IntervalTreeNode replaceNode(final IntervalTreeNode replacee, final IntervalTreeNode replacement) {
-        if (replacement.isFullParent()) {
-            LOGGER.warn("Replacing '" + replacee + "' with a full parent '" + replacee + "', " +
-                    "might have unforeseen site-effects.");
+    // Get Balance factor of node N
+    protected long determineBalance(final IntervalTreeNode node) {
+        if (node == null) {
+            return 0L;
         }
 
-        final IntervalTreeNodeChildType replaceeChildType = replacee.determineChildType();
-        final IntervalTreeNodeContext replaceeCtx = replacee.detach();
-        final IntervalTreeNodeChildType replacementChildType = replacement.determineChildType();
-        final IntervalTreeNodeContext replacementCtx = replacement.detach();
+        return (node.hasLeft() ? node.getLeft().getHeight() : 0) -
+                (node.hasRight() ? node.getRight().getHeight() : 0);
+    }
 
-        // if the replacementCtx has children, we have to move them to the old parent (can only have one)
-        if (replacementCtx.isSingleParent()) {
-            replacementCtx.getParent().setChild(replacementCtx.getSingleChild(), replacementChildType);
-        }
+    protected IntervalTreeNode leftRotate(final IntervalTreeNode node) {
+        final IntervalTreeNode right = node.getRight();
 
-        // it may be that the replacee had the replacement as child, in that case we have to keep the old child
-        if (replaceeCtx.getLeft() == replacement) {
-            replacement.setLeft(replacementCtx.getLeft());
+        final IntervalTreeNodeContext rightCtx = right.detach();
+        final IntervalTreeNodeContext nodeCtx = node.detach();
 
-            replacement.setRight(replaceeCtx.getRight());
-            replacement.setParent(replaceeCtx.getParent());
-        } else if (replaceeCtx.getRight() == replacement) {
-            replacement.setRight(replacementCtx.getRight());
+        node.setLeft(nodeCtx.getLeft());
+        node.setRight(rightCtx.getLeft());
+        right.setLeft(node);
+        right.setRight(rightCtx.getRight());
 
-            replacement.setLeft(replaceeCtx.getLeft());
-            replacement.setParent(replaceeCtx.getParent());
-        } else {
-            replacement.setContext(replaceeCtx);
-        }
+        return right;
+    }
 
-        if (replaceeCtx.hasParent()) {
-            replaceeCtx.getParent().replaceChild(replacement, replaceeChildType);
-        }
+    protected IntervalTreeNode rightRotate(final IntervalTreeNode node) {
+        final IntervalTreeNode left = node.getLeft();
 
-        return replacement;
+        final IntervalTreeNodeContext leftCtx = left.detach();
+        final IntervalTreeNodeContext nodeCtx = node.detach();
+
+        node.setLeft(leftCtx.getRight());
+        node.setRight(nodeCtx.getRight());
+        left.setRight(node);
+        left.setLeft(leftCtx.getLeft());
+
+        return left;
     }
 
     protected IntervalTreeNode findLeftLeaf(final IntervalTreeNode startNode) {
