@@ -83,7 +83,7 @@ Furthermore, the provided implementation offers the following features:
 - auto-balancing, disable balancing, and manuel balancing
   - auto-balancing (activated by default): `IntervalTree.setAutoBalancing(true)` (since 1.5.0)
   - disable balancing: `IntervalTree.setAutoBalancing(false)` (since 1.5.0)
-  - manual balancing: `InteralTree.balance()`  (to be added in 1.6.0)
+  - manual balancing: `InteralTree.balance()`  (to be added in 1.5.0)
 - time optimized (handling temporal intervals) (to be added in 1.6.0)
 
 Further information regarding this implementation of the `IntervalTree` are documented [here](docs/README.md).

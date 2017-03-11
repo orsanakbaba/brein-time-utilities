@@ -42,6 +42,16 @@ public class TestIntervalTree {
         tree.insert(new Interval(10, 100));
 
         tree.nodeIterator().forEachRemaining(node -> assertNode(node, tree, true));
+
+        for (int i = 0; i < 10; i++) {
+            final IntervalTree t = createRandomTree(1000, 20, false);
+            if (t.isBalanced()) {
+                i--;
+            } else {
+                t.balance();
+                Assert.assertTrue(tree.toString(), tree.isBalanced());
+            }
+        }
     }
 
     @Test

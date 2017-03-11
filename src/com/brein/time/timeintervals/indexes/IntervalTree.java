@@ -213,7 +213,16 @@ public class IntervalTree implements Collection<Interval> {
     }
 
     public void balance() {
-        balance(this.root);
+        this.nodeIterator().forEachRemaining(node -> {
+            if (node.isLeaf()) {
+                // nothing to do
+            } else if (node.isRoot()) {
+                this.root = balance(node);
+            } else {
+                node.setLeft(balance(node.getLeft()));
+                node.setRight(balance(node.getRight()));
+            }
+        });
     }
 
     public boolean isBalanced() {
