@@ -33,7 +33,7 @@ public class TestIntervalTree {
         tree.insert(new Interval(1, 33));
         tree.insert(new Interval(1, 36));
 
-        tree.nodeIterator().forEachRemaining(node -> assertNode(node, tree));
+        tree.nodeIterator().forEachRemaining(node -> assertNode(node, tree, true));
 
         tree.clear();
 
@@ -41,42 +41,14 @@ public class TestIntervalTree {
         tree.insert(new Interval(33, 100));
         tree.insert(new Interval(10, 100));
 
-        tree.nodeIterator().forEachRemaining(node -> assertNode(node, tree));
-
-        tree.clear();
-
-        // create a balanced tree through insertion
-        tree.insert(new Interval(50, 1000));
-        tree.insert(new Interval(25, 1000));
-        tree.insert(new Interval(75, 1000));
-        tree.insert(new Interval(10, 1000));
-        tree.insert(new Interval(30, 1000));
-        tree.insert(new Interval(60, 1000));
-        tree.insert(new Interval(80, 1000));
-        tree.insert(new Interval(82, 1000));
-        tree.insert(new Interval(5, 1000));
-        tree.insert(new Interval(15, 1000));
-        tree.insert(new Interval(27, 1000));
-        tree.insert(new Interval(55, 1000));
-        tree.insert(new Interval(65, 1000));
-        tree.insert(new Interval(1, 1000));
-        tree.insert(new Interval(66, 1000));
-
-        System.out.println(tree);
-        System.out.println(tree.isBalanced());
-
-//        tree.remove(new Interval(80, 1000));
-        tree.remove(new Interval(50, 1000));
-
-        System.out.println(tree);
-        System.out.println(tree.isBalanced());
+        tree.nodeIterator().forEachRemaining(node -> assertNode(node, tree, true));
     }
 
     @Test
     public void testTrees() {
         final int nrOfRuns = 10;
-        final int minNrOfInserts = 50;
-        final int maxNrOfInserts = 2000;
+        final int minNrOfInserts = 10;
+        final int maxNrOfInserts = 100;
 
         final Random rnd = new Random();
 
@@ -84,7 +56,8 @@ public class TestIntervalTree {
             final int variableInserts = minNrOfInserts + rnd.nextInt(maxNrOfInserts - minNrOfInserts + 1);
             final int variableRemoves = (int) Math.floor(variableInserts * rnd.nextDouble());
 
-            LOGGER.trace("Validated:" + System.lineSeparator() + createRandomTree(variableInserts, variableRemoves));
+            LOGGER.trace("Validated:" + System.lineSeparator() +
+                    createRandomTree(variableInserts, variableRemoves, rnd.nextBoolean()));
         }
     }
 
@@ -241,8 +214,9 @@ public class TestIntervalTree {
     }
 
     @SuppressWarnings("SimplifiableIfStatement")
-    public IntervalTree createRandomTree(final int inserts, final int deletes) {
+    public IntervalTree createRandomTree(final int inserts, final int deletes, final boolean balancing) {
         final IntervalTree tree = new IntervalTree();
+        tree.setAutoBalancing(balancing);
 
         final int totalOperations = inserts + deletes;
         final List<Interval> intervals = new ArrayList<>();
@@ -287,7 +261,7 @@ public class TestIntervalTree {
                 }
 
                 // validate the tree after each operation
-                tree.nodeIterator().forEachRemaining(node -> assertNode(node, tree));
+                tree.nodeIterator().forEachRemaining(node -> assertNode(node, tree, balancing));
             }
 
             LOGGER.info(String.format("inserts: %d (planned: %d), deletes: %d (planned: %d)",
@@ -300,7 +274,7 @@ public class TestIntervalTree {
         return tree;
     }
 
-    public void assertNode(final IntervalTreeNode node, final IntervalTree tree) {
+    public void assertNode(final IntervalTreeNode node, final IntervalTree tree, final boolean balancing) {
         if (node.isRoot()) {
             Assert.assertEquals(0, node.getLevel());
         }
@@ -338,6 +312,8 @@ public class TestIntervalTree {
         Assert.assertTrue(tree.contains(node.getIntervals().iterator().next()));
         Assert.assertTrue(tree.overlap(node.getIntervals().iterator().next()).size() > 0);
 
-        Assert.assertTrue(tree.toString(), tree.isBalanced());
+        if (balancing) {
+            Assert.assertTrue(tree.toString(), tree.isBalanced());
+        }
     }
 }
