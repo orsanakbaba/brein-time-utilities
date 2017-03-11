@@ -67,7 +67,7 @@ functionality, the runtime-complexity, and if available the equivalent `Collecti
 | insert                | add                   | O(log n)     |
 | delete                | remove                | O(log n)     |
 | find                  | contains              | O(log n)     |
-| overlap               | n/a                   | O(log n) |
+| overlap               | n/a                   | O(log n)     |
 
 Furthermore, the provided implementation offers the following features:
 
@@ -80,7 +80,10 @@ Furthermore, the provided implementation offers the following features:
 - database look-up (to be added in 1.6.0)
 - caching (to be added in 1.6.0)
 - persistent (to be added in 1.6.0)
-- auto-balancing, disable balancing, and manuel balancing (to be added in 1.6.0)
+- auto-balancing, disable balancing, and manuel balancing
+  - auto-balancing (activated by default): `IntervalTree.setAutoBalancing(true)` (since 1.5.0)
+  - disable balancing: `IntervalTree.setAutoBalancing(false)` (since 1.5.0)
+  - manual balancing: `InteralTree.balance()`  (to be added in 1.6.0)
 - time optimized (handling temporal intervals) (to be added in 1.6.0)
 
 Further information regarding this implementation of the `IntervalTree` are documented [here](docs/README.md).
