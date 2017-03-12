@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -43,8 +44,10 @@ public class TestIntervalTree {
 
         tree.nodeIterator().forEachRemaining(node -> assertNode(node, tree, true));
 
-        for (int i = 0; i < 10; i++) {
-            final IntervalTree t = createRandomTree(1000, 20, false);
+        final int nrOfRuns = 1;
+        for (int i = 0; i < nrOfRuns; i++) {
+            final int inserts = Double.valueOf(Math.random() * 100).intValue() + 50;
+            final IntervalTree t = createRandomTree(inserts, Double.valueOf(Math.random() * inserts).intValue(), false);
             if (t.isBalanced()) {
                 i--;
             } else {
@@ -56,9 +59,9 @@ public class TestIntervalTree {
 
     @Test
     public void testTrees() {
-        final int nrOfRuns = 10;
-        final int minNrOfInserts = 10;
-        final int maxNrOfInserts = 100;
+        final int nrOfRuns = 1;
+        final int minNrOfInserts = 50;
+        final int maxNrOfInserts = 200;
 
         final Random rnd = new Random();
 
@@ -271,7 +274,16 @@ public class TestIntervalTree {
                 }
 
                 // validate the tree after each operation
-                tree.nodeIterator().forEachRemaining(node -> assertNode(node, tree, balancing));
+                final AtomicLong counter = new AtomicLong(0L);
+                final String ops = String.format("Operations %d/%d/%d", totalInserts, totalDeletes, totalOperations);
+                tree.nodeIterator().forEachRemaining(node -> {
+                    assertNode(node, tree, balancing);
+                    Assert.assertTrue(counter.incrementAndGet() <= tree.size());
+
+                    if (LOGGER.isTraceEnabled()) {
+                        LOGGER.trace(String.format("Checking %d/%d (%s)", counter.get(), tree.size(), ops));
+                    }
+                });
             }
 
             LOGGER.info(String.format("inserts: %d (planned: %d), deletes: %d (planned: %d)",
