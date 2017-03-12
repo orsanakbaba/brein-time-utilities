@@ -3,7 +3,7 @@
 </p>
 
 
-# Time-Utilities <small>(IntervalTree, BucketTimeSeries, ContainerBucketTimeSeries)</small>
+# Time-Utilities <Pedantry>(IntervalTree, BucketTimeSeries, ContainerBucketTimeSeries)</Pedantry>
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities)
 
