@@ -4,9 +4,8 @@
 
 
 # Time-Utilities 
-<sup>Features: IntervalTree, BucketTimeSeries, ContainerBucketTimeSeries</sup>
-
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities)
+<sup>Features: IntervalTree, BucketTimeSeries, ContainerBucketTimeSeries</sup>
 
 ## When should I use the brein-time-utilities library
 This library was mainly developed to make the life of developers easier, when working with temporal data.
