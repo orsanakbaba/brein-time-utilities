@@ -3,7 +3,8 @@
 </p>
 
 
-# Time-Utilities [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities)
+# Time-Utilities 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities) 
 <sup>Features: IntervalTree, BucketTimeSeries, ContainerBucketTimeSeries</sup>
 
 ## When should I use the brein-time-utilities library
