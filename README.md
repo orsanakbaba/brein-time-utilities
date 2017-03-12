@@ -5,6 +5,8 @@
 
 # Time-Utilities
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities)
+
 ## When should I use the brein-time-utilities library
 This library was mainly developed to make the life of developers easier, when working with temporal data.
 The library provides index- and data-structures used to handle real-time temporal data (e.g., time-points, time-intervals).
@@ -83,7 +85,7 @@ Furthermore, the provided implementation offers the following features:
 - auto-balancing, disable balancing, and manuel balancing
   - auto-balancing (activated by default): `IntervalTree.setAutoBalancing(true)` (since 1.5.0)
   - disable balancing: `IntervalTree.setAutoBalancing(false)` (since 1.5.0)
-  - manual balancing: `InteralTree.balance()`  (to be added in 1.5.0)
+  - manual balancing: `IntervalTree.balance()`  (to be added in 1.5.0)
 - time optimized (handling temporal intervals) (to be added in 1.6.0)
 
 Further information regarding this implementation of the `IntervalTree` are documented [here](docs/README.md).
