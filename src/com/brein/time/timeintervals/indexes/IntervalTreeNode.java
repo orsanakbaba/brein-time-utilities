@@ -3,30 +3,34 @@ package com.brein.time.timeintervals.indexes;
 import com.brein.time.timeintervals.collections.IntervalCollection;
 import com.brein.time.timeintervals.collections.IntervalCollection.IntervalFilter;
 import com.brein.time.timeintervals.collections.IntervalCollection.IntervalFilters;
-import com.brein.time.timeintervals.intervals.Interval;
+import com.brein.time.timeintervals.intervals.IInterval;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Objects;
 
 public class IntervalTreeNode extends IntervalTreeNodeContext
-        implements Iterable<Interval>, Comparable<IntervalTreeNode> {
+        implements Iterable<IInterval>, Comparable<IntervalTreeNode> {
     private static final Logger LOGGER = Logger.getLogger(IntervalTreeNode.class);
 
     private final IntervalCollection collection;
-    private final long start;
-    private final long end;
+    private final Comparable start;
+    private final Comparable end;
+    private final Comparator comparator;
 
-    private long max;
+    private Comparable max;
     private long level;
     private long height;
 
-    public IntervalTreeNode(final Interval interval,
+    public IntervalTreeNode(final IInterval interval,
                             final IntervalCollection collection) {
         this.start = interval.getNormStart();
         this.end = interval.getNormEnd();
         this.max = interval.getNormEnd();
+        this.comparator = interval.getComparator();
         this.level = 0L;
         this.height = 1L;
 
@@ -40,20 +44,20 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         this.collection.add(interval);
     }
 
-    public long getStart() {
+    public Object getStart() {
         return start;
     }
 
-    public long getEnd() {
+    public Object getEnd() {
         return end;
     }
 
-    public long getMax() {
+    public Object getMax() {
         return max;
     }
 
-    public void setMax(final long max) {
-        if (this.max == max) {
+    public void setMax(final Comparable max) {
+        if (compare(this.max, max) == 0) {
             return;
         }
         this.max = max;
@@ -81,13 +85,18 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void updateMax() {
         if (isLeaf()) {
             setMax(this.end);
         } else if (isSingleParent()) {
-            setMax(Math.max(this.end, getSingleChild().getMax()));
+            final Comparable singleChildMax = getSingleChild().max;
+            setMax(compare(this.end, singleChildMax) < 0 ? singleChildMax : this.end);
         } else {
-            setMax(Math.max(getLeft().getMax(), getRight().getMax()));
+            final Comparable leftMax = getLeft().max;
+            final Comparable rightMax = getRight().max;
+
+            setMax(compare(leftMax, rightMax) < 0 ? rightMax : leftMax);
         }
     }
 
@@ -116,14 +125,13 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         }
     }
 
-    public Collection<Interval> getIntervals() {
+    public Collection<IInterval> getIntervals() {
         return Collections.unmodifiableCollection(collection);
     }
 
     @SuppressWarnings("SimplifiableIfStatement")
-    public boolean addInterval(final Interval interval) {
-        if (interval.getNormStart() == this.start &&
-                interval.getNormEnd() == this.end) {
+    public boolean addInterval(final IInterval interval) {
+        if (compareTo(interval) == 0) {
             return this.collection.add(interval);
         } else {
             return false;
@@ -134,25 +142,25 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         return collection.isEmpty();
     }
 
-    public boolean removeInterval(final Interval interval) {
+    public boolean removeInterval(final IInterval interval) {
         return this.collection.remove(interval);
     }
 
-    public Collection<Interval> find(final Interval interval) {
+    public Collection<IInterval> find(final IInterval interval) {
         return find(interval, IntervalFilters.EQUAL);
     }
 
-    public Collection<Interval> find(final Interval interval, final IntervalFilter filter) {
+    public Collection<IInterval> find(final IInterval interval, final IntervalFilter filter) {
         return this.collection.find(interval, filter);
     }
 
     public String getId() {
-        return String.format("[%d, %d]", this.start, this.end);
+        return String.format("[%s, %s]", this.start, this.end);
     }
 
     @Override
     public String toString() {
-        return String.format("[%d, %d] (max: %d, count: %d, level: %d, height: %d)",
+        return String.format("[%s, %s] (max: %s, count: %d, level: %d, height: %d)",
                 this.start, this.end, this.max, this.collection.size(), this.level, this.height);
     }
 
@@ -162,24 +170,26 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         return compareTo(node.start, node.end);
     }
 
-    public int compareTo(final Interval node) {
-        return compareTo(node.getNormStart(), node.getNormEnd());
+    public int compareTo(final IInterval interval) {
+        return compareTo(interval.getNormStart(), interval.getNormEnd());
     }
 
-    public int compareTo(final long start, final long end) {
-        if (this.start < start) {
+    @SuppressWarnings("unchecked")
+    public int compareTo(final Comparable start, final Comparable end) {
+
+        final int cmpStart = compare(this.start, start);
+        if (cmpStart < 0) {
             return -1;
-        } else if (this.start == start) {
-            if (this.end == end) {
-                return 0;
-            } else if (this.end < end) {
-                return -1;
-            } else {
-                return 1;
-            }
+        } else if (cmpStart == 0) {
+            return compare(this.end, end);
         } else {
             return 1;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public int compare(final Object val1, final Object val2) {
+        return comparator.compare(val1, val2);
     }
 
     @Override
@@ -231,7 +241,7 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         this.setParent(null);
         this.setLeft(null);
         this.setRight(null);
-        this.max = this.getEnd();
+        this.max = end;
         this.level = 0L;
 
         return ctx;
@@ -258,7 +268,7 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
     }
 
     @Override
-    public Iterator<Interval> iterator() {
+    public Iterator<IInterval> iterator() {
         return this.collection.iterator();
     }
 
@@ -272,5 +282,24 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         } else {
             return IntervalTreeNodeChildType.NONE;
         }
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        } else if (obj == null) {
+            return false;
+        } else if (IntervalTreeNode.class.equals(obj.getClass())) {
+            final IntervalTreeNode node = IntervalTreeNode.class.cast(obj);
+            return compareTo(node) == 0;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getStart(), getEnd());
     }
 }

@@ -14,21 +14,21 @@ The tree is capable to hold multiple **different** intervals within a node, i.e.
 following intervals:
 
 ```java
-tree.insert(new IdInterval<>("ID1", 1L, 5L));
-tree.insert(new IdInterval<>("ID2", 1L, 5L));
+tree.insert(new IdInterval("ID1", 1L, 5L));
+tree.insert(new IdInterval("ID2", 1L, 5L));
 ```
 
 If I know would like to validate if a specific interval can be found (or using `Collection` wording: 
 "is `contained`") within the `tree`, I can do:
 
 ```java
-tree.contains(new IdInterval<>("ID1", 1L, 5L)); // -> true
-tree.contains(new IdInterval<>("ID2", 1L, 5L)); // -> true
-tree.contains(new IdInterval<>("ID3", 1L, 5L)); // -> false
+tree.contains(new IdInterval("ID1", 1L, 5L)); // -> true
+tree.contains(new IdInterval("ID2", 1L, 5L)); // -> true
+tree.contains(new IdInterval("ID3", 1L, 5L)); // -> false
 
-tree.find(new IdInterval<>("ID1", 1L, 5L)); // -> {[1, 5] with ID1}
-tree.find(new IdInterval<>("ID2", 1L, 5L)); // -> {[1, 5] with ID2}
-tree.find(new IdInterval<>("ID3", 1L, 5L)); // -> {[1, 5] with ID3}
+tree.find(new IdInterval("ID1", 1L, 5L)); // -> {[1, 5] with ID1}
+tree.find(new IdInterval("ID2", 1L, 5L)); // -> {[1, 5] with ID2}
+tree.find(new IdInterval("ID3", 1L, 5L)); // -> {[1, 5] with ID3}
 ```
 
 But what if I just want to know, if the `tree` contains any interval with `[1, 5]` independent of it's id?

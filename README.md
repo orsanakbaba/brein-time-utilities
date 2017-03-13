@@ -49,12 +49,12 @@ tree.add(new Interval(1L, 5L));
 tree.add(new Interval(2L, 5L));
 tree.add(new Interval(3L, 5L));
 
-final Collection<Interval> overlap = tree.overlap(new Interval(2L, 2L));
+final Collection<IInterval> overlap = tree.overlap(new Interval(2L, 2L));
 overlap.forEach(i -> {
     System.out.println(i); // will print out [1, 5] and [2, 5]
 });
 
-final Collection<Interval> find = tree.find(new Interval(2L, 5L));
+final Collection<IInterval> find = tree.find(new Interval(2L, 5L));
 find.forEach(i -> {
     System.out.println(i); // will print out only [2, 5]
 });

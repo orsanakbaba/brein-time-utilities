@@ -1,6 +1,7 @@
 package com.brein.time.timeintervals.indexes;
 
 import com.brein.time.timeintervals.collections.SetIntervalCollection;
+import com.brein.time.timeintervals.intervals.IInterval;
 import com.brein.time.timeintervals.intervals.IdInterval;
 import com.brein.time.timeintervals.intervals.Interval;
 import org.apache.log4j.Logger;
@@ -22,6 +23,26 @@ public class TestIntervalTree {
     private static final Logger LOGGER = Logger.getLogger(TestIntervalTree.class);
 
     @Test
+    public void testSimpleUsage() {
+        final IntervalTree tree = new IntervalTree();
+
+        tree.insert(new Interval(1L, 2L));
+        tree.insert(new Interval(5, 10));
+        tree.insert(new Interval(5.0, 10.0));
+        tree.insert(new Interval(0.1, 1.5));
+        tree.insert(new Interval(5, 10));
+        tree.insert(new Interval(5.0, 10.0));
+
+        tree.nodeIterator().forEachRemaining(n -> {
+
+        });
+
+        System.out.println(tree.toString());
+
+        System.out.println(tree.overlap(new Interval(1, 3)));
+    }
+
+    @Test
     public void testEmptyTree() {
         assertIsEmpty(new IntervalTree());
     }
@@ -30,17 +51,17 @@ public class TestIntervalTree {
     public void testBalancing() {
         final IntervalTree tree = new IntervalTree();
 
-        tree.insert(new Interval(1, 10));
-        tree.insert(new Interval(1, 33));
-        tree.insert(new Interval(1, 36));
+        tree.insert(new Interval<>(1, 10));
+        tree.insert(new Interval<>(1, 33));
+        tree.insert(new Interval<>(1, 36));
 
         tree.nodeIterator().forEachRemaining(node -> assertNode(node, tree, true));
 
         tree.clear();
 
-        tree.insert(new Interval(36, 100));
-        tree.insert(new Interval(33, 100));
-        tree.insert(new Interval(10, 100));
+        tree.insert(new Interval<Integer>(36, 100));
+        tree.insert(new Interval<Integer>(33, 100));
+        tree.insert(new Interval<Integer>(10, 100));
 
         tree.nodeIterator().forEachRemaining(node -> assertNode(node, tree, true));
 
@@ -77,14 +98,14 @@ public class TestIntervalTree {
     @Test
     public void testEmptyAfterInsertAndDelete() {
         assertIsEmpty(new IntervalTree()
-                .insert(new Interval(3L, 3L))
-                .insert(new Interval(3L, 3L))
-                .insert(new Interval(4L, 4L))
-                .insert(new Interval(2L, 2L))
-                .delete(new Interval(3L, 3L))
-                .delete(new Interval(3L, 3L))
-                .delete(new Interval(4L, 4L))
-                .delete(new Interval(2L, 2L)));
+                .insert(new Interval<Long>(3L, 3L))
+                .insert(new Interval<Long>(3L, 3L))
+                .insert(new Interval<Long>(4L, 4L))
+                .insert(new Interval<Long>(2L, 2L))
+                .delete(new Interval<Long>(3L, 3L))
+                .delete(new Interval<Long>(3L, 3L))
+                .delete(new Interval<Long>(4L, 4L))
+                .delete(new Interval<Long>(2L, 2L)));
     }
 
     @Test
@@ -93,14 +114,14 @@ public class TestIntervalTree {
 
         Assert.assertEquals(tree.size(), 0);
 
-        tree.insert(new Interval(1, 1));
-        tree.insert(new Interval(1, 1));
-        tree.insert(new Interval(1, 1));
+        tree.insert(new Interval<Integer>(1, 1));
+        tree.insert(new Interval<Integer>(1, 1));
+        tree.insert(new Interval<Integer>(1, 1));
         Assert.assertEquals(tree.size(), 1);
 
-        tree.remove(new Interval(1, 1));
+        tree.remove(new Interval<Integer>(1, 1));
         Assert.assertEquals(tree.size(), 0);
-        tree.remove(new Interval(1, 1));
+        tree.remove(new Interval<Integer>(1, 1));
         Assert.assertEquals(tree.size(), 0);
 
         tree.insert(new IdInterval<>("ID1", 1, 1));
@@ -120,14 +141,14 @@ public class TestIntervalTree {
 
         Assert.assertEquals(tree.size(), 0);
 
-        tree.insert(new Interval(1, 1));
-        tree.insert(new Interval(1, 1));
-        tree.insert(new Interval(1, 1));
+        tree.insert(new Interval<>(1, 1));
+        tree.insert(new Interval<>(1, 1));
+        tree.insert(new Interval<>(1, 1));
         Assert.assertEquals(tree.size(), 3);
 
-        tree.remove(new Interval(1, 1));
+        tree.remove(new Interval<>(1, 1));
         Assert.assertEquals(tree.size(), 2);
-        tree.remove(new Interval(1, 1));
+        tree.remove(new Interval<>(1, 1));
         Assert.assertEquals(tree.size(), 1);
 
         tree.insert(new IdInterval<>("ID1", 1, 1));
@@ -144,7 +165,7 @@ public class TestIntervalTree {
 
     @Test
     public void testFind() {
-        Collection<Interval> found;
+        Collection<IInterval> found;
 
         final IntervalTree tree = new IntervalTree(SetIntervalCollection::new);
 
@@ -156,43 +177,42 @@ public class TestIntervalTree {
         found = tree.find(new IdInterval<>("ID2", 1L, 5L));
         Assert.assertEquals(1, found.size());
 
-        found = tree.find(new Interval(1L, 5L));
+        found = tree.find(new Interval<>(1L, 5L));
         Assert.assertEquals(2, found.size());
     }
 
     @Test
     public void testOverlap() throws IOException {
-        Collection<Interval> overlap;
+        Collection<IInterval> overlap;
 
         final IntervalTree tree = new IntervalTree();
 
         // check the empty tree
-        overlap = tree.overlap(new Interval(1L, 5L));
+        overlap = tree.overlap(new Interval<>(1L, 5L));
         Assert.assertEquals(0, overlap.size());
 
         // add the interval [3, 3]
-        tree.insert(new Interval(3L, 3L));
-
-        overlap = tree.overlap(new Interval(1L, 5L));
+        tree.insert(new Interval<>(3L, 3L));
+        overlap = tree.overlap(new Interval<>(1L, 5L));
         Assert.assertEquals(1, overlap.size());
         Assert.assertTrue(overlap.containsAll(Collections.singletonList(
-                new Interval(3L, 3L)
+                new Interval<>(3L, 3L)
         )));
 
-        overlap = tree.overlap(new Interval(4L, 5L));
+        overlap = tree.overlap(new Interval<>(4L, 5L));
         Assert.assertEquals(0, overlap.size());
 
-        overlap = tree.overlap(new Interval(1L, 2L));
+        overlap = tree.overlap(new Interval<>(1L, 2L));
         Assert.assertEquals(0, overlap.size());
 
         // add the interval [3, 10]
-        tree.insert(new Interval(3L, 10L));
+        tree.insert(new Interval<>(3L, 10L));
 
-        overlap = tree.overlap(new Interval(1L, 5L));
+        overlap = tree.overlap(new Interval<>(1L, 5L));
         Assert.assertEquals(2, overlap.size());
         Assert.assertTrue(overlap.containsAll(Arrays.asList(
-                new Interval(3L, 3L),
-                new Interval(3L, 10L)
+                new Interval<>(3L, 3L),
+                new Interval<>(3L, 10L)
         )));
 
         // add intervals from [1, x] with x ∈ {1, n}
@@ -201,20 +221,20 @@ public class TestIntervalTree {
         final List<Integer> shuffledValues = IntStream.range(1, n + 1)
                 .boxed().collect(Collectors.toList());
         Collections.shuffle(shuffledValues);
-        shuffledValues.forEach(i -> tree.insert(new Interval(1, i)));
+        shuffledValues.forEach(i -> tree.insert(new Interval<>(1, i)));
 
         for (int k = 1; k <= n; k++) {
-            final Interval query = new Interval(k, k);
+            final Interval query = new Interval<>(k, k);
 
             overlap = tree.overlap(query);
             Assert.assertEquals(n - k + 1, overlap.size());
             for (int i = k; i <= n; i++) {
-                Assert.assertTrue(overlap.contains(new Interval(1, i)));
+                Assert.assertTrue(overlap.contains(new Interval<>(1, i)));
             }
         }
     }
 
-    protected boolean assertContains(final IntervalTree tree, final Interval interval) {
+    protected boolean assertContains(final IntervalTree tree, final IInterval interval) {
         return tree.contains(interval);
     }
 
@@ -232,13 +252,13 @@ public class TestIntervalTree {
         tree.setAutoBalancing(balancing);
 
         final int totalOperations = inserts + deletes;
-        final List<Interval> intervals = new ArrayList<>();
+        final List<IInterval> intervals = new ArrayList<>();
         final Random rnd = new Random();
 
         // create the intervals that will be inserted
         while (intervals.size() < inserts) {
             final int start = rnd.nextInt(900);
-            final Interval interval = new Interval(start, start + rnd.nextInt(100));
+            final IInterval interval = new Interval<>(start, start + rnd.nextInt(100));
 
             if (!intervals.contains(interval)) {
                 intervals.add(interval);
@@ -247,7 +267,7 @@ public class TestIntervalTree {
 
         int totalInserts = 0;
         int totalDeletes = 0;
-        final List<Interval> added = new ArrayList<>();
+        final List<IInterval> added = new ArrayList<>();
 
         try {
             for (int i = 0; i < totalOperations; i++) {
@@ -263,12 +283,12 @@ public class TestIntervalTree {
                 }
 
                 if (insert) {
-                    final Interval interval = intervals.remove(rnd.nextInt(intervals.size()));
+                    final IInterval interval = intervals.remove(rnd.nextInt(intervals.size()));
                     tree.insert(interval);
                     Assert.assertTrue(interval.toString(), added.add(interval));
                     totalInserts++;
                 } else {
-                    final Interval interval = added.remove(rnd.nextInt(added.size()));
+                    final IInterval interval = added.remove(rnd.nextInt(added.size()));
                     Assert.assertTrue(interval.toString(), tree.remove(interval));
                     totalDeletes++;
                 }
@@ -296,6 +316,7 @@ public class TestIntervalTree {
         return tree;
     }
 
+    @SuppressWarnings("unchecked")
     public void assertNode(final IntervalTreeNode node, final IntervalTree tree, final boolean balancing) {
         if (node.isRoot()) {
             Assert.assertEquals(0, node.getLevel());
@@ -305,10 +326,10 @@ public class TestIntervalTree {
             Assert.assertEquals(node.getLevel() + 1, node.getLeft().getLevel());
             Assert.assertTrue(node + " < " + node.getLeft(),
                     (
-                            node.getStart() > node.getLeft().getStart()
+                            node.compare(node.getStart(), node.getLeft().getStart()) > 0
                     ) || (
-                            node.getStart() == node.getLeft().getStart() &&
-                                    node.getEnd() > node.getLeft().getEnd()
+                            node.compare(node.getStart(), node.getLeft().getStart()) == 0 &&
+                                    node.compare(node.getEnd(), node.getLeft().getEnd()) > 0
                     )
             );
         }
@@ -317,10 +338,10 @@ public class TestIntervalTree {
             Assert.assertEquals(node.getLevel() + 1, node.getRight().getLevel());
             Assert.assertTrue(node + " > " + node.getRight(),
                     (
-                            node.getStart() < node.getRight().getStart()
+                            node.compare(node.getStart(), node.getRight().getStart()) < 0
                     ) || (
-                            node.getStart() == node.getRight().getStart() &&
-                                    node.getEnd() < node.getRight().getEnd()
+                            node.compare(node.getStart(), node.getRight().getStart()) == 0 &&
+                                    node.compare(node.getEnd(), node.getRight().getEnd()) < 0
                     )
             );
         }

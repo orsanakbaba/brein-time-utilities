@@ -63,7 +63,7 @@ public class GraphStreamIntervalTreeViewer {
         this.tree.positionIterator().forEachRemaining(node -> {
             final String nodeId = node.getId();
             final Node n = graph.addNode(nodeId);
-            n.setAttribute("ui.label", nodeId + " (" + node.getMax() + ")");
+            n.setAttribute("ui.label", nodeId);
 
             final IntervalTreeNode parent = node.getNode().getParent();
             maxLevel.set(Math.max(maxLevel.get(), node.getY()));

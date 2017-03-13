@@ -4,7 +4,7 @@ import com.brein.time.timeintervals.collections.IntervalCollection.IntervalFilte
 import com.brein.time.timeintervals.collections.IntervalCollection.IntervalFilters;
 import com.brein.time.timeintervals.collections.IntervalCollectionFactory;
 import com.brein.time.timeintervals.collections.ListIntervalCollection;
-import com.brein.time.timeintervals.intervals.Interval;
+import com.brein.time.timeintervals.intervals.IInterval;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.Array;
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("NullableProblems")
-public class IntervalTree implements Collection<Interval> {
+public class IntervalTree implements Collection<IInterval> {
     private static final Logger LOGGER = Logger.getLogger(IntervalTree.class);
 
     private final IntervalCollectionFactory factory;
@@ -57,18 +57,18 @@ public class IntervalTree implements Collection<Interval> {
     @SuppressWarnings("SimplifiableIfStatement")
     public boolean contains(final Object o) {
 
-        if (o instanceof Interval) {
-            return !find(Interval.class.cast(o)).isEmpty();
+        if (o instanceof IInterval) {
+            return !find(IInterval.class.cast(o)).isEmpty();
         } else {
             return false;
         }
     }
 
-    public Collection<Interval> find(final Interval query) {
+    public Collection<IInterval> find(final IInterval query) {
         return find(query, IntervalFilters.STRICT_EQUAL);
     }
 
-    public Collection<Interval> find(final Interval query, final IntervalFilter filter) {
+    public Collection<IInterval> find(final IInterval query, final IntervalFilter filter) {
         if (this.root == null) {
             return Collections.emptyList();
         } else {
@@ -76,8 +76,8 @@ public class IntervalTree implements Collection<Interval> {
         }
     }
 
-    protected Collection<Interval> _find(final IntervalTreeNode node,
-                                         final Interval query,
+    protected Collection<IInterval> _find(final IntervalTreeNode node,
+                                         final IInterval query,
                                          final IntervalFilter filter) {
         if (node == null) {
             return Collections.emptyList();
@@ -106,7 +106,7 @@ public class IntervalTree implements Collection<Interval> {
     }
 
     @Override
-    public boolean addAll(final Collection<? extends Interval> c) {
+    public boolean addAll(final Collection<? extends IInterval> c) {
         final AtomicBoolean changed = new AtomicBoolean(false);
         c.forEach(interval -> changed.compareAndSet(false, add(interval)));
         return changed.get();
@@ -121,9 +121,9 @@ public class IntervalTree implements Collection<Interval> {
 
     @Override
     public boolean retainAll(final Collection<?> c) {
-        final List<Interval> contained = c.stream()
+        final List<IInterval> contained = c.stream()
                 .filter(this::contains)
-                .map(Interval.class::cast)
+                .map(IInterval.class::cast)
                 .collect(Collectors.toList());
 
         // if there is nothing to be removed, we can return false
@@ -143,28 +143,31 @@ public class IntervalTree implements Collection<Interval> {
         this.size = 0;
     }
 
-    public Collection<Interval> overlap(final Interval query) {
+    public Collection<IInterval> overlap(final IInterval query) {
         if (this.root == null) {
             return Collections.emptyList();
         } else {
-            final List<Interval> result = new ArrayList<>();
+            final List<IInterval> result = new ArrayList<>();
             _overlap(this.root, query, result);
             return result;
         }
     }
 
-    protected void _overlap(final IntervalTreeNode node, final Interval query, final Collection<Interval> result) {
+    @SuppressWarnings("unchecked")
+    protected void _overlap(final IntervalTreeNode node, final IInterval query, final Collection<IInterval> result) {
 
         if (node == null) {
             return;
         }
 
         // check if the current node overlaps
-        if (node.getStart() <= query.getNormEnd() && node.getEnd() >= query.getNormStart()) {
+
+        if (node.compare(node.getStart(), query.getNormEnd()) <= 0 &&
+                node.compare(node.getEnd(), query.getNormStart()) >= 0) {
             result.addAll(node.getIntervals());
         }
 
-        if (node.hasLeft() && node.getLeft().getMax() >= query.getStart()) {
+        if (node.hasLeft() && node.compare(node.getLeft().getMax(), query.getNormStart()) >= 0) {
             this._overlap(node.getLeft(), query, result);
         }
 
@@ -172,7 +175,7 @@ public class IntervalTree implements Collection<Interval> {
     }
 
     @Override
-    public boolean add(final Interval interval) {
+    public boolean add(final IInterval interval) {
         final AtomicBoolean changed = new AtomicBoolean(false);
 
         this.root = _add(this.root, interval, changed);
@@ -181,13 +184,13 @@ public class IntervalTree implements Collection<Interval> {
         return changed.get();
     }
 
-    public IntervalTree insert(final Interval interval) {
+    public IntervalTree insert(final IInterval interval) {
         add(interval);
         return this;
     }
 
     protected IntervalTreeNode _add(final IntervalTreeNode node,
-                                    final Interval interval,
+                                    final IInterval interval,
                                     final AtomicBoolean changed) {
         if (node == null) {
             changed.set(true);
@@ -279,7 +282,7 @@ public class IntervalTree implements Collection<Interval> {
         }
     }
 
-    public IntervalTree delete(final Interval interval) {
+    public IntervalTree delete(final IInterval interval) {
         remove(interval);
         return this;
     }
@@ -287,9 +290,9 @@ public class IntervalTree implements Collection<Interval> {
     @Override
     @SuppressWarnings("SimplifiableIfStatement")
     public boolean remove(final Object o) {
-        final Interval interval;
-        if (o instanceof Interval) {
-            interval = Interval.class.cast(o);
+        final IInterval interval;
+        if (o instanceof IInterval) {
+            interval = IInterval.class.cast(o);
         } else {
             return false;
         }
@@ -303,7 +306,7 @@ public class IntervalTree implements Collection<Interval> {
     }
 
     protected IntervalTreeNode _remove(final IntervalTreeNode node,
-                                       final Interval interval,
+                                       final IInterval interval,
                                        final AtomicBoolean changed) {
         if (node == null) {
             changed.set(false);
@@ -537,12 +540,12 @@ public class IntervalTree implements Collection<Interval> {
     }
 
     @Override
-    public Iterator<Interval> iterator() {
+    public Iterator<IInterval> iterator() {
         final Iterator<IntervalTreeNode> outerNodeIt = nodeIterator();
 
-        return new Iterator<Interval>() {
-            private Interval next = findNext();
-            private Iterator<Interval> nodeCollectionIt = null;
+        return new Iterator<IInterval>() {
+            private IInterval next = findNext();
+            private Iterator<IInterval> nodeCollectionIt = null;
 
             @Override
             public boolean hasNext() {
@@ -550,18 +553,18 @@ public class IntervalTree implements Collection<Interval> {
             }
 
             @Override
-            public Interval next() {
+            public IInterval next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
 
-                final Interval result = this.next;
+                final IInterval result = this.next;
                 this.next = findNext();
 
                 return result;
             }
 
-            protected Interval findNext() {
+            protected IInterval findNext() {
                 if (this.nodeCollectionIt != null && this.nodeCollectionIt.hasNext()) {
                     // nothing to do, next will return something
                 } else if (outerNodeIt.hasNext()) {
@@ -664,10 +667,10 @@ public class IntervalTree implements Collection<Interval> {
     @Override
     public Object[] toArray() {
         if (this.size() == 0L) {
-            return new Interval[0];
+            return new IInterval[0];
         }
 
-        final Interval[] intervals = new Interval[size()];
+        final IInterval[] intervals = new IInterval[size()];
         final AtomicInteger pos = new AtomicInteger(0);
         iterator().forEachRemaining(i -> intervals[pos.getAndIncrement()] = i);
 

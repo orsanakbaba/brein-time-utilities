@@ -43,11 +43,7 @@ public class PositionedNode {
     public long getY() {
         return this.y;
     }
-
-    public long getMax() {
-        return node.getMax();
-    }
-
+    
     @Override
     public String toString() {
         return String.format("[%d, %d] - %s", this.x, this.y, this.node);
