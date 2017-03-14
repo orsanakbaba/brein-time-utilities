@@ -102,6 +102,8 @@ Methods with the prefix `ir` (e.g., `irOverlap`, `irEquals`) are an implementati
 </p>
 
 It is important to notice, that one relation excludes all other, i.e., two intervals can only be in one of the specified relations.
+Furthermore, Allen's relations cover all possible scenarios, thus two intervals are exactly in one of the specified relations (please
+notice [Working with Mixed Types of Intervals](#working-with-mixed-types-of-intervals)).
 
 ## Extending Intervals... and what to consider
 
