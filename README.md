@@ -75,7 +75,7 @@ Furthermore, the provided implementation offers the following features:
   - calling `insert(new IdInteval("ID1", 1, 2))` and `insert(new IdInteval("ID2", 1, 2))` will inserted two intervals (independent of the storage)
 - easy extendable `Interval` type, so that every type of data associated to intervals can be handled (since 1.5.0)
 - `IntervalTree` implements `Collection` interface (since 1.5.0)
-- 'Interval' (see [documentation](docs/Interval.md)) implements [Allen's Interval Algebra](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
+- `Interval` (see [documentation](docs/Interval.md)) implements [Allen's Interval Algebra](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
 - database look-up (to be added in 1.6.0)
 - caching (to be added in 1.6.0)
 - persistent (to be added in 1.6.0)
