@@ -2,7 +2,6 @@
   <img src="https://www.breinify.com/img/Breinify_logo.png" alt="Breinify: Leading Temporal AI Engine" width="250">
 </p>
 
-
 # Time-Utilities 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities) 
 <sup>Features: **IntervalTree**, **BucketTimeSeries**, **ContainerBucketTimeSeries**</sup>

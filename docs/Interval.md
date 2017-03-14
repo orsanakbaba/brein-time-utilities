@@ -36,9 +36,24 @@ final Interval<Integer> invalid2 = new Interval<>(Integer.class, 5, 5, true, fal
 ## Operations
 
 The implementation provides the following operations:
-- `boolean contains(Object value)`
-- `int compareTo(final IInterval interval)`
-- `boolean equals(final Object obj)`
+- `int compareTo(final IInterval interval)` (since. 1.5.0)
+- `boolean equals(final Object obj)` (since 1.5.0)
+- `boolean contains(Object value)` (since 1.5.1)
+- `boolean overlaps(IInterval interval)` (since 1.5.2)
+- `boolean irOverlaps(final IInterval interval)`, see [2](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
+- `boolean irIsOverlappedBy(final IInterval interval)`, see [2](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
+- `boolean irStarts(final IInterval interval)`, see [2](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
+- `boolean irStartsBy(final IInterval interval)`, see [2](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
+- `boolean irEnds(final IInterval interval)`, see [2](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
+- `boolean irEndsBy(final IInterval interval)`, see [2](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
+- `boolean irBefore(final IInterval interval)`, see [2](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
+- `boolean irAfter(final IInterval interval)`, see [2](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
+- `boolean irIncludes(final IInterval interval)`, see [2](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
+- `boolean irIsDuring(final IInterval interval)`, see [2](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
+- `boolean irEquals(final IInterval interval)`, see [2](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
+- `boolean irStartsDirectlyBefore(final IInterval interval)`, see [2](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
+- `boolean irEndsDirectlyBefore(final IInterval interval)`, see [2](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
+- `AllenIntervalRelation ir(final IInterval interval)`, see [2](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
 
 The `contains` method, checks if the interval contains the specified `value`, i.e., it returns true, if and only if 
 `value ≤ x ∧ value ≤ e` assuming a closed interval `[s, e]`. The `value` can be of any valid type within the domain, 
@@ -67,6 +82,26 @@ new Interval<>(1L, 5L).compareTo(new Interval<>(1, 6))      < 0;  // i.e., [1, 5
 // the specified type, specifies the boundaries
 new Interval<>(Double.class, 1.0, 5.0, true, true).compareTo(new Interval<>(Long.class, 1L, 5L, true, true)) > 0;  // i.e., (1.0, 5.0) < (1, 5)
 ```
+
+The methods `overlaps` checks if the interval overlaps with the specified `inteval`. The method returns `true`, if and only 
+if the two intervals share at least one common element, i.e., `[s1, e1]` overlaps with `[s2, e2]`, if and only if 
+`{ x ∈ X | s1 ≤ x ∧ x ≤ e1 } ∩ { x ∈ X | s2 ≤ x ∧ x ≤ e2 } ≠ ∅`.
+
+```java
+new Interval<>(1L, 5L).overlaps(new Interval<>(-1L, 10L)) == true;
+
+new Interval<>(Double.class, 1.0, 4.9, true, true).overlaps(new Interval<>(Double.class, 4.9, 5.0, true, true)) == false;
+new Interval<>(Double.class, 1.0, 4.9, true, false).overlaps(new Interval<>(Double.class, 4.9, 5.0, false, true)) == true;
+```
+
+Methods with the prefix `ir` (e.g., `irOverlap`, `irEquals`) are an implementation of 
+[Allen's Interval Algebra](https://en.wikipedia.org/wiki/Allen's_interval_algebra), which are defined as following:
+
+<p align="center">
+  <img src="allen-interval-relations.png" alt="Allen's Interval Relations" width="450">
+</p>
+
+It is important to notice, that one relation excludes all other, i.e., two intervals can only be in one of the specified relations.
 
 ## Extending Intervals... and what to consider
 
@@ -120,7 +155,24 @@ public class IdInterval<I extends Comparable<I>, T extends Number & Comparable<T
 ```
 
 In this implementation, the most important line is `super.compareTo(i)`. You should always use the `super` implementation,
-and only be more general regarding the comparision, if the `super.compareTo` result is `0`. Otherwise, the intervals are 
-already different and thus, the instances can never be equal. One may argue that the comparison should be based on the identifiers.
-This may be correct within specific use-cases, but be aware, that such implementations can not utilize, e.g., interval-based 
-index structures like the `IntervalTree`.
+and only be more specific regarding the comparision, if the `super.compareTo` result is `0`. Otherwise, the intervals are 
+already different and thus, the instances can never be equal. It should be mentioned, that the comparision defined by `compareTo`
+is not used by, e.g., the `IntervalTree`. These implementation are utilizing the `Comparator<Object> getComparator()`
+method, which is (if not overridden) utilizing the `int compareIntervals(final Object o1, final Object o2)` method.
+
+## Remarks
+
+### Working with Mixed Types of Intervals
+
+When working with mixed types of intervals, e.g., double-based (like `new Interval<>(0.1, 0.5)`) and 
+long-based intervals (like `new Intervals<>(5L, 6L)`), the `null` is interpreted within the specific domain of the type, e.g.,
+a double cannot exceed a value as defined by `Double.MAX_VALUE`, whereby a long cannot be larger than `Long.MAX_VALUE`. Thus,
+comparing mixed values using relations like `irEnds` or `irStarts` may lead to unexpected behavior, e.g., the following 
+example is assumed to be `false`:
+
+```java
+new Interval<>(Double.class.cast(null), null).irEnds(new Interval<>(8L, null)) == false; // because Double.MAX_VALUE < LONG.MAX_VALUE
+new Interval<>(Long.class.cast(null), null).irEnds(new Interval<>(8L, null)) == true;    // because both can reach the same maximum
+
+new Interval<>(Double.class.cast(null), null).irEquals(new Interval<>(Long.class.cast(null), null)) == false, // because the possible end is different
+```

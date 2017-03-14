@@ -84,6 +84,8 @@ public class Interval<T extends Comparable<T>> implements IInterval<T> {
         final T max = determineMaxValue();
         if (min.equals(result) || max.equals(result)) {
             throw new IllegalTimeInterval("The minimal and maximal value are reserved.");
+        } else if (getNextValue(min).equals(result) || getPreviousValue(max).equals(result)) {
+            throw new IllegalTimeInterval("The edge values are reserved and cannot be used.");
         } else if (Double.class.equals(this.clazz)) {
             final Double dVal = Double.class.cast(result);
             if (dVal.equals(Double.NaN)) {
@@ -199,9 +201,9 @@ public class Interval<T extends Comparable<T>> implements IInterval<T> {
         } else if (Long.class.equals(this.clazz)) {
             return (T) Long.valueOf(Long.class.cast(val) + 1L);
         } else if (Float.class.equals(this.clazz)) {
-            return (T) Double.valueOf(Math.nextAfter(Float.class.cast(val), Double.NEGATIVE_INFINITY));
+            return (T) Double.valueOf(Math.nextAfter(Float.class.cast(val), Double.POSITIVE_INFINITY));
         } else if (Double.class.equals(this.clazz)) {
-            return (T) Double.valueOf(Math.nextAfter(Double.class.cast(val), Double.NEGATIVE_INFINITY));
+            return (T) Double.valueOf(Math.nextAfter(Double.class.cast(val), Double.POSITIVE_INFINITY));
         } else {
             throw new IllegalArgumentException("The class '" + clazz + "' is not supported.");
         }
@@ -222,9 +224,9 @@ public class Interval<T extends Comparable<T>> implements IInterval<T> {
         } else if (Long.class.equals(this.clazz)) {
             return (T) Long.valueOf(Long.class.cast(val) - 1L);
         } else if (Float.class.equals(this.clazz)) {
-            return (T) Double.valueOf(Math.nextAfter(Float.class.cast(val), Double.POSITIVE_INFINITY));
+            return (T) Double.valueOf(Math.nextAfter(Float.class.cast(val), Double.NEGATIVE_INFINITY));
         } else if (Double.class.equals(this.clazz)) {
-            return (T) Double.valueOf(Math.nextAfter(Double.class.cast(val), Double.POSITIVE_INFINITY));
+            return (T) Double.valueOf(Math.nextAfter(Double.class.cast(val), Double.NEGATIVE_INFINITY));
         } else {
             throw new IllegalArgumentException("The class '" + clazz + "' is not supported.");
         }
@@ -250,7 +252,7 @@ public class Interval<T extends Comparable<T>> implements IInterval<T> {
 
     @Override
     public Comparator<Object> getComparator() {
-        return this::compare;
+        return this::compareIntervals;
     }
 
     public boolean isOpenStart() {
@@ -266,9 +268,82 @@ public class Interval<T extends Comparable<T>> implements IInterval<T> {
         return clazz;
     }
 
-    public boolean contains(final T value) {
-        final int cmpStart = getNormStart().compareTo(value);
-        return cmpStart <= 0 && getNormEnd().compareTo(value) <= 0;
+    public boolean overlaps(final IInterval interval) {
+        final int startCmp = compareIntervals(getNormStart(), interval.getNormEnd());
+        if (startCmp > 0) {
+            return false;
+        } else if (startCmp == 0) {
+            return true;
+        }
+
+        return compareIntervals(getNormEnd(), interval.getNormStart()) >= 0;
+    }
+
+    public AllenIntervalRelation ir(final IInterval interval) {
+        return AllenIntervalRelation.determineRelation(this, interval);
+    }
+
+    public boolean irOverlaps(final IInterval interval) {
+        return compareIntervals(getNormStart(), interval.getNormStart()) < 0 &&
+                compareIntervals(getNormEnd(), interval.getNormEnd()) < 0;
+    }
+
+    public boolean irIsOverlappedBy(final IInterval interval) {
+        return compareIntervals(interval.getNormStart(), getNormStart()) < 0 &&
+                compareIntervals(interval.getNormEnd(), getNormEnd()) < 0;
+    }
+
+    public boolean irEquals(final IInterval interval) {
+        return compareIntervals(getNormStart(), interval.getNormStart()) == 0 &&
+                compareIntervals(getNormEnd(), interval.getNormEnd()) == 0;
+    }
+
+    public boolean irBegins(final IInterval interval) {
+        return compareIntervals(getNormStart(), interval.getNormStart()) == 0 &&
+                compareIntervals(getNormEnd(), interval.getNormEnd()) > 0;
+    }
+
+    public boolean irBeginsBy(final IInterval interval) {
+        return compareIntervals(getNormStart(), interval.getNormStart()) == 0 &&
+                compareIntervals(getNormEnd(), interval.getNormEnd()) < 0;
+    }
+
+    public boolean irEnds(final IInterval interval) {
+        return compareIntervals(getNormStart(), interval.getNormStart()) < 0 &&
+                compareIntervals(getNormEnd(), interval.getNormEnd()) == 0;
+    }
+
+    public boolean irEndsBy(final IInterval interval) {
+        return compareIntervals(getNormStart(), interval.getNormStart()) > 0 &&
+                compareIntervals(getNormEnd(), interval.getNormEnd()) == 0;
+    }
+
+    public boolean irBefore(final IInterval interval) {
+        return compareIntervals(getNormEnd(), interval.getNormStart()) < 0 &&
+                !irEndsDirectlyBefore(interval);
+    }
+
+    public boolean irAfter(final IInterval interval) {
+        return compareIntervals(getNormStart(), interval.getNormEnd()) > 0 &&
+                !irStartsDirectlyBefore(interval);
+    }
+
+    public boolean irIncludes(final IInterval interval) {
+        return compareIntervals(getNormStart(), interval.getNormStart()) < 0 &&
+                compareIntervals(getNormEnd(), interval.getNormEnd()) > 0;
+    }
+
+    public boolean irIsDuring(final IInterval interval) {
+        return compareIntervals(getNormStart(), interval.getNormStart()) > 0 &&
+                compareIntervals(getNormEnd(), interval.getNormEnd()) < 0;
+    }
+
+    public boolean irStartsDirectlyBefore(final IInterval interval) {
+        return compareIntervals(interval.getNormEnd(), getPreviousValue(getNormStart())) == 0;
+    }
+
+    public boolean irEndsDirectlyBefore(final IInterval interval) {
+        return compareIntervals(getNextValue(getNormEnd()), interval.getNormStart()) == 0;
     }
 
     @Override
@@ -323,8 +398,8 @@ public class Interval<T extends Comparable<T>> implements IInterval<T> {
         }
     }
 
-    public boolean contains(final Object val1) {
-        return compare(getNormStart(), val1) <= 0 && compare(getNormEnd(), val1) >= 0;
+    public boolean contains(final Object value) {
+        return compare(getNormStart(), value) <= 0 && compare(getNormEnd(), value) >= 0;
     }
 
     protected T norm(final T val, final boolean open, final boolean start) {
@@ -336,6 +411,10 @@ public class Interval<T extends Comparable<T>> implements IInterval<T> {
     }
 
     protected int compare(final Object o1, final Object o2) {
+        return compareIntervals(o1, o2);
+    }
+
+    protected int compareIntervals(final Object o1, final Object o2) {
         if (Comparable.class.isAssignableFrom(o1.getClass()) && o1.getClass().equals(o2.getClass())) {
             //noinspection unchecked
             return Comparable.class.cast(o1).compareTo(o2);
