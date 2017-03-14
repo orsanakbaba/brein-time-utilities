@@ -98,7 +98,7 @@ Methods with the prefix `ir` (e.g., `irOverlap`, `irEquals`) are an implementati
 [Allen's Interval Algebra](https://en.wikipedia.org/wiki/Allen's_interval_algebra), which are defined as following:
 
 <p align="center">
-  <img src="allen-interval-relations.png" alt="Allen's Interval Relations" width="450">
+  <img src="allen-interval-relations.png" alt="Allen's Interval Relations" width="600">
 </p>
 
 It is important to notice, that one relation excludes all other, i.e., two intervals can only be in one of the specified relations.
