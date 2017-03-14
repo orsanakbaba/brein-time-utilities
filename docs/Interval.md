@@ -169,8 +169,7 @@ method, which is (if not overridden) utilizing the `int compareIntervals(final O
 When working with mixed types of intervals, e.g., double-based (like `new Interval<>(0.1, 0.5)`) and 
 long-based intervals (like `new Intervals<>(5L, 6L)`), the `null` is interpreted within the specific domain of the type, e.g.,
 a double cannot exceed a value as defined by `Double.MAX_VALUE`, whereby a long cannot be larger than `Long.MAX_VALUE`. Thus,
-comparing mixed values using relations like `irEnds` or `irStarts` may lead to unexpected behavior, e.g., the following 
-example is assumed to be `false`:
+comparing mixed values using relations like `irEnds` or `irStarts` may lead to unexpected behavior:
 
 ```java
 new Interval<>(Double.class.cast(null), null).irEnds(new Interval<>(8L, null)) == false; // because Double.MAX_VALUE < LONG.MAX_VALUE
