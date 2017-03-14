@@ -36,11 +36,8 @@ which can be used within relational database management systems. The presented J
 is not only well tested, it can also be persisted and can use a database management system to retrieve the different 
 intervals data from an established database system, as well as utilize caching techniques.
 
-Further information regarding the actual implementation can be found here [[5]](http://www.geeksforgeeks.org/interval-tree/)
+Further information regarding the actual implementation can be found [here](docs/README.md), [[5]](http://www.geeksforgeeks.org/interval-tree/)
 and [[6]](http://www.davismol.net/2016/02/07/data-structures-augmented-interval-tree-to-search-for-interval-overlapping/).
-
-In the following you can find a usage example, nevertheless for more advanced examples it is recommended
-to have a look at the tests, maintained in this repository.
 
 ```java
 final IntervalTree tree = new IntervalTree();
@@ -78,6 +75,7 @@ Furthermore, the provided implementation offers the following features:
   - calling `insert(new IdInteval("ID1", 1, 2))` and `insert(new IdInteval("ID2", 1, 2))` will inserted two intervals (independent of the storage)
 - easy extendable `Interval` type, so that every type of data associated to intervals can be handled (since 1.5.0)
 - `IntervalTree` implements `Collection` interface (since 1.5.0)
+- 'Interval' implements [Allen's Interval Algebra](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
 - database look-up (to be added in 1.6.0)
 - caching (to be added in 1.6.0)
 - persistent (to be added in 1.6.0)
