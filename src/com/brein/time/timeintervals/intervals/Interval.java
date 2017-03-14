@@ -278,8 +278,7 @@ public class Interval<T extends Comparable<T>> implements IInterval<T> {
         } else if (obj == null) {
             return false;
         } else if (obj instanceof Interval) {
-            @SuppressWarnings("unchecked")
-            final Interval<T> i = Interval.class.cast(obj);
+            final Interval i = Interval.class.cast(obj);
             return compareTo(i) == 0;
         } else {
             return false;

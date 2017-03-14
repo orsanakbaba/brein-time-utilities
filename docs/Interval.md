@@ -54,7 +54,6 @@ new Interval<>(1L, 10L).contains(10.0) == true
 new Interval<>(Long.class, 1L, 2L, false, true).contains(2) == false;
 ```
 
-
 The `compareTo` method validates, if an interval is smaller 
 (`< 0`), equal (`== 0`), or larger (`> 0`) than another interval. The method allows to use a different types interval to
 compare with, e.g., 
@@ -68,3 +67,60 @@ new Interval<>(1L, 5L).compareTo(new Interval<>(1, 6))      < 0;  // i.e., [1, 5
 // the specified type, specifies the boundaries
 new Interval<>(Double.class, 1.0, 5.0, true, true).compareTo(new Interval<>(Long.class, 1L, 5L, true, true)) > 0;  // i.e., (1.0, 5.0) < (1, 5)
 ```
+
+## Extending Intervals... and what to consider
+
+The provided `Interval` implementation implements the `IInterval` interface, which is needed for all other interval-based
+structures in this library (e.g., `IntervalTree`). Nevertheless, when working with interval data, it is often needed to have 
+more than just the interval itself, i.e., an identifier or more complex additional data may be associated with an interval. 
+This additional data may also affect the similarity of intervals, i.e., let's assume we have the following data (using JSON):
+
+```
+[
+    { start: 5, end: 10, id: 2 }, 
+    { start: 5, end: 10, id: 3 }, 
+    { start: 5, end: 10, id: 2 }
+]
+```
+
+The JSON shows three intervals, from which two are equal (`{ start: 5, end: 10, id: 2 }`). The third interval 
+(`{ start: 5, end: 10, id: 3 }`) is unequal to the others (based on the associated data). The default implementation
+`Interval` would not recognize the difference and assume all of the three intervals are equal. To modify the handling,
+it is recommended to `extend` the `Interval` implementation (and just add the new comparision).
+
+```java
+public class IdInterval<I extends Comparable<I>, T extends Number & Comparable<T>> extends Interval<T> {
+    private final I id;
+
+    /*
+     * We removed the code for constructors and getters/setters, we also
+     * did not add the compareId method, which just compares the actual 
+     * identifiers (using the compareTo method of these).
+     */
+
+    @Override
+    public int compareTo(final IInterval i) {
+        final int cmp = super.compareTo(i);
+        
+        if (cmp == 0) {
+            
+            // the intervals are equal, so we must use the identifiers
+            if (i instanceof IdInterval) {
+                return compareId(IdInterval.class.cast(i));
+            } 
+            // we don't have any identifiers (the instance is of a different type)
+            else {
+                return getClass().getName().compareTo(i.getClass().getName());
+            }
+        } else {
+            return cmp;
+        }
+    }
+}
+```
+
+In this implementation, the most important line is `super.compareTo(i)`. You should always use the `super` implementation,
+and only be more general regarding the comparision, if the `super.compareTo` result is `0`. Otherwise, the intervals are 
+already different and thus, the instances can never be equal. One may argue that the comparison should be based on the identifiers.
+This may be correct within specific use-cases, but be aware, that such implementations can not utilize, e.g., interval-based 
+index structures like the `IntervalTree`.
