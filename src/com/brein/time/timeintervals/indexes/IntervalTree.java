@@ -1,12 +1,25 @@
 package com.brein.time.timeintervals.indexes;
 
+import com.brein.time.exceptions.FailedIO;
+import com.brein.time.timeintervals.collections.IntervalCollection;
 import com.brein.time.timeintervals.collections.IntervalCollection.IntervalFilter;
 import com.brein.time.timeintervals.collections.IntervalCollection.IntervalFilters;
 import com.brein.time.timeintervals.collections.IntervalCollectionFactory;
+import com.brein.time.timeintervals.collections.IntervalCollectionObserver;
 import com.brein.time.timeintervals.collections.ListIntervalCollection;
+import com.brein.time.timeintervals.collections.ObservableIntervalCollection;
 import com.brein.time.timeintervals.intervals.IInterval;
 import org.apache.log4j.Logger;
 
+import java.io.Externalizable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,12 +32,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("NullableProblems")
-public class IntervalTree implements Collection<IInterval> {
+public class IntervalTree implements Collection<IInterval>, Externalizable {
     private static final Logger LOGGER = Logger.getLogger(IntervalTree.class);
 
-    private final IntervalCollectionFactory factory;
-
+    private IntervalCollectionFactory factory = null;
     private IntervalTreeNode root = null;
+
     private long size = 0L;
     private boolean autoBalancing = true;
 
@@ -42,7 +55,7 @@ public class IntervalTree implements Collection<IInterval> {
 
     public IntervalTree(final IntervalTreeNode root, final IntervalCollectionFactory factory) {
         this.root = root;
-        this.factory = factory == null ? ListIntervalCollection::new : factory;
+        this.factory = factory == null ? interval -> new ListIntervalCollection() : factory;
     }
 
     public boolean isAutoBalancing() {
@@ -77,8 +90,8 @@ public class IntervalTree implements Collection<IInterval> {
     }
 
     protected Collection<IInterval> _find(final IntervalTreeNode node,
-                                         final IInterval query,
-                                         final IntervalFilter filter) {
+                                          final IInterval query,
+                                          final IntervalFilter filter) {
         if (node == null) {
             return Collections.emptyList();
         }
@@ -194,7 +207,7 @@ public class IntervalTree implements Collection<IInterval> {
                                     final AtomicBoolean changed) {
         if (node == null) {
             changed.set(true);
-            return new IntervalTreeNode(interval, factory.get());
+            return createNode(interval);
         }
 
         final IntervalTreeNodeChildType childType;
@@ -213,6 +226,16 @@ public class IntervalTree implements Collection<IInterval> {
 
         // the node may have changed, thus we may have to re-balance
         return isAutoBalancing() ? balance(node) : node;
+    }
+
+    protected IntervalTreeNode createNode(final IInterval interval) {
+        IntervalCollection coll = this.factory.load(interval);
+        if (IntervalCollectionObserver.class.isInstance(this.factory) &&
+                !ObservableIntervalCollection.class.isInstance(coll)) {
+            coll = new ObservableIntervalCollection(IntervalCollectionObserver.class.cast(this.factory), coll);
+        }
+
+        return new IntervalTreeNode(interval, coll);
     }
 
     public void balance() {
@@ -722,5 +745,63 @@ public class IntervalTree implements Collection<IInterval> {
         final String newPrefix = prefix + (tail ? "    " : "│   ");
         toString(newPrefix, node.getLeft(), sb, false);
         toString(newPrefix, node.getRight(), sb, true);
+    }
+
+    @Override
+    public void writeExternal(final ObjectOutput out) throws IOException {
+        out.writeLong(this.size);
+        out.writeBoolean(this.autoBalancing);
+        out.writeObject(this.factory);
+
+        if (this.root == null) {
+        } else {
+            this.root.writeExternal(out);
+        }
+    }
+
+    @Override
+    public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
+        this.size = in.readLong();
+        this.autoBalancing = in.readBoolean();
+        this.factory = IntervalCollectionFactory.class.cast(in.readObject());
+        this.root = new IntervalTreeNode();
+        this.root.readExternal(in);
+
+        // if we have an observer, we have to re-initialize the collection to be observed
+        if (this.factory instanceof IntervalCollectionObserver) {
+            final IntervalCollectionObserver observer = IntervalCollectionObserver.class.cast(this.factory);
+            nodeIterator().forEachRemaining(node -> node.addIntervalCollectionObserver(observer));
+        }
+    }
+    
+    public void saveToFile(final File file) throws FailedIO {
+        try (final FileOutputStream fos = new FileOutputStream(file);
+             final ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            this.writeExternal(oos);
+        } catch (final IOException e) {
+            throw new FailedIO("Could not save the tree to the file: " + file, e);
+        }
+    }
+
+    /**
+     * Loads a {@code IntervalTree} from a file.
+     * <p>
+     * new IntervalTree().loadFromFile(file);
+     *
+     * @param file the file to load the tree from
+     *
+     * @return the loaded tree
+     *
+     * @throws FailedIO if the file could not be read
+     */
+    public IntervalTree loadFromFile(final File file) throws FailedIO {
+        try (final FileInputStream fis = new FileInputStream(file);
+             final ObjectInput oin = new ObjectInputStream(fis)) {
+            this.readExternal(oin);
+        } catch (final IOException | ClassNotFoundException e) {
+            throw new FailedIO("Could not load the tree from the file: " + file, e);
+        }
+
+        return this;
     }
 }

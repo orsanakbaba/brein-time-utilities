@@ -2,14 +2,22 @@ package com.brein.time.timeintervals.intervals;
 
 import com.brein.time.exceptions.IllegalTimeInterval;
 import com.brein.time.exceptions.IllegalTimePoint;
+import org.apache.log4j.Logger;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
+import java.util.Locale;
 import java.util.stream.Stream;
 
-public class Interval<T extends Comparable<T>> implements IInterval<T> {
+public class Interval<T extends Comparable<T> & Serializable> implements IInterval<T> {
+    private static final Logger LOGGER = Logger.getLogger(Interval.class);
+    private static final double MAX_DOUBLE = Math.pow(2, 54) - 2;
     public static final List<Class<? extends Comparable<? extends Number>>> NUMBER_HIERARCHY = Arrays.asList(
             Byte.class,
             Short.class,
@@ -19,13 +27,17 @@ public class Interval<T extends Comparable<T>> implements IInterval<T> {
             Double.class
     );
 
-    private final Class clazz;
+    private Class clazz;
 
     private T start;
     private T end;
 
     private boolean openStart;
     private boolean openEnd;
+
+    public Interval() {
+        // just for de- and serialization
+    }
 
     public Interval(final Long start, final Long end) throws IllegalTimeInterval, IllegalTimePoint {
         this.clazz = Long.class;
@@ -251,8 +263,48 @@ public class Interval<T extends Comparable<T>> implements IInterval<T> {
     }
 
     @Override
-    public Comparator<Object> getComparator() {
+    public IntervalComparator getComparator() {
         return this::compareIntervals;
+    }
+
+    @Override
+    public String getUniqueIdentifier() {
+        return "[" + unique(getNormStart()) + "," + unique(getNormEnd()) + "]";
+    }
+
+    protected String unique(final T value) {
+        if (Short.class.equals(this.clazz)) {
+            return String.valueOf(Short.class.cast(value).longValue());
+        } else if (Byte.class.equals(this.clazz)) {
+            return String.valueOf(Byte.class.cast(value).longValue());
+        } else if (Integer.class.equals(this.clazz)) {
+            return String.valueOf(Integer.class.cast(value).longValue());
+        } else if (Long.class.equals(this.clazz)) {
+            return String.valueOf(Long.class.cast(value).longValue());
+        } else if (Float.class.equals(this.clazz)) {
+            return unique(Float.class.cast(value).doubleValue());
+        } else if (Double.class.equals(this.clazz)) {
+            return unique(Double.class.cast(value));
+        } else {
+            throw new IllegalArgumentException("The class '" + this.clazz + "' is not supported.");
+        }
+    }
+
+    protected String unique(final double value) {
+        if (MAX_DOUBLE < Math.abs(value)) {
+            LOGGER.warn("Using double values larger than " + unique(MAX_DOUBLE));
+        }
+
+        if (value == Math.rint(value)) {
+            return String.valueOf(Double.valueOf(value).longValue());
+        } else {
+            // http://stackoverflow.com/questions/16098046/
+            // how-to-print-double-value-without-scientific-notation-using-java
+            final DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+            df.setMaximumFractionDigits(340);
+
+            return df.format(value);
+        }
     }
 
     public boolean isOpenStart() {
@@ -362,7 +414,7 @@ public class Interval<T extends Comparable<T>> implements IInterval<T> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.start, this.end);
+        return getUniqueIdentifier().hashCode();
     }
 
     @Override
@@ -420,7 +472,7 @@ public class Interval<T extends Comparable<T>> implements IInterval<T> {
             return Comparable.class.cast(o1).compareTo(o2);
         } else if (!Number.class.isAssignableFrom(o1.getClass()) || !Number.class.isAssignableFrom(o2.getClass())) {
             throw new IllegalArgumentException(String.format("The values '%s (%s)' and '%s (%s)' " +
-                    "are not comparable.", start, start.getClass(), end, end.getClass()));
+                    "are not comparable.", o1, o1.getClass(), o2, o2.getClass()));
         } else {
 
             final int pos = Stream.of(o1.getClass(), o2.getClass())
@@ -437,5 +489,25 @@ public class Interval<T extends Comparable<T>> implements IInterval<T> {
             //noinspection unchecked
             return mappedO1.compareTo(mappedO2);
         }
+    }
+
+    @Override
+    public void writeExternal(final ObjectOutput out) throws IOException {
+        out.writeObject(clazz);
+        out.writeObject(start);
+        out.writeObject(end);
+        out.writeBoolean(openStart);
+        out.writeBoolean(openEnd);
+
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
+        this.clazz = Class.class.cast(in.readObject());
+        this.start = (T) this.clazz.cast(in.readObject());
+        this.end = (T) this.clazz.cast(in.readObject());
+        this.openStart = in.readBoolean();
+        this.openEnd = in.readBoolean();
     }
 }

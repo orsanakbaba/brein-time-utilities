@@ -177,3 +177,12 @@ new Interval<>(Long.class.cast(null), null).irEnds(new Interval<>(8L, null)) == 
 
 new Interval<>(Double.class.cast(null), null).irEquals(new Interval<>(Long.class.cast(null), null)) == false, // because the possible end is different
 ```
+
+### Working with Floating Numbers
+
+As so often when working with highly accurate floating numbers, it is recommended to use the `BigDecimal` or `BigInteger` classes.
+The library does currently not provide any implementation for intervals of this type, which is mainly given by the fact, that there 
+was no time and need to implement it so far. Nevertheless, when working with the default implementation of `IInterval`, i.e., 
+`Interval`, it is recommended to use the `Double` instances, with and only with values fulfilling `Math.abs(x) < 2 ^ 54` 
+(see [double to long conversion](http://stackoverflow.com/questions/321549/double-to-long-conversion)). For accurate usage
+it is important to understand how Java handles doubles and how the values are rounded.

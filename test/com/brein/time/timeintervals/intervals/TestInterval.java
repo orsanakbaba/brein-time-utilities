@@ -157,4 +157,22 @@ public class TestInterval {
         Assert.assertFalse(new Interval<>(Long.class, 1L, 2L, false, true).contains(2));
         Assert.assertTrue(new Interval<>(Long.class, 1L, 2L, false, false).contains(2));
     }
+
+    @Test
+    public void testUniqueIdentifier() {
+        Assert.assertEquals("[1,2]",
+                new Interval<Long>(1L, 2L).getUniqueIdentifier());
+        Assert.assertEquals("[-2147483646,2147483645]",
+                new Interval<Integer>(Integer.MIN_VALUE + 2, Integer.MAX_VALUE - 2).getUniqueIdentifier());
+        Assert.assertEquals("[-2147483646,2147483645]",
+                new Interval<>(Double.class, -2147483646.0, 2147483645.0, false, false).getUniqueIdentifier());
+        Assert.assertEquals("[-9223372036854775806,9223372036854775805]",
+                new Interval<Integer>(Long.MIN_VALUE + 2L, Long.MAX_VALUE - 2L).getUniqueIdentifier());
+        Assert.assertEquals("[-18014398509481982,18014398509481982]",
+                new Interval<>(Double.class, -18014398509481982.0, 18014398509481982.0, false, false)
+                        .getUniqueIdentifier());
+        Assert.assertEquals("[-180481982.0123,18014398509481982]",
+                new Interval<>(Double.class, -180481982.0123, 18014398509481982.0, false, false)
+                        .getUniqueIdentifier());
+    }
 }

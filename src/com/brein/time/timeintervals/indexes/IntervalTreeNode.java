@@ -3,9 +3,16 @@ package com.brein.time.timeintervals.indexes;
 import com.brein.time.timeintervals.collections.IntervalCollection;
 import com.brein.time.timeintervals.collections.IntervalCollection.IntervalFilter;
 import com.brein.time.timeintervals.collections.IntervalCollection.IntervalFilters;
+import com.brein.time.timeintervals.collections.IntervalCollectionFactory;
+import com.brein.time.timeintervals.collections.IntervalCollectionObserver;
+import com.brein.time.timeintervals.collections.ObservableIntervalCollection;
 import com.brein.time.timeintervals.intervals.IInterval;
 import org.apache.log4j.Logger;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,23 +20,30 @@ import java.util.Iterator;
 import java.util.Objects;
 
 public class IntervalTreeNode extends IntervalTreeNodeContext
-        implements Iterable<IInterval>, Comparable<IntervalTreeNode> {
+        implements Externalizable, Iterable<IInterval>, Comparable<IntervalTreeNode> {
     private static final Logger LOGGER = Logger.getLogger(IntervalTreeNode.class);
 
-    private final IntervalCollection collection;
-    private final Comparable start;
-    private final Comparable end;
-    private final Comparator comparator;
+    private transient Comparator comparator;
+
+    private IntervalCollection collection;
+
+    private Comparable start;
+    private Comparable end;
 
     private Comparable max;
     private long level;
     private long height;
+
+    public IntervalTreeNode() {
+        // just for de- and serialization
+    }
 
     public IntervalTreeNode(final IInterval interval,
                             final IntervalCollection collection) {
         this.start = interval.getNormStart();
         this.end = interval.getNormEnd();
         this.max = interval.getNormEnd();
+
         this.comparator = interval.getComparator();
         this.level = 0L;
         this.height = 1L;
@@ -298,8 +312,48 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         }
     }
 
+
+
     @Override
     public int hashCode() {
         return Objects.hash(getStart(), getEnd());
+    }
+
+    @Override
+    public void writeExternal(final ObjectOutput out) throws IOException {
+        out.writeObject(this.start);
+        out.writeObject(this.end);
+        out.writeObject(this.max);
+        out.writeObject(this.collection);
+        out.writeLong(this.level);
+        out.writeLong(this.height);
+
+        super.writeExternal(out);
+    }
+
+    @Override
+    public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
+        this.start = Comparable.class.cast(in.readObject());
+        this.end = Comparable.class.cast(in.readObject());
+        this.max = Comparable.class.cast(in.readObject());
+        this.collection = IntervalCollection.class.cast(in.readObject());
+        this.level = in.readLong();
+        this.height = in.readLong();
+
+        // we just use the first comparator in the collection, this one should work
+        this.comparator = this.collection.iterator().next().getComparator();
+
+        super.readExternal(in);
+    }
+
+    public boolean addIntervalCollectionObserver(final IntervalCollectionObserver observer) {
+        if (this.collection instanceof ObservableIntervalCollection) {
+            final ObservableIntervalCollection coll = ObservableIntervalCollection.class.cast(this.collection);
+            coll.addObserver(observer);
+
+            return true;
+        } else {
+            return false;
+        }
     }
 }

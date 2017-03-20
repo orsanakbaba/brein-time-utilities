@@ -1,9 +1,16 @@
 package com.brein.time.timeintervals.indexes;
 
-public class IntervalTreeNodeContext {
-    private IntervalTreeNode parent;
-    private IntervalTreeNode left;
-    private IntervalTreeNode right;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+public class IntervalTreeNodeContext implements Externalizable {
+    private transient IntervalTreeNode parent;
+
+    // the left and right are
+    protected IntervalTreeNode left;
+    protected IntervalTreeNode right;
 
     public IntervalTreeNodeContext() {
         // nothing
@@ -111,5 +118,19 @@ public class IntervalTreeNodeContext {
     @Override
     public String toString() {
         return String.format("P: %s, L: %s, R: %s", this.parent, this.left, this.right);
+    }
+
+    @Override
+    public void writeExternal(final ObjectOutput out) throws IOException {
+        out.writeObject(this.left);
+        out.writeObject(this.right);
+    }
+
+    @Override
+    public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
+
+        // the parent is set based on the outer resolver, we don't want to load a new instance of a parent
+        setLeft(IntervalTreeNode.class.cast(in.readObject()));
+        setRight(IntervalTreeNode.class.cast(in.readObject()));
     }
 }
