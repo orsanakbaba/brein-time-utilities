@@ -1,23 +1,18 @@
 package com.brein.time.timeintervals.collections;
 
+import com.brein.time.timeintervals.filters.IntervalFilter;
+import com.brein.time.timeintervals.indexes.IntervalValueComparator;
 import com.brein.time.timeintervals.intervals.IInterval;
 import org.apache.log4j.Logger;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Observable;
-import java.util.Spliterator;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public class ObservableIntervalCollection extends Observable implements IntervalCollection, Externalizable {
+public class ObservableIntervalCollection extends Observable implements IntervalCollection {
     private static final Logger LOGGER = Logger.getLogger(ObservableIntervalCollection.class);
 
     private final transient AtomicBoolean disableNotification = new AtomicBoolean(false);
@@ -34,18 +29,15 @@ public class ObservableIntervalCollection extends Observable implements Interval
     }
 
     @Override
-    public Collection<IInterval> find(final IInterval interval) {
-        return this.collection.find(interval);
+    public Collection<IInterval> find(final IInterval interval, final IntervalValueComparator cmp) {
+        return this.collection.find(interval, cmp);
     }
 
     @Override
-    public Collection<IInterval> find(final IInterval interval, final IntervalFilter filter) {
-        return this.collection.find(interval, filter);
-    }
-
-    @Override
-    public int size() {
-        return this.collection.size();
+    public Collection<IInterval> find(final IInterval interval,
+                                      final IntervalValueComparator cmp,
+                                      final IntervalFilter filter) {
+        return this.collection.find(interval, cmp, filter);
     }
 
     @Override
@@ -54,8 +46,8 @@ public class ObservableIntervalCollection extends Observable implements Interval
     }
 
     @Override
-    public boolean contains(final Object o) {
-        return this.collection.contains(o);
+    public int size() {
+        return this.collection.size();
     }
 
     @Override
@@ -79,72 +71,13 @@ public class ObservableIntervalCollection extends Observable implements Interval
     }
 
     @Override
-    @SuppressWarnings("NullableProblems")
-    public Object[] toArray() {
-        return this.collection.toArray();
-    }
-
-    @Override
-    @SuppressWarnings("NullableProblems")
-    public <T> T[] toArray(final T[] a) {
-        return this.collection.toArray(a);
-    }
-
-    @Override
     public boolean add(final IInterval interval) {
         return notifyObservers(interval.getUniqueIdentifier(), this.collection.add(interval));
     }
 
     @Override
-    public boolean remove(final Object o) {
-        final boolean result = this.collection.remove(o);
-        if (result) {
-            this.notifyObservers(o);
-        }
-
-        return result;
-    }
-
-    @Override
-    @SuppressWarnings("NullableProblems")
-    public boolean containsAll(final Collection<?> c) {
-        return this.collection.containsAll(c);
-    }
-
-    @Override
-    @SuppressWarnings("NullableProblems")
-    public boolean addAll(final Collection<? extends IInterval> c) {
-        this.disableNotification.set(true);
-        final boolean result = this.collection.addAll(c);
-        this.disableNotification.set(false);
-
-        if (result) {
-            notifyObservers(getUniqueIdentifier(), true);
-        }
-
-        return result;
-    }
-
-    @Override
-    @SuppressWarnings("NullableProblems")
-    public boolean removeAll(final Collection<?> c) {
-        final String key = getUniqueIdentifier();
-
-        this.disableNotification.set(true);
-        final boolean result = this.collection.removeAll(c);
-        this.disableNotification.set(false);
-
-        if (result) {
-            notifyObservers(key, true);
-        }
-
-        return result;
-
-    }
-
-    @Override
-    public boolean removeIf(final Predicate<? super IInterval> filter) {
-        return notifyObservers(getUniqueIdentifier(), this.collection.removeIf(filter));
+    public boolean remove(final IInterval interval) {
+        return notifyObservers(interval.getUniqueIdentifier(), this.collection.remove(interval));
     }
 
     public boolean notifyObservers(final String key, final boolean result) {
@@ -163,37 +96,6 @@ public class ObservableIntervalCollection extends Observable implements Interval
         }
 
         return true;
-    }
-
-    @Override
-    @SuppressWarnings("NullableProblems")
-    public boolean retainAll(final Collection<?> c) {
-        final String key = getUniqueIdentifier();
-
-        this.disableNotification.set(true);
-        final boolean result = this.collection.retainAll(c);
-        this.disableNotification.set(false);
-
-        if (result) {
-            notifyObservers(key, true);
-        }
-
-        return result;
-    }
-
-    @Override
-    public void clear() {
-        if (isEmpty()) {
-            return;
-        }
-
-        final String key = getUniqueIdentifier();
-
-        this.disableNotification.set(true);
-        this.collection.clear();
-        this.disableNotification.set(false);
-
-        notifyObservers(key, true);
     }
 
     @Override
@@ -216,37 +118,16 @@ public class ObservableIntervalCollection extends Observable implements Interval
     }
 
     @Override
-    public Spliterator<IInterval> spliterator() {
-        return this.collection.spliterator();
-    }
-
-    @Override
     public Stream<IInterval> stream() {
         return this.collection.stream();
     }
 
     @Override
-    public Stream<IInterval> parallelStream() {
-        return this.collection.parallelStream();
-    }
-
-    @Override
-    public void forEach(final Consumer<? super IInterval> action) {
-        this.collection.forEach(action);
-    }
-
-    @Override
-    public void writeExternal(final ObjectOutput out) throws IOException {
-        out.writeObject(this.collection);
-    }
-
-    @Override
-    public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
-        this.collection = IntervalCollection.class.cast(in.readObject());
-    }
-
-    @Override
     public String toString() {
         return this.collection.toString();
+    }
+
+    public IntervalCollection getWrappedCollection() {
+        return this.collection;
     }
 }

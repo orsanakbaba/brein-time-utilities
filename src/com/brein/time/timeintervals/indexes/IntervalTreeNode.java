@@ -1,11 +1,11 @@
 package com.brein.time.timeintervals.indexes;
 
 import com.brein.time.timeintervals.collections.IntervalCollection;
-import com.brein.time.timeintervals.collections.IntervalCollection.IntervalFilter;
-import com.brein.time.timeintervals.collections.IntervalCollection.IntervalFilters;
 import com.brein.time.timeintervals.collections.IntervalCollectionFactory;
 import com.brein.time.timeintervals.collections.IntervalCollectionObserver;
 import com.brein.time.timeintervals.collections.ObservableIntervalCollection;
+import com.brein.time.timeintervals.collections.UnmodifiableIntervalCollection;
+import com.brein.time.timeintervals.filters.IntervalFilter;
 import com.brein.time.timeintervals.intervals.IInterval;
 import org.apache.log4j.Logger;
 
@@ -13,9 +13,8 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.lang.ref.WeakReference;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -23,10 +22,10 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         implements Externalizable, Iterable<IInterval>, Comparable<IntervalTreeNode> {
     private static final Logger LOGGER = Logger.getLogger(IntervalTreeNode.class);
 
-    private transient Comparator comparator;
-
+    private transient WeakReference<IntervalCollection> referenceCollection;
     private IntervalCollection collection;
 
+    private String key;
     private Comparable start;
     private Comparable end;
 
@@ -34,39 +33,27 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
     private long level;
     private long height;
 
-    public IntervalTreeNode() {
-        // just for de- and serialization
-    }
+    private IntervalTreeConfiguration configuration;
 
-    public IntervalTreeNode(final IInterval interval,
-                            final IntervalCollection collection) {
+    public void init(final IInterval interval) {
         this.start = interval.getNormStart();
         this.end = interval.getNormEnd();
         this.max = interval.getNormEnd();
+        this.key = interval.getUniqueIdentifier();
 
-        this.comparator = interval.getComparator();
         this.level = 0L;
         this.height = 1L;
-
-        this.collection = collection;
-
-        if (!this.collection.isEmpty()) {
-            LOGGER.warn("New IntervalTreeNode with filled collection, collection will be cleared: " + collection);
-            this.collection.clear();
-        }
-
-        this.collection.add(interval);
     }
 
-    public Object getStart() {
+    public Comparable getStart() {
         return start;
     }
 
-    public Object getEnd() {
+    public Comparable getEnd() {
         return end;
     }
 
-    public Object getMax() {
+    public Comparable getMax() {
         return max;
     }
 
@@ -139,33 +126,29 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         }
     }
 
-    public Collection<IInterval> getIntervals() {
-        return Collections.unmodifiableCollection(collection);
+    public IntervalCollection getIntervals() {
+        return new UnmodifiableIntervalCollection(getCollection());
     }
 
     @SuppressWarnings("SimplifiableIfStatement")
     public boolean addInterval(final IInterval interval) {
-        if (compareTo(interval) == 0) {
-            return this.collection.add(interval);
-        } else {
-            return false;
-        }
+        assert this.key.equals(interval.getUniqueIdentifier());
+        assert compareTo(interval) == 0;
+
+        return getCollection().add(interval);
     }
 
     public boolean isEmpty() {
-        return collection.isEmpty();
+        return getCollection().isEmpty();
     }
 
     public boolean removeInterval(final IInterval interval) {
-        return this.collection.remove(interval);
+        return getCollection().remove(interval);
     }
 
-    public Collection<IInterval> find(final IInterval interval) {
-        return find(interval, IntervalFilters.EQUAL);
-    }
-
-    public Collection<IInterval> find(final IInterval interval, final IntervalFilter filter) {
-        return this.collection.find(interval, filter);
+    public Collection<IInterval> find(final IInterval interval,
+                                      final IntervalFilter filter) {
+        return getCollection().find(interval, this.configuration.getValueComparator(), filter);
     }
 
     public String getId() {
@@ -175,7 +158,7 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
     @Override
     public String toString() {
         return String.format("[%s, %s] (max: %s, count: %d, level: %d, height: %d)",
-                this.start, this.end, this.max, this.collection.size(), this.level, this.height);
+                this.start, this.end, this.max, getCollection().size(), this.level, this.height);
     }
 
     @Override
@@ -188,7 +171,6 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         return compareTo(interval.getNormStart(), interval.getNormEnd());
     }
 
-    @SuppressWarnings("unchecked")
     public int compareTo(final Comparable start, final Comparable end) {
 
         final int cmpStart = compare(this.start, start);
@@ -201,9 +183,8 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         }
     }
 
-    @SuppressWarnings("unchecked")
     public int compare(final Object val1, final Object val2) {
-        return comparator.compare(val1, val2);
+        return this.configuration.getValueComparator().compare(val1, val2);
     }
 
     @Override
@@ -283,7 +264,7 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
 
     @Override
     public Iterator<IInterval> iterator() {
-        return this.collection.iterator();
+        return getCollection().iterator();
     }
 
     public IntervalTreeNodeChildType determineChildType() {
@@ -312,8 +293,6 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         }
     }
 
-
-
     @Override
     public int hashCode() {
         return Objects.hash(getStart(), getEnd());
@@ -321,39 +300,133 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
 
     @Override
     public void writeExternal(final ObjectOutput out) throws IOException {
+        out.writeObject(this.key);
         out.writeObject(this.start);
         out.writeObject(this.end);
         out.writeObject(this.max);
-        out.writeObject(this.collection);
         out.writeLong(this.level);
         out.writeLong(this.height);
 
-        super.writeExternal(out);
+        if (this.configuration.isWritingCollectionsToFile()) {
+
+            // we never want to write the observable (it's not even serializable)
+            if (ObservableIntervalCollection.class.isInstance(this.collection)) {
+                final ObservableIntervalCollection observable =
+                        ObservableIntervalCollection.class.cast(this.collection);
+
+                // write the wrapped instance and register the observing factory later
+                out.writeObject(observable.getWrappedCollection());
+            } else {
+
+                // write the default collection as is
+                out.writeObject(this.collection);
+            }
+        }
+
+        writeChild(out, IntervalTreeNodeChildType.LEFT);
+        writeChild(out, IntervalTreeNodeChildType.RIGHT);
     }
 
     @Override
     public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
+        this.key = String.class.cast(in.readObject());
         this.start = Comparable.class.cast(in.readObject());
         this.end = Comparable.class.cast(in.readObject());
         this.max = Comparable.class.cast(in.readObject());
-        this.collection = IntervalCollection.class.cast(in.readObject());
         this.level = in.readLong();
         this.height = in.readLong();
 
-        // we just use the first comparator in the collection, this one should work
-        this.comparator = this.collection.iterator().next().getComparator();
+        if (this.configuration.isWritingCollectionsToFile()) {
+            this.collection = wrapCollection(IntervalCollection.class.cast(in.readObject()));
+        }
 
-        super.readExternal(in);
+        readChild(in, IntervalTreeNodeChildType.LEFT);
+        readChild(in, IntervalTreeNodeChildType.RIGHT);
     }
 
-    public boolean addIntervalCollectionObserver(final IntervalCollectionObserver observer) {
-        if (this.collection instanceof ObservableIntervalCollection) {
-            final ObservableIntervalCollection coll = ObservableIntervalCollection.class.cast(this.collection);
-            coll.addObserver(observer);
-
-            return true;
+    protected void writeChild(final ObjectOutput out,
+                              final IntervalTreeNodeChildType type) throws IOException {
+        if (hasChild(type)) {
+            out.writeBoolean(true);
+            getChild(type).writeExternal(out);
         } else {
-            return false;
+            out.writeBoolean(false);
         }
+    }
+
+    protected void readChild(final ObjectInput in,
+                             final IntervalTreeNodeChildType type) throws IOException, ClassNotFoundException {
+        final boolean hasChild = in.readBoolean();
+        final IntervalTreeNode node;
+        if (hasChild) {
+            node = new IntervalTreeNode();
+            node.setConfiguration(this.configuration);
+            node.readExternal(in);
+        } else {
+            node = null;
+        }
+
+        setChild(node, type);
+    }
+
+    public void setConfiguration(final IntervalTreeConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
+    protected IntervalCollection getCollection() {
+        final IntervalCollectionFactory factory = this.configuration.getFactory();
+        if (factory == null) {
+            return IntervalCollectionFactory.shallow();
+        } else if (this.collection != null) {
+            return this.collection;
+        }
+
+        if (factory.useWeakReferences()) {
+            if (this.referenceCollection != null) {
+                final IntervalCollection reference = this.referenceCollection.get();
+
+                if (reference != null) {
+
+                    // we have a reference, which contains whatever we need
+                    return reference;
+                }
+            }
+        } else {
+
+            // this.collection must be null at this point
+            assert this.collection == null;
+        }
+
+        // get the value from the factory
+        return wrapCollection(factory.load(this.key));
+    }
+
+    protected IntervalCollection wrapCollection(final IntervalCollection collection) {
+        final IntervalCollectionFactory factory = this.configuration.getFactory();
+        if (factory == null) {
+            return collection;
+        }
+
+        final IntervalCollection wrappedCollection;
+
+        // check if the factory needs observable instances
+        if (IntervalCollectionObserver.class.isInstance(factory) &&
+                !ObservableIntervalCollection.class.isInstance(collection)) {
+            wrappedCollection = new ObservableIntervalCollection(IntervalCollectionObserver.class.cast(factory),
+                    collection);
+        } else {
+            wrappedCollection = collection;
+        }
+
+        // if we got so far, we want to keep the result
+        if (factory.useWeakReferences()) {
+            this.collection = null;
+            this.referenceCollection = new WeakReference<>(wrappedCollection);
+        } else {
+            this.collection = wrappedCollection;
+            this.referenceCollection = null;
+        }
+
+        return wrappedCollection;
     }
 }

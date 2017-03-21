@@ -1,10 +1,7 @@
 package com.brein.time.timeintervals.collections;
 
-import com.brein.time.timeintervals.intervals.IInterval;
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.CacheWriter;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -15,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class CaffeineIntervalCollectionFactory
         implements IntervalCollectionFactory, IntervalCollectionObserver, Externalizable {
 
-    private transient Cache<String, IntervalCollection> cache;
+    private transient LoadingCache<String, IntervalCollection> cache;
     private transient IntervalCollectionPersistor persistor;
 
     private long cacheSize;
@@ -36,9 +33,9 @@ public class CaffeineIntervalCollectionFactory
         this.cache = createCache(cacheSize, expire, timeUnit);
     }
 
-    protected Cache<String, IntervalCollection> createCache(final long cacheSize,
-                                                            final long expire,
-                                                            final TimeUnit timeUnit) {
+    protected LoadingCache<String, IntervalCollection> createCache(final long cacheSize,
+                                                                   final long expire,
+                                                                   final TimeUnit timeUnit) {
         this.cacheSize = cacheSize;
         this.expire = expire;
         this.timeUnit = timeUnit;
@@ -46,24 +43,7 @@ public class CaffeineIntervalCollectionFactory
         return Caffeine.newBuilder()
                 .maximumSize(cacheSize)
                 .expireAfterAccess(expire, timeUnit)
-                .writer(new CacheWriter<String, IntervalCollection>() {
-
-                    @Override
-                    @SuppressWarnings("NullableProblems")
-                    public void write(final String key,
-                                      final IntervalCollection coll) {
-                        CaffeineIntervalCollectionFactory.this.upsert(key, coll);
-                    }
-
-                    @Override
-                    @SuppressWarnings("NullableProblems")
-                    public void delete(final String key,
-                                       final IntervalCollection coll,
-                                       final RemovalCause cause) {
-                        CaffeineIntervalCollectionFactory.this.remove(key);
-                    }
-                })
-                .build(this::load);
+                .build(this::create);
     }
 
     @Override
@@ -80,29 +60,38 @@ public class CaffeineIntervalCollectionFactory
         }
     }
 
+    @Override
     public IntervalCollection load(final String key) {
-        if (this.persistor == null) {
-            return null;
-        } else {
-            return this.persistor.load(key);
+        final IntervalCollection result = this.cache.get(key);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Loading instance from cache '" + key + "': " + result);
         }
+
+        return result;
     }
 
-    @Override
-    public IntervalCollection load(final IInterval interval) {
-        final IntervalCollection result;
-
+    protected IntervalCollection create(final String key) {
+        IntervalCollection result;
         if (this.persistor == null) {
             result = null;
         } else {
-            result = load(interval.getUniqueIdentifier());
+            result = this.persistor.load(key);
         }
 
         if (result == null) {
-            return this.wrappedFactory.load(interval);
+            result = this.wrappedFactory.load(key);
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Using created collection for '" + key + "': " + result);
+            }
         } else {
-            return result;
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Using persisted collection for '" + key + "': " + result);
+            }
         }
+
+        return result;
     }
 
     public long size() {
@@ -113,8 +102,14 @@ public class CaffeineIntervalCollectionFactory
         this.cache.cleanUp();
     }
 
-    public void setPersistor(final IntervalCollectionPersistor persistor) {
+    @Override
+    public void usePersistor(final IntervalCollectionPersistor persistor) {
         this.persistor = persistor;
+    }
+
+    @Override
+    public boolean useWeakReferences() {
+        return true;
     }
 
     @Override

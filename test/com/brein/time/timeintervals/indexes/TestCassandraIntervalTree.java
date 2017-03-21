@@ -5,7 +5,12 @@ import com.brein.time.timeintervals.collections.CassandraIntervalCollectionPersi
 import com.brein.time.timeintervals.collections.IntervalCollection;
 import com.brein.time.timeintervals.collections.ListIntervalCollection;
 import com.brein.time.timeintervals.collections.SetIntervalCollection;
-import com.brein.time.timeintervals.intervals.Interval;
+import com.brein.time.timeintervals.filters.IntervalFilters;
+import com.brein.time.timeintervals.indexes.IntervalTreeBuilder.IntervalType;
+import com.brein.time.timeintervals.intervals.DoubleInterval;
+import com.brein.time.timeintervals.intervals.IntegerInterval;
+import com.brein.time.timeintervals.intervals.LongInterval;
+import com.brein.time.timeintervals.intervals.NumberInterval;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -28,13 +33,13 @@ public class TestCassandraIntervalTree {
     }
 
     @Test
-    public void testSimpleStorage() {
-        final IntervalTree tree = createSampleTree(5L, ListIntervalCollection.class);
+    public void testSimpleStorageWithListIntervalCollection() {
+        createSampleTree(20, 10L, ListIntervalCollection.class);
+    }
 
-        final CaffeineIntervalCollectionFactory factory = createCacheFactory(2L, ListIntervalCollection.class);
-        factory.setPersistor(this.persistor);
-        
-        System.out.println(tree.toString());
+    @Test
+    public void testSimpleStorageWithSetIntervalCollection() {
+        createSampleTree(20, 10L, SetIntervalCollection.class);
     }
 
     @After
@@ -57,51 +62,82 @@ public class TestCassandraIntervalTree {
         });
     }
 
-    protected IntervalTree createSampleTree(
-            final long cacheSize,
-            final Class<? extends IntervalCollection> type) {
+    protected IntervalTree createSampleTree(final int nrOfNodes,
+                                            final long cacheSize,
+                                            final Class<? extends IntervalCollection> type) {
 
-        final CaffeineIntervalCollectionFactory factory = createCacheFactory(cacheSize, type);
-        factory.setPersistor(this.persistor);
+        final IntervalTree tree = IntervalTreeBuilder.newBuilder()
+                .collectIntervals(createCacheFactory(cacheSize, type))
+                .usePredefinedType(IntervalType.NUMBER, false)
+                .usePersistor(this.persistor)
+                .build();
 
-        final IntervalTree tree = new IntervalTree(factory);
+        for (int i = 1; i <= nrOfNodes; i++) {
+            for (int k = 1; k <= i; k++) {
 
-        tree.insert(new Interval(1L, 2L));
-        tree.insert(new Interval(5, 10));
-        tree.insert(new Interval(5.0, 10.0));
-        tree.insert(new Interval(0.1, 1.5));
-        tree.insert(new Interval(5, 10));
-        tree.insert(new Interval(5.0, 10.0));
+                // remove the dummy, on every prev. run
+                tree.remove(new NumberInterval<>(Long.class, 1L, 1L));
 
-        tree.remove(new Interval(5.0, 10.0));
+                // we will have one IntegerInterval with 1 as start, 2 with 2, ...
+                tree.insert(new IntegerInterval(i, 1000));
 
-        assertSampleTree(tree, type);
+                // we will have one LongInterval with 1 as start, 2 with 2, ...
+                tree.insert(new LongInterval((long) i, 1000L));
+
+                // we will have one LongInterval with 1 as start, 2 with 2, ...
+                tree.insert(new DoubleInterval((double) i, 1000.0));
+
+                // add also a simple dummy
+                tree.add(new NumberInterval<>(Long.class, 1L, 1L));
+            }
+        }
+
+        assertSampleTree(nrOfNodes, tree, type);
 
         return tree;
     }
 
-    protected void assertSampleTree(final IntervalTree tree, final Class<? extends IntervalCollection> type) {
-        Assert.assertTrue(tree.contains(new Interval(0.1, 1.5)));
-        Assert.assertTrue(tree.contains(new Interval(1L, 2L)));
-        Assert.assertTrue(tree.contains(new Interval(1, 2)));
-        Assert.assertTrue(tree.contains(new Interval(1.0, 2.0)));
+    protected void assertSampleTree(final int nrOfNodes,
+                                    final IntervalTree tree,
+                                    final Class<? extends IntervalCollection> type) {
+        for (int i = 1; i <= nrOfNodes; i++) {
 
-        if (type.equals(SetIntervalCollection.class)) {
+            final DoubleInterval dInterval = new DoubleInterval((double) i, 1000.0);
+            final LongInterval lInterval = new LongInterval((long) i, 1000L);
+            final IntegerInterval iInterval = new IntegerInterval(i, 1000);
 
-            // we removed one of the instances, this is the one and only in a set
-            Assert.assertFalse(tree.contains(new Interval(5.0, 10.0)));
-            Assert.assertFalse(tree.contains(new Interval(5, 10)));
-            Assert.assertFalse(tree.contains(new Interval(5L, 10L)));
-            Assert.assertEquals(0, tree.find(new Interval(5L, 10L)).size());
+            Assert.assertTrue(dInterval.toString(), tree.contains(dInterval));
+            Assert.assertTrue(lInterval.toString(), tree.contains(lInterval));
+            Assert.assertTrue(iInterval.toString(), tree.contains(iInterval));
+        }
 
-        } else if (type.equals(ListIntervalCollection.class)) {
+        // dummy is there once
+        Assert.assertEquals(1, tree.find(new LongInterval(1L, 1L)).size());
+        Assert.assertEquals(1, tree.find(new DoubleInterval(1.0, 1.0)).size());
+        Assert.assertEquals(1, tree.find(new IntegerInterval(1, 1)).size());
 
-            // we removed one but there are still others in a list
-            Assert.assertTrue(tree.contains(new Interval(5.0, 10.0)));
-            Assert.assertTrue(tree.contains(new Interval(5, 10)));
-            Assert.assertTrue(tree.contains(new Interval(5L, 10L)));
-            Assert.assertEquals(3, tree.find(new Interval(5L, 10L)).size());
+        if (type.equals(ListIntervalCollection.class)) {
 
+            for (int i = 1; i <= nrOfNodes; i++) {
+                Assert.assertEquals(3 * i, tree.find(new LongInterval((long) i, 1000L)).size());
+                Assert.assertEquals(3 * i, tree.find(new DoubleInterval((double) i, 1000.0)).size());
+                Assert.assertEquals(3 * i, tree.find(new IntegerInterval(i, 1000)).size());
+
+                Assert.assertEquals(i,
+                        tree.find(new IntegerInterval(i, 1000), IntervalFilters::strictEqual).size());
+                Assert.assertEquals(i,
+                        tree.find(new DoubleInterval((double) i, 1000.0), IntervalFilters::strictEqual).size());
+                Assert.assertEquals(i,
+                        tree.find(new LongInterval((long) i, 1000L), IntervalFilters::strictEqual).size());
+            }
+
+        } else if (type.equals(SetIntervalCollection.class)) {
+
+            for (int i = 1; i <= nrOfNodes; i++) {
+                Assert.assertEquals(1, tree.find(new LongInterval((long) i, 1000L)).size());
+                Assert.assertEquals(1, tree.find(new DoubleInterval((double) i, 1000.0)).size());
+                Assert.assertEquals(1, tree.find(new IntegerInterval(i, 1000)).size());
+            }
         } else {
             Assert.fail("Could not validate the sample tree using: " + type);
         }

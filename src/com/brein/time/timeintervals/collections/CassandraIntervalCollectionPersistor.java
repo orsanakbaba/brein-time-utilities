@@ -230,6 +230,10 @@ public class CassandraIntervalCollectionPersistor implements IntervalCollectionP
 
     @Override
     public IntervalCollection load(final String key) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Loading IntervalCollection: " + key);
+        }
+
         if (this.select == null) {
             this.select = getSession().prepare(QueryBuilder
                     .select(COLL_COLUMN)
@@ -255,6 +259,10 @@ public class CassandraIntervalCollectionPersistor implements IntervalCollectionP
 
     @Override
     public void upsert(final String key, final IntervalCollection collection) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Upserting IntervalCollection '" + key + "': " + collection);
+        }
+
         if (this.upsert == null) {
             this.upsert = getSession().prepare(QueryBuilder
                     .update(this.keySpace, this.columnFamily)
@@ -279,6 +287,10 @@ public class CassandraIntervalCollectionPersistor implements IntervalCollectionP
 
     @Override
     public void remove(final String key) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Removing IntervalCollection: " + key);
+        }
+
         if (this.delete == null) {
             this.delete = getSession().prepare(QueryBuilder.delete()
                     .from(this.keySpace, this.columnFamily)

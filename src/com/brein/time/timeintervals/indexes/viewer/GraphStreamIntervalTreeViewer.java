@@ -3,7 +3,8 @@ package com.brein.time.timeintervals.indexes.viewer;
 import com.brein.time.timeintervals.indexes.IntervalTree;
 import com.brein.time.timeintervals.indexes.IntervalTreeNode;
 import com.brein.time.timeintervals.indexes.PositionedNode;
-import com.brein.time.timeintervals.intervals.Interval;
+import com.brein.time.timeintervals.intervals.LongInterval;
+import com.brein.time.timeintervals.intervals.TimestampInterval;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -128,10 +129,10 @@ public class GraphStreamIntervalTreeViewer {
 
         //addRandomTimeStamps(tree);
         addFullTree(tree);
-        //tree.remove(new Interval(2L, 2L));
-        //tree.remove(new Interval(-1L, 1L));
-        //tree.remove(new Interval(0L, 1L));
-        //tree.remove(new Interval(2L, 2L));
+        //tree.remove(new NumberInterval(2L, 2L));
+        //tree.remove(new NumberInterval(-1L, 1L));
+        //tree.remove(new NumberInterval(0L, 1L));
+        //tree.remove(new NumberInterval(2L, 2L));
 
         final GraphStreamIntervalTreeViewer viewer = new GraphStreamIntervalTreeViewer(tree);
         viewer.visualize();
@@ -149,26 +150,26 @@ public class GraphStreamIntervalTreeViewer {
             final long unixTimestamp = Double.valueOf(Math.floor(gc.getTimeInMillis() / 1000.0)).longValue();
             final long duration = Math.round(Math.random() * 10000);
 
-            tree.add(new Interval(unixTimestamp, unixTimestamp + duration));
+            tree.add(new TimestampInterval(unixTimestamp, unixTimestamp + duration));
         }
     }
 
     public static void addFullTree(final IntervalTree tree) {
-        //tree.add(new Interval(2L, 2L));
-        tree.add(new Interval(0L, 1L));
-        tree.add(new Interval(-1L, 1L));
-        tree.add(new Interval(1L, 2L));
-        tree.add(new Interval(4L, 4L));
-        tree.add(new Interval(3L, 3L));
-        tree.add(new Interval(5L, 5L));
+        //tree.add(new NumberInterval(2L, 2L));
+        tree.add(new LongInterval(0L, 1L));
+        tree.add(new LongInterval(-1L, 1L));
+        tree.add(new LongInterval(1L, 2L));
+        tree.add(new LongInterval(4L, 4L));
+        tree.add(new LongInterval(3L, 3L));
+        tree.add(new LongInterval(5L, 5L));
 
-        tree.add(new Interval(2L, 3L));
-        tree.add(new Interval(2L, 4L));
-        tree.add(new Interval(2L, 2L));
+        tree.add(new LongInterval(2L, 3L));
+        tree.add(new LongInterval(2L, 4L));
+        tree.add(new LongInterval(2L, 2L));
 
-        tree.remove(new Interval(4L, 4L));
-        tree.remove(new Interval(5L, 5L));
-        //tree.remove(new Interval(2L, 4L));
+        tree.remove(new LongInterval(4L, 4L));
+        tree.remove(new LongInterval(5L, 5L));
+        //tree.remove(new NumberInterval(2L, 4L));
     }
 
     public static int randBetween(final int start, final int end) {

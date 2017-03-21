@@ -16,7 +16,7 @@ public enum AllenIntervalRelation {
     STARTS_DIRECTLY_BEFORE,
     ENDS_DIRECTLY_BEFORE;
 
-    public static AllenIntervalRelation determineRelation(final Interval i1, final IInterval i2) {
+    public static AllenIntervalRelation determineRelation(final NumberInterval i1, final IInterval i2) {
 
         if (i1.irOverlaps(i2)) {
             return OVERLAPS;

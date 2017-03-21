@@ -1,13 +1,32 @@
 package com.brein.time.timeintervals.collections;
 
+import com.brein.time.exceptions.IllegalConfiguration;
 import com.brein.time.timeintervals.intervals.IInterval;
 
 import java.io.Serializable;
 
 @FunctionalInterface
-public interface IntervalCollectionFactory extends  Serializable {
+public interface IntervalCollectionFactory extends Serializable {
 
-    IntervalCollection load(final IInterval interval);
+    static IntervalCollection shallow() {
+        return ShallowIntervalCollection.SHALLOW_COLLECTION;
+    }
+
+    static IntervalCollection shallow(final String key) {
+        return shallow();
+    }
+
+    IntervalCollection load(final String key);
+
+    default boolean useWeakReferences() {
+        return false;
+    }
+
+    default void usePersistor(final IntervalCollectionPersistor persistor) {
+        if (persistor != null) {
+            throw new IllegalConfiguration("The factory does not support the usage of any persistor.");
+        }
+    }
 
     /**
      * The generation of a unique key is kind of tricky. It may be

@@ -1,10 +1,9 @@
 package com.brein.time.timeintervals.intervals;
 
-import java.io.Externalizable;
 import java.io.Serializable;
 
 public interface IInterval<T extends Comparable<T> & Serializable>
-        extends Comparable<IInterval>, Cloneable, Serializable, Externalizable {
+        extends Comparable<IInterval>, Serializable {
 
     /**
      * Gets the first included value in this interval.
@@ -19,8 +18,6 @@ public interface IInterval<T extends Comparable<T> & Serializable>
      * @return the last included value in this interval
      */
     T getNormEnd();
-
-    IntervalComparator getComparator();
 
     /**
      * Method to uniquely identify the interval of this instance. The term interval means in this specific case, just

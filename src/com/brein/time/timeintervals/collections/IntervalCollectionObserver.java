@@ -31,11 +31,11 @@ public interface IntervalCollectionObserver extends Observer {
 
             if (coll == null) {
                 remove(key);
-            } else if (coll.size() == 0) {
+            } else if (coll.isEmpty()) {
                 remove(key);
             } else {
                 //noinspection unchecked
-                upsert(key, coll);
+                upsert(key, coll.getWrappedCollection());
             }
         } else {
             // we just ignore the update
