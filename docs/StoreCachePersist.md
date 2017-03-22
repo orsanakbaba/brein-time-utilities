@@ -161,7 +161,6 @@ persist the tree into an external file. Whenever the application is started, it 
     persistor.setKeySpace("myKeySpace");
     persistor.connect("localhost", 9042);
     
-    // now we can create the tree
     final IntervalTree tree = IntervalTreeBuilder.newBuilder()
             .collectIntervals(factory)
             .usePredefinedType(IntervalType.NUMBER, false)
@@ -170,7 +169,7 @@ persist the tree into an external file. Whenever the application is started, it 
     tree.saveToFile(new File("/path/to/my/persisted/intervalTree.bin"));
 
     /*
-     * Just reload the tree from file, but specify the persistor (which is not 
+     * Just reload the tree from file and specify the persistor (it's information is not 
      * peristed within the file). 
      */
     final IntervalTree reloadedTree = IntervalTreeBuilder.newBuilder()
