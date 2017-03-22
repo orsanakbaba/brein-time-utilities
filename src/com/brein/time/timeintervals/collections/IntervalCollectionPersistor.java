@@ -4,7 +4,7 @@ public interface IntervalCollectionPersistor {
 
     IntervalCollection load(final String key);
 
-    void upsert(final String key, final IntervalCollection collection);
+    void upsert(final IntervalCollectionEvent event);
 
-    void remove(final String key);
+    void remove(final IntervalCollectionEvent event);
 }

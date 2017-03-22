@@ -72,18 +72,22 @@ public class ObservableIntervalCollection extends Observable implements Interval
 
     @Override
     public boolean add(final IInterval interval) {
-        return notifyObservers(interval.getUniqueIdentifier(), this.collection.add(interval));
+        return notifyObservers(interval, IntervalCollectionEventType.ADDED, this.collection.add(interval));
     }
 
     @Override
     public boolean remove(final IInterval interval) {
-        return notifyObservers(interval.getUniqueIdentifier(), this.collection.remove(interval));
+        return notifyObservers(interval, IntervalCollectionEventType.REMOVED, this.collection.remove(interval));
     }
 
-    public boolean notifyObservers(final String key, final boolean result) {
-        if (key == null || this.countObservers() == 0 || !result) {
+    public boolean notifyObservers(final IInterval interval,
+                                   final IntervalCollectionEventType eventType,
+                                   final boolean result) {
+        if (interval == null || this.countObservers() == 0 || !result) {
             return false;
         } else if (!disableNotification.get()) {
+            final String key = interval.getUniqueIdentifier();
+
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Notifying observers for '" + key + "'.");
             }
@@ -92,7 +96,9 @@ public class ObservableIntervalCollection extends Observable implements Interval
             setChanged();
 
             // notify
-            super.notifyObservers(key);
+            final IntervalCollectionEvent event =
+                    new IntervalCollectionEvent(key, interval, this.getWrappedCollection(), eventType);
+            super.notifyObservers(event);
         }
 
         return true;

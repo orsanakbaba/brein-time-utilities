@@ -47,16 +47,16 @@ public class CaffeineIntervalCollectionFactory
     }
 
     @Override
-    public void remove(final String key) {
+    public void remove(final IntervalCollectionEvent event) {
         if (this.persistor != null) {
-            this.persistor.remove(key);
+            this.persistor.remove(event);
         }
     }
 
     @Override
-    public void upsert(final String key, final IntervalCollection coll) {
+    public void upsert(final IntervalCollectionEvent event) {
         if (this.persistor != null) {
-            this.persistor.upsert(key, coll);
+            this.persistor.upsert(event);
         }
     }
 

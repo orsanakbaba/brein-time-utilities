@@ -258,9 +258,9 @@ public class CassandraIntervalCollectionPersistor implements IntervalCollectionP
     }
 
     @Override
-    public void upsert(final String key, final IntervalCollection collection) {
+    public void upsert(final IntervalCollectionEvent event) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Upserting IntervalCollection '" + key + "': " + collection);
+            LOGGER.debug("Upserting IntervalCollection '" + event.getKey() + "': " + event.getCollection());
         }
 
         if (this.upsert == null) {
@@ -272,23 +272,23 @@ public class CassandraIntervalCollectionPersistor implements IntervalCollectionP
 
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try (final ObjectOutputStream out = new ObjectOutputStream(byteStream)) {
-            out.writeObject(collection);
+            out.writeObject(event.getCollection());
             out.flush();
         } catch (final IOException e) {
-            throw new FailedIO("Unable ot upsert instance for " + key, e);
+            throw new FailedIO("Unable ot upsert instance for " + event.getKey(), e);
         }
 
         final BoundStatement boundStmt = new BoundStatement(this.upsert);
         boundStmt.setBytes(0, ByteBuffer.wrap(byteStream.toByteArray()));
-        boundStmt.setString(1, key);
+        boundStmt.setString(1, event.getKey());
 
         getSession().execute(boundStmt);
     }
 
     @Override
-    public void remove(final String key) {
+    public void remove(final IntervalCollectionEvent event) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Removing IntervalCollection: " + key);
+            LOGGER.debug("Removing IntervalCollection: " + event.getKey());
         }
 
         if (this.delete == null) {
@@ -298,7 +298,7 @@ public class CassandraIntervalCollectionPersistor implements IntervalCollectionP
         }
 
         final BoundStatement boundStmt = new BoundStatement(this.delete);
-        boundStmt.setString(0, key);
+        boundStmt.setString(0, event.getKey());
 
         getSession().execute(boundStmt);
     }
