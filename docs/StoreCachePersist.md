@@ -109,7 +109,7 @@ final IntervalCollectionFactory factory =
 // in this example we use a persistor, to store the collections in a Cassandra database
 final CassandraIntervalCollectionPersistor persistor =
     new CassandraIntervalCollectionPersistor();
-persistor.setKeySpace("myKeySpace"));
+persistor.setKeySpace("myKeySpace");
 persistor.connect("localhost", 9042);
 
 // now we can create the tree
