@@ -16,21 +16,21 @@ The provided implementation of the `IInterval` is able to handle all types of pr
 object-oriented representative, i.e., `Byte`, `Short`, `Integer`, `Long`, `Float`, `Double`).
 
 ```java
-final Interval<Integer> sample1 = new Interval<>(5, 10);    // interval: [5, 10]
-final Interval<Long> sample2 = new Interval<>(-123L, 123L); // interval: [-123, 123]
-final Interval<Double> sample3 = new Interval<>(1.1, 2.2);  // interval: [1.1, 2.2]
+final IntegerInterval sample1 = new IntegerInterval(5, 10);   // interval: [5, 10]
+final LongInterval sample2 = new LongInterval(-123L, 123L);   // interval: [-123, 123]
+final DoubleInterval sample3 = new DoubleInterval(1.1, 2.2);  // interval: [1.1, 2.2]
 
-// you can also specify the type of values stored
-final Interval<Integer> i = new Interval<>(1, 5);  // interval: [1, 5]
+// you can also use the more generic NumberInterval
+final NumberInterval<Integer> i = new NumberInterval<>(Integer.class, 1, 5);  // interval: [1, 5]
 
 // there are no simplified constructors defined, if you want to use open intervals
-final Interval<Integer> openStart = new Interval<>(Integer.class, 1, 5, true, false);  // interval: (1, 5]
-final Interval<Integer> openEnd = new Interval<>(Integer.class, 1, 5, false, true);    // interval: [1, 5)
-final Interval<Integer> bothOpen = new Interval<>(Integer.class, 1, 5, true, true);    // interval: (1, 5)
+final IntegerInterval openStart = new IntegerInterval(1, 5, true, false);  // interval: (1, 5]
+final IntegerInterval openEnd = new IntegerInterval(1, 5, false, true);    // interval: [1, 5)
+final IntegerInterval bothOpen = new IntegerInterval(1, 5, true, true);    // interval: (1, 5)
 
 // it is not allowed to specify 'invalid' intervals, i.e., end > start
-final Interval<Integer> invalid1 = new Interval<>(5, 4);                               // invalid: [5, 4]
-final Interval<Integer> invalid2 = new Interval<>(Integer.class, 5, 5, true, false);   // invalid: (5, 5]
+final IntegerInterval invalid1 = new IntegerInterval(5, 4);                // invalid: [5, 4]
+final IntegerInterval invalid2 = new IntegerInterval(5, 5, true, false);   // invalid: (5, 5]
 ```
 
 ## Operations
@@ -60,13 +60,13 @@ The `contains` method, checks if the interval contains the specified `value`, i.
 (the `Interval` implementation assumes all (primitive) `Number` to be in the same domain), e.g.:
 
 ```java
-new Interval<>(1L, 10L).contains(5) == true;
+new LongInterval(1L, 10L).contains(5) == true;
 
-new Interval<>(1L, 10L).contains(1.0) == true;
-new Interval<>(1L, 10L).contains(10.1) == false;
-new Interval<>(1L, 10L).contains(10.0) == true
+new LongInterval(1L, 10L).contains(1.0) == true;
+new LongInterval(1L, 10L).contains(10.1) == false;
+new LongInterval(1L, 10L).contains(10.0) == true
 
-new Interval<>(Long.class, 1L, 2L, false, true).contains(2) == false;
+new LongInterval(1L, 2L, false, true).contains(2) == false;
 ```
 
 The `compareTo` method validates, if an interval is smaller 
@@ -74,13 +74,13 @@ The `compareTo` method validates, if an interval is smaller
 compare with, e.g., 
 
 ```java
-new Interval<>(1L, 5L).compareTo(new Interval<>(1L, 5L))   == 0;  // i.e., equal
-new Interval<>(1L, 5L).compareTo(new Interval<>(1.0, 5.0)) == 0;  // i.e., equal
-new Interval<>(1L, 5L).compareTo(new Interval<>(0.9, 1.0))  > 0;  // i.e., [1, 5] > [0.9, 1.0]
-new Interval<>(1L, 5L).compareTo(new Interval<>(1, 6))      < 0;  // i.e., [1, 5] < [1, 6]
+new LongInterval(1L, 5L).compareTo(new LongInterval(1L, 5L))     == 0;  // i.e., equal
+new LongInterval(1L, 5L).compareTo(new DoubleInterval(1.0, 5.0)) == 0;  // i.e., equal
+new LongInterval(1L, 5L).compareTo(new DoubleInterval(0.9, 1.0))  > 0); // i.e., [1, 5] > [0.9, 1.0]
+new LongInterval(1L, 5L).compareTo(new IntegerInterval(1, 6))     < 0); // i.e., [1, 5] < [1, 6]
 
 // the specified type, specifies the boundaries
-new Interval<>(Double.class, 1.0, 5.0, true, true).compareTo(new Interval<>(Long.class, 1L, 5L, true, true)) > 0;  // i.e., (1.0, 5.0) < (1, 5)
+new DoubleInterval(1.0, 5.0, true, true).compareTo(new LongInterval(1L, 5L, true, true)) < 0;  // i.e., (1.0, 5.0) < (1, 5)
 ```
 
 The methods `overlaps` checks if the interval overlaps with the specified `inteval`. The method returns `true`, if and only 
@@ -88,10 +88,10 @@ if the two intervals share at least one common element, i.e., `[s1, e1]` overlap
 `{ x ∈ X | s1 ≤ x ∧ x ≤ e1 } ∩ { x ∈ X | s2 ≤ x ∧ x ≤ e2 } ≠ ∅`.
 
 ```java
-new Interval<>(1L, 5L).overlaps(new Interval<>(-1L, 10L)) == true;
+new LongInterval(1L, 5L).overlaps(new LongInterval(-1L, 10L)) == true;
 
-new Interval<>(Double.class, 1.0, 4.9, true, true).overlaps(new Interval<>(Double.class, 4.9, 5.0, true, true)) == false;
-new Interval<>(Double.class, 1.0, 4.9, true, false).overlaps(new Interval<>(Double.class, 4.9, 5.0, false, true)) == true;
+new DoubleInterval(1.0, 4.9, true, true).overlaps(new DoubleInterval(4.9, 5.0, true, true)) == false;
+new DoubleInterval(1.0, 4.9, true, false).overlaps(new DoubleInterval(4.9, 5.0, false, true)) == true;
 ```
 
 Methods with the prefix `ir` (e.g., `irOverlap`, `irEquals`) are an implementation of 
@@ -123,10 +123,10 @@ This additional data may also affect the similarity of intervals, i.e., let's as
 The JSON shows three intervals, from which two are equal (`{ start: 5, end: 10, id: 2 }`). The third interval 
 (`{ start: 5, end: 10, id: 3 }`) is unequal to the others (based on the associated data). The default implementation
 `Interval` would not recognize the difference and assume all of the three intervals are equal. To modify the handling,
-it is recommended to `extend` the `Interval` implementation (and just add the new comparision).
+it is recommended to `delegate` or `extend` one of the `IInterval` implementation (and just modify the comparision).
 
 ```java
-public class IdInterval<I extends Comparable<I>, T extends Number & Comparable<T>> extends Interval<T> {
+public class IdInterval<I extends Comparable<I> & Serializable, T extends Comparable<T> & Serializable> implements IInterval<T> {   
     private final I id;
 
     /*
@@ -137,14 +137,14 @@ public class IdInterval<I extends Comparable<I>, T extends Number & Comparable<T
 
     @Override
     public int compareTo(final IInterval i) {
-        final int cmp = super.compareTo(i);
-        
+        final int cmp = this.wrappedInterval.compareTo(i);
+
         if (cmp == 0) {
-            
+
             // the intervals are equal, so we must use the identifiers
             if (i instanceof IdInterval) {
                 return compareId(IdInterval.class.cast(i));
-            } 
+            }
             // we don't have any identifiers (the instance is of a different type)
             else {
                 return getClass().getName().compareTo(i.getClass().getName());
@@ -156,8 +156,8 @@ public class IdInterval<I extends Comparable<I>, T extends Number & Comparable<T
 }
 ```
 
-In this implementation, the most important line is `super.compareTo(i)`. You should always use the `super` implementation,
-and only be more specific regarding the comparision, if the `super.compareTo` result is `0`. Otherwise, the intervals are 
+In this implementation, the most important line is `this.wrappedInterval.compareTo(i)`. You should always use the `super` or `delegated` implementation,
+and only be more specific regarding the comparision, if this `compareTo` result is `0`. Otherwise, the intervals are 
 already different and thus, the instances can never be equal. It should be mentioned, that the comparision defined by `compareTo`
 is not used by, e.g., the `IntervalTree`. These implementation are utilizing the `Comparator<Object> getComparator()`
 method, which is (if not overridden) utilizing the `int compareIntervals(final Object o1, final Object o2)` method.
@@ -172,10 +172,10 @@ a double cannot exceed a value as defined by `Double.MAX_VALUE`, whereby a long 
 comparing mixed values using relations like `irEnds` or `irStarts` may lead to unexpected behavior:
 
 ```java
-new Interval<>(Double.class.cast(null), null).irEnds(new Interval<>(8L, null)) == false; // because Double.MAX_VALUE < LONG.MAX_VALUE
-new Interval<>(Long.class.cast(null), null).irEnds(new Interval<>(8L, null)) == true;    // because both can reach the same maximum
+new DoubleInterval(null, null).irEnds(new LongInterval(8L, null)) == false; // because Double.MAX_VALUE < LONG.MAX_VALUE
+new LongInterval(null, null).irEnds(new LongInterval(8L, null)) == true;    // because both can reach the same maximum
 
-new Interval<>(Double.class.cast(null), null).irEquals(new Interval<>(Long.class.cast(null), null)) == false, // because the possible end is different
+new DoubleInterval(null, null).irEquals(new LongInterval(null, null)) == false; // because the possible end is different
 ```
 
 ### Working with Floating Numbers
@@ -186,3 +186,7 @@ was no time and need to implement it so far. Nevertheless, when working with the
 `Interval`, it is recommended to use the `Double` instances, with and only with values fulfilling `Math.abs(x) < 2 ^ 54` 
 (see [double to long conversion](http://stackoverflow.com/questions/321549/double-to-long-conversion)). For accurate usage
 it is important to understand how Java handles doubles and how the values are rounded.
+
+#### Note
+
+The example can be found in the test as [TestInterval.java](../test/com/brein/time/timeintervals/docs/TestInterval.java).
