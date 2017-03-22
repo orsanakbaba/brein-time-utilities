@@ -119,3 +119,62 @@ final IntervalTree tree = IntervalTreeBuilder.newBuilder()
         .usePersistor(persistor)
         .build();
 ```
+
+## Persist an `IntervalTree`
+
+Last but not least, it is important to persist the index-structure itself, so that the index will be available after the 
+application, e.g., was restarted. To do that, an `IntervalTree` provides the method `saveToFile(File)`, which allows to 
+persist the tree into an external file. Whenever the application is started, it is possible to recreated the tree using:
+
+1. Example: In-memory `IntervalTree`, which persists the `IntervalCollection` instances (`IntervalTreeBuilder.enableWriteCollections()`):
+
+    ```java
+    /*
+     * Create an in-memory tree, activate `enableWriteCollections`,
+     * so that the collections are persisted as well.
+     */
+    final IntervalTree tree = IntervalTreeBuilder.newBuilder()
+            .usePredefinedType(IntervalType.NUMBER)
+            .collectIntervals(interval -> new ListIntervalCollection())
+            .enableWriteCollections()
+            .build();
+    tree.saveToFile(new File("/path/to/my/persisted/intervalTree.bin"));
+
+    /*
+     * If we want to reload the tree, it is simply enough to just specify the file.
+     */
+    final IntervalTree reloadedTree = IntervalTreeBuilder.newBuilder()
+            .loadFromFile(new File("/path/to/my/persisted/intervalTree.bin"))
+            .build();
+    ```
+    
+2. Example: Cache, persistor `IntervalTree`, which persists and loads the `IntervalCollection` utilizing the specified persistor:
+    ```java
+    /*
+     * Create the tree utilizing a persistor and cache
+     */
+    final IntervalCollectionFactory factory = 
+        new CaffeineIntervalCollectionFactory(10_000, 1, TimeUnit.DAYS, interval -> new SetIntervalCollection());
+    
+    final CassandraIntervalCollectionPersistor persistor =
+        new CassandraIntervalCollectionPersistor();
+    persistor.setKeySpace("myKeySpace");
+    persistor.connect("localhost", 9042);
+    
+    // now we can create the tree
+    final IntervalTree tree = IntervalTreeBuilder.newBuilder()
+            .collectIntervals(factory)
+            .usePredefinedType(IntervalType.NUMBER, false)
+            .usePersistor(persistor)
+            .build();
+    tree.saveToFile(new File("/path/to/my/persisted/intervalTree.bin"));
+
+    /*
+     * Just reload the tree from file, but specify the persistor (which is not 
+     * peristed within the file). 
+     */
+    final IntervalTree reloadedTree = IntervalTreeBuilder.newBuilder()
+            .loadFromFile(new File("/path/to/my/persisted/intervalTree.bin"))
+            .usePersistor(persistor)
+            .build();
+    ```
