@@ -1,5 +1,8 @@
 package com.brein.time.timeintervals.intervals;
 
+import com.brein.time.exceptions.IllegalConfiguration;
+import com.brein.time.exceptions.IllegalTimeInterval;
+
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -16,7 +19,42 @@ public class IdInterval<I extends Comparable<I> & Serializable, T extends Compar
         // just used for serialization
     }
 
+    @SuppressWarnings("unchecked")
+    public IdInterval(final I id, final T start, final T end) {
+        final Class<T> clazz;
+        if (start == null && end == null) {
+            throw new IllegalTimeInterval("Please use the constructor with specified clazz, if start and end are null" +
+                    ".");
+        } else if (start == null) {
+            clazz = (Class<T>) end.getClass();
+        } else {
+            clazz = (Class<T>) start.getClass();
+        }
+
+        init(id, createInterval(start, end, clazz));
+    }
+
+    public IdInterval(final I id, final T start, final T end, final Class<T> clazz) {
+        init(id, createInterval(start, end, clazz));
+    }
+
+    @SuppressWarnings("unchecked")
+    protected IInterval<T> createInterval(final T start, final T end, final Class<T> clazz) {
+        if (Number.class.isAssignableFrom(clazz)) {
+            final Class<? extends Number> numberClazz = (Class<? extends Number>) clazz;
+            return new NumberInterval(numberClazz, numberClazz.cast(start), numberClazz.cast(end));
+        } else {
+            throw new IllegalConfiguration("There is currently no default implementation available for the specified " +
+                    "clazz '" + clazz + "', you can override the `createInterval` method, if an interval-type is " +
+                    "known.");
+        }
+    }
+
     public IdInterval(final I id, final IInterval<T> wrappedInterval) {
+        init(id, wrappedInterval);
+    }
+
+    protected void init(final I id, final IInterval<T> wrappedInterval) {
         this.id = id;
         this.wrappedInterval = wrappedInterval;
     }

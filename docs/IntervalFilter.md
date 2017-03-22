@@ -17,21 +17,21 @@ The tree is capable to hold multiple **different** intervals within a node, i.e.
 following intervals:
 
 ```java
-tree.insert(new IdInterval<>("ID1", new LongInterval(1L, 5L)));
-tree.insert(new IdInterval<>("ID2", new LongInterval(1L, 5L)));
+tree.insert(new IdInterval<>("ID1", 1L, 5L));
+tree.insert(new IdInterval<>("ID2", 1L, 5L));
 ```
 
 If I know would like to validate if a specific interval can be found (or using `Collection` wording: 
 "is `contained`") within the `tree`, I can do:
 
 ```java
-tree.contains(new IdInterval<>("ID1", new LongInterval(1L, 5L))); // -> true
-tree.contains(new IdInterval<>("ID2", new LongInterval(1L, 5L))); // -> true
-tree.contains(new IdInterval<>("ID3", new LongInterval(1L, 5L))); // -> false
+tree.contains(new IdInterval<>("ID1", 1L, 5L)); // -> true
+tree.contains(new IdInterval<>("ID2", 1L, 5L)); // -> true
+tree.contains(new IdInterval<>("ID3", 1L, 5L)); // -> false
 
-tree.find(new IdInterval<>("ID1", new LongInterval(1L, 5L))); // -> {[1, 5] with ID1}
-tree.find(new IdInterval<>("ID2", new LongInterval(1L, 5L))); // -> {[1, 5] with ID2}
-tree.find(new IdInterval<>("ID3", new LongInterval(1L, 5L))); // -> {}
+tree.find(new IdInterval<>("ID1", 1L, 5L)); // -> {[1, 5] with ID1}
+tree.find(new IdInterval<>("ID2", 1L, 5L)); // -> {[1, 5] with ID2}
+tree.find(new IdInterval<>("ID3", 1L, 5L)); // -> {}
 ```
 
 But what if I just want to know, if the `tree` contains any interval with `[1, 5]` independent of it's id?
@@ -59,8 +59,8 @@ public Collection<Interval> find(final Interval query, final IntervalFilter filt
 tree.find(new LongInterval(1L, 5L), IntervalFilters::equal); // -> {}, empty because the example tree 
                                                              // does not contain any equal intervals
 
-tree.find(new IdInterval<>("ID1", new LongInterval(1L, 5L)), IntervalFilters::interval); // -> {[1, 5] with ID1, 
-                                                                                         //     [1, 5] with ID2}
+tree.find(new IdInterval<>("ID1", 1L, 5L)), IntervalFilters::interval); // -> {[1, 5] with ID1, 
+                                                                        //     [1, 5] with ID2}
 ```
 
 You can also specify your own filters:

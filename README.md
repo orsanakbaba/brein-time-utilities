@@ -70,10 +70,10 @@ functionality, the runtime-complexity, and if available the equivalent `Collecti
 Furthermore, the provided implementation offers the following features:
 
 - storing and querying for multiple (equal) intervals (since 1.5.0), e.g.:
-  - calling `insert(new Inteval(1, 2))` twice will actually insert two intervals (using a `List` storage)
-  - calling `insert(new IdInteval("ID1", 1, 2))` twice will only be inserted once (using a `Set` storage)
-  - calling `insert(new IdInteval("ID1", 1, 2))` and `insert(new IdInteval("ID2", 1, 2))` will inserted two intervals (independent of the storage)
-- easy extendable `Interval` type, so that every type of data associated to intervals can be handled (since 1.5.0)
+  - calling `insert(new IntegerInterval(1, 2))` twice will actually insert two intervals, using a `ListIntervalCollection`
+  - calling `insert(new IntegerInterval(1, 2))` twice will only be inserted once, using a `SetIntervalCollection`
+  - calling `insert(new IdInteval<>("ID1", 1, 2)))` and `insert(new IdInteval<>("ID2", 1, 2)))` will inserted two intervals (independent of the storage)
+- easy extendable `IInterval` type, so that every type of data associated to intervals can be handled (since 1.5.0)
 - `IntervalTree` implements `Collection` interface (since 1.5.0)
 - `Interval` (see [documentation](docs/Interval.md)) implements [Allen's Interval Algebra](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
 - database look-up (to be added in 1.6.0)
@@ -83,7 +83,7 @@ Furthermore, the provided implementation offers the following features:
   - auto-balancing (activated by default): `IntervalTree.setAutoBalancing(true)` (since 1.5.0)
   - disable balancing: `IntervalTree.setAutoBalancing(false)` (since 1.5.0)
   - manual balancing: `IntervalTree.balance()`  (since 1.5.0)
-- time optimized (handling temporal intervals) (to be added in 1.6.0)
+- time optimized (handling temporal intervals) (to be added in 1.7.0)
 
 Further information regarding this implementation of the `IntervalTree` are documented [here](docs/README.md).
 

@@ -165,14 +165,14 @@ public class TestIntervalTree {
         tree.remove(new IntegerInterval(1, 1));
         Assert.assertEquals(tree.size(), 0);
 
-        tree.insert(new IdInterval<>("ID1", new IntegerInterval(1, 1)));
-        tree.insert(new IdInterval<>("ID2", new IntegerInterval(1, 1)));
+        tree.insert(new IdInterval<>("ID1", 1, 1));
+        tree.insert(new IdInterval<>("ID2", 1, 1));
         Assert.assertEquals(tree.size(), 2);
-        tree.remove(new IdInterval<>("ID3", new IntegerInterval(1, 1)));
+        tree.remove(new IdInterval<>("ID3", 1, 1));
         Assert.assertEquals(tree.size(), 2);
-        tree.remove(new IdInterval<>("ID1", new IntegerInterval(1, 1)));
+        tree.remove(new IdInterval<>("ID1", 1, 1));
         Assert.assertEquals(tree.size(), 1);
-        tree.remove(new IdInterval<>("ID2", new IntegerInterval(1, 1)));
+        tree.remove(new IdInterval<>("ID2", 1, 1));
         Assert.assertEquals(tree.size(), 0);
     }
 
@@ -195,16 +195,15 @@ public class TestIntervalTree {
         tree.remove(new IntegerInterval(1, 1));
         Assert.assertEquals(tree.size(), 1);
 
-        tree.insert(new IdInterval<>("ID1", new IntegerInterval(1, 1)));
-        tree.insert(new IdInterval<>("ID2", new IntegerInterval(1, 1)));
+        tree.insert(new IdInterval<>("ID1", 1, 1));
+        tree.insert(new IdInterval<>("ID2", 1, 1));
         Assert.assertEquals(tree.size(), 3);
 
-        tree.remove(new IdInterval<>("ID3", new IntegerInterval(1, 1)));
-        ;
+        tree.remove(new IdInterval<>("ID3", 1, 1));
         Assert.assertEquals(tree.size(), 3);
-        tree.remove(new IdInterval<>("ID1", new IntegerInterval(1, 1)));
+        tree.remove(new IdInterval<>("ID1", 1, 1));
         Assert.assertEquals(tree.size(), 2);
-        tree.remove(new IdInterval<>("ID2", new IntegerInterval(1, 1)));
+        tree.remove(new IdInterval<>("ID2", 1, 1));
         Assert.assertEquals(tree.size(), 1);
     }
 
@@ -217,12 +216,12 @@ public class TestIntervalTree {
                 .collectIntervals(interval -> new SetIntervalCollection())
                 .build();
 
-        tree.insert(new IdInterval<>("ID1", new LongInterval(1L, 5L)));
-        found = tree.find(new IdInterval<>("ID1", new LongInterval(1L, 5L)));
+        tree.insert(new IdInterval<>("ID1", 1L, 5L));
+        found = tree.find(new IdInterval<>("ID1", 1L, 5L));
         Assert.assertEquals(1, found.size());
 
-        tree.insert(new IdInterval<>("ID2", new LongInterval(1L, 5L)));
-        found = tree.find(new IdInterval<>("ID2", new LongInterval(1L, 5L)));
+        tree.insert(new IdInterval<>("ID2", 1L, 5L));
+        found = tree.find(new IdInterval<>("ID2", 1L, 5L));
         Assert.assertEquals(1, found.size());
 
         found = tree.find(new LongInterval(1L, 5L));
@@ -453,9 +452,8 @@ public class TestIntervalTree {
 
             // check what we loaded
             Assert.assertEquals(loadedTree.size(), 6);
-            loadedTree.nodeIterator().forEachRemaining(n -> {
-                Assert.assertEquals(Number.class.cast(n.getStart()).intValue(), n.getIntervals().size());
-            });
+            loadedTree.nodeIterator().forEachRemaining(n ->
+                    Assert.assertEquals(Number.class.cast(n.getStart()).intValue(), n.getIntervals().size()));
         } catch (final Exception e) {
             e.printStackTrace();
             Assert.assertNull(e.getMessage(), e);
