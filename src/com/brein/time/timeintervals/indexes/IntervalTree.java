@@ -1,11 +1,13 @@
 package com.brein.time.timeintervals.indexes;
 
+import com.brein.time.exceptions.FailedIO;
 import com.brein.time.exceptions.IllegalConfiguration;
 import com.brein.time.timeintervals.filters.IntervalFilter;
 import com.brein.time.timeintervals.intervals.IInterval;
 import org.apache.log4j.Logger;
 
 import java.io.Externalizable;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -742,5 +744,9 @@ public class IntervalTree implements Collection<IInterval>, Externalizable {
 
     public IntervalTreeConfiguration getConfiguration() {
         return configuration;
+    }
+
+    public void saveToFile(final File file) throws FailedIO {
+        IntervalTreeBuilder.saveToFile(file, this);
     }
 }
