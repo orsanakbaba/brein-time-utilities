@@ -24,7 +24,7 @@ public interface IntervalCollectionObserver extends Observer {
                     case REMOVED:
                         remove(event);
                         break;
-                    case ADDED:
+                    case UPSERTED:
                         upsert(event);
                         break;
                 }

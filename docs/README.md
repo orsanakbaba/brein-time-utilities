@@ -3,6 +3,7 @@
 There is some more specific documentation available for the `IntervalTree`, i.e.:
 
 - [What is an `Interval`](Interval.md)
+- [Overview on Store, Cache & Persist Capabilities](StoreCachePersist.md)
 - [Understanding `IntervalFilter`](IntervalFilter.md)
 
 *Note*: We are always trying to keep the documentation as useful as possible, please contact us

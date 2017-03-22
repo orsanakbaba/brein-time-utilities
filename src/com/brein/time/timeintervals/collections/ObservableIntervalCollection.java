@@ -72,7 +72,7 @@ public class ObservableIntervalCollection extends Observable implements Interval
 
     @Override
     public boolean add(final IInterval interval) {
-        return notifyObservers(interval, IntervalCollectionEventType.ADDED, this.collection.add(interval));
+        return notifyObservers(interval, IntervalCollectionEventType.UPSERTED, this.collection.add(interval));
     }
 
     @Override

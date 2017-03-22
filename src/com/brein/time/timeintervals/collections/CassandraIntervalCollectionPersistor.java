@@ -287,20 +287,31 @@ public class CassandraIntervalCollectionPersistor implements IntervalCollectionP
 
     @Override
     public void remove(final IntervalCollectionEvent event) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Removing IntervalCollection: " + event.getKey());
+
+        /*
+         * The event indicates something was removed from the collection, there are to cases:
+         *  - the collection is empty -> remove the whole entry
+         *  - the collection has still other elements -> upsert the collection
+         */
+        if (event.getCollection().isEmpty()) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Removing IntervalCollection: " + event.getKey());
+            }
+
+            if (this.delete == null) {
+                this.delete = getSession().prepare(QueryBuilder.delete()
+                        .from(this.keySpace, this.columnFamily)
+                        .where(eq(KEY_COLUMN, QueryBuilder.bindMarker())));
+            }
+
+            final BoundStatement boundStmt = new BoundStatement(this.delete);
+            boundStmt.setString(0, event.getKey());
+
+            getSession().execute(boundStmt);
+        } else {
+
+            upsert(event);
         }
-
-        if (this.delete == null) {
-            this.delete = getSession().prepare(QueryBuilder.delete()
-                    .from(this.keySpace, this.columnFamily)
-                    .where(eq(KEY_COLUMN, QueryBuilder.bindMarker())));
-        }
-
-        final BoundStatement boundStmt = new BoundStatement(this.delete);
-        boundStmt.setString(0, event.getKey());
-
-        getSession().execute(boundStmt);
     }
 
     public void dropKeySpace() {

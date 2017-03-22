@@ -9,17 +9,14 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.concurrent.TimeUnit;
 
-public class CaffeineIntervalCollectionFactory
-        implements IntervalCollectionFactory, IntervalCollectionObserver, Externalizable {
+public class CaffeineIntervalCollectionFactory extends PersistableIntervalCollectionFactory
+        implements Externalizable {
 
     private transient LoadingCache<String, IntervalCollection> cache;
-    private transient IntervalCollectionPersistor persistor;
 
     private long cacheSize;
     private long expire;
     private TimeUnit timeUnit;
-
-    private IntervalCollectionFactory wrappedFactory;
 
     public CaffeineIntervalCollectionFactory() {
         // just for serialization
@@ -29,7 +26,7 @@ public class CaffeineIntervalCollectionFactory
                                              final long expire,
                                              final TimeUnit timeUnit,
                                              final IntervalCollectionFactory wrappedFactory) {
-        this.wrappedFactory = wrappedFactory;
+        super(wrappedFactory);
         this.cache = createCache(cacheSize, expire, timeUnit);
     }
 
@@ -43,21 +40,7 @@ public class CaffeineIntervalCollectionFactory
         return Caffeine.newBuilder()
                 .maximumSize(cacheSize)
                 .expireAfterAccess(expire, timeUnit)
-                .build(this::create);
-    }
-
-    @Override
-    public void remove(final IntervalCollectionEvent event) {
-        if (this.persistor != null) {
-            this.persistor.remove(event);
-        }
-    }
-
-    @Override
-    public void upsert(final IntervalCollectionEvent event) {
-        if (this.persistor != null) {
-            this.persistor.upsert(event);
-        }
+                .build(super::load);
     }
 
     @Override
@@ -66,29 +49,6 @@ public class CaffeineIntervalCollectionFactory
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Loading instance from cache '" + key + "': " + result);
-        }
-
-        return result;
-    }
-
-    protected IntervalCollection create(final String key) {
-        IntervalCollection result;
-        if (this.persistor == null) {
-            result = null;
-        } else {
-            result = this.persistor.load(key);
-        }
-
-        if (result == null) {
-            result = this.wrappedFactory.load(key);
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Using created collection for '" + key + "': " + result);
-            }
-        } else {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Using persisted collection for '" + key + "': " + result);
-            }
         }
 
         return result;
@@ -103,36 +63,21 @@ public class CaffeineIntervalCollectionFactory
     }
 
     @Override
-    public void usePersistor(final IntervalCollectionPersistor persistor) {
-        this.persistor = persistor;
-    }
-
-    @Override
-    public boolean useWeakReferences() {
-        return true;
-    }
-
-    @Override
     public void writeExternal(final ObjectOutput out) throws IOException {
-        if (this.persistor != null && LOGGER.isInfoEnabled()) {
-            LOGGER.info("Please make sure that the persistor '" + this.persistor.getClass() + "' " +
-                    "will be re-initialized prior to using the persisted instance.");
-        }
+        super.writeExternal(out);
 
         out.writeLong(this.cacheSize);
         out.writeLong(this.expire);
         out.writeObject(this.timeUnit);
-
-        out.writeObject(this.wrappedFactory);
     }
 
     @Override
     public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
+        super.readExternal(in);
+
         final long cacheSize = in.readLong();
         final long expire = in.readLong();
         final TimeUnit timeUnit = TimeUnit.class.cast(in.readObject());
         this.cache = createCache(cacheSize, expire, timeUnit);
-
-        this.wrappedFactory = IntervalCollectionFactory.class.cast(in.readObject());
     }
 }
