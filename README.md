@@ -40,20 +40,19 @@ Further information regarding the actual implementation can be found [here](docs
 and [[6]](http://www.davismol.net/2016/02/07/data-structures-augmented-interval-tree-to-search-for-interval-overlapping/).
 
 ```java
-final IntervalTree tree = new IntervalTree();
-tree.add(new Interval(1L, 5L));
-tree.add(new Interval(2L, 5L));
-tree.add(new Interval(3L, 5L));
+final IntervalTree tree = IntervalTreeBuilder.newBuilder()
+                .usePredefinedType(IntervalType.LONG)
+                .collectIntervals(interval -> new ListIntervalCollection())
+                .build();
+tree.add(new LongInterval(1L, 5L));
+tree.add(new LongInterval(2L, 5L));
+tree.add(new LongInterval(3L, 5L));
 
 final Collection<IInterval> overlap = tree.overlap(new Interval(2L, 2L));
-overlap.forEach(i -> {
-    System.out.println(i); // will print out [1, 5] and [2, 5]
-});
+overlap.forEach(System.out::println); // will print out [1, 5] and [2, 5]
 
 final Collection<IInterval> find = tree.find(new Interval(2L, 5L));
-find.forEach(i -> {
-    System.out.println(i); // will print out only [2, 5]
-});
+find.forEach(System.out::println);    // will print out only [2, 5]
 ```
 
 The `IntervalTree` implements the `Collection` interface and therefore can be used as such for `Interval`-instances.

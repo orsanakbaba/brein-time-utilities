@@ -5,6 +5,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+        TestMainReadme.class,
         TestIntervalFilter.class,
         TestInterval.class
 })
