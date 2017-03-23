@@ -1,3 +1,9 @@
+<!--
+  Title: Breinify Time-Utilities (e.g., IntervalTree, BucketTimeSeries)
+  Description: Java library containing data- and index-structures to deal with (temporal) problems, e.g., IntervalTree, BucketTimeSeries.
+  Author: breinify
+  -->
+
 <p align="center">
   <img src="https://www.breinify.com/img/Breinify_logo.png" alt="Breinify: Leading Temporal AI Engine" width="250">
 </p>
