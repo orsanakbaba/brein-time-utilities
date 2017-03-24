@@ -3,6 +3,9 @@ package com.brein.time.timeintervals.intervals;
 import com.brein.time.exceptions.IllegalTimeInterval;
 import com.brein.time.exceptions.IllegalTimePoint;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -50,5 +53,18 @@ public class TimestampInterval extends LongInterval {
 
     public void setTimezone(final ZoneId timezone) {
         this.timezone = timezone;
+    }
+
+    @Override
+    public void writeExternal(final ObjectOutput out) throws IOException {
+        super.writeExternal(out);
+        out.writeObject(this.timezone);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
+        super.readExternal(in);
+        this.timezone = ZoneId.class.cast(in.readObject());
     }
 }
