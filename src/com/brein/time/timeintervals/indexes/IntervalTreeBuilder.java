@@ -153,22 +153,13 @@ public class IntervalTreeBuilder {
     }
 
     public IntervalTree build() throws FailedIO {
-        final IntervalTree tree = new IntervalTree();
-
-        // set the configuration
-        final IntervalTreeConfiguration configuration = new IntervalTreeConfiguration();
-
         if (this.file == null) {
-            configuration.setAutoBalancing(this.autoBalancing);
-            configuration.setValueComparator(this.valueComparator);
-            configuration.setIntervalFilter(this.filter);
-            configuration.setWritingCollectionsToFile(this.writeCollections);
-
-            configuration.setFactory(this.factory);
-            configuration.setPersistor(this.persistor);
-
-            tree.setConfiguration(configuration);
+            return buildFromSettings();
+        } else if (!this.file.exists() || !this.file.isFile()) {
+            return buildFromSettings();
         } else {
+            final IntervalTree tree = new IntervalTree();
+            final IntervalTreeConfiguration configuration = new IntervalTreeConfiguration();
 
             try (final FileInputStream fis = new FileInputStream(file);
                  final ObjectInput oin = new ObjectInputStream(fis)) {
@@ -181,7 +172,24 @@ public class IntervalTreeBuilder {
             } catch (final IOException | ClassNotFoundException e) {
                 throw new FailedIO("Could not load the tree from the file: " + file, e);
             }
+
+            return tree;
         }
+    }
+
+    protected IntervalTree buildFromSettings() {
+        final IntervalTree tree = new IntervalTree();
+        final IntervalTreeConfiguration configuration = new IntervalTreeConfiguration();
+
+        configuration.setAutoBalancing(this.autoBalancing);
+        configuration.setValueComparator(this.valueComparator);
+        configuration.setIntervalFilter(this.filter);
+        configuration.setWritingCollectionsToFile(this.writeCollections);
+
+        configuration.setFactory(this.factory);
+        configuration.setPersistor(this.persistor);
+
+        tree.setConfiguration(configuration);
 
         return tree;
     }
