@@ -15,6 +15,10 @@ public class TimestampInterval extends LongInterval {
 
     private ZoneId timezone;
 
+    public TimestampInterval() {
+        // just for serialization
+    }
+
     public TimestampInterval(final Long utcStart, final Long utcEnd) throws IllegalTimeInterval, IllegalTimePoint {
         this(UTC, utcStart, utcEnd);
     }

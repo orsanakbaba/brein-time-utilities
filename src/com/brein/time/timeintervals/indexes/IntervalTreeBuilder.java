@@ -195,7 +195,14 @@ public class IntervalTreeBuilder {
     }
 
     public static void saveToFile(final File file, final IntervalTree tree) throws FailedIO {
-        try (final FileOutputStream fos = new FileOutputStream(file);
+        final File parent = file.getParentFile();
+        if (parent != null && !parent.exists()) {
+            if (!parent.mkdirs()) {
+                throw new FailedIO("Could not create parent directory: " + parent);
+            }
+        }
+
+        try (final FileOutputStream fos = new FileOutputStream(file, false);
              final ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             tree.getConfiguration().writeExternal(oos);
             tree.writeExternal(oos);
