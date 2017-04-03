@@ -3,6 +3,7 @@ package com.brein.time.timeintervals.collections;
 import com.brein.time.exceptions.FailedConnection;
 import com.brein.time.exceptions.FailedIO;
 import com.brein.time.exceptions.FailedLoad;
+import com.brein.time.exceptions.IllegalConfiguration;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Host;
@@ -22,6 +23,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -125,7 +127,9 @@ public class CassandraIntervalCollectionPersistor implements IntervalCollectionP
 
             getSession().execute("USE " + this.keySpace);
         } catch (final InvalidQueryException e) {
-            if (LOGGER.isInfoEnabled()) {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Creating key-space: " + this.keySpace, e);
+            } else if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Creating key-space: " + this.keySpace);
             }
 
@@ -135,11 +139,11 @@ public class CassandraIntervalCollectionPersistor implements IntervalCollectionP
     }
 
     protected void createColumnFamily() {
-        final String keySpace = getKeySpace();
-        final String columnFamily = getColumnFamily();
+        final String ks = getKeySpace();
+        final String cf = getColumnFamily();
 
-        final KeyspaceMetadata keySpaceMeta = this.cluster.getMetadata().getKeyspace(keySpace);
-        final TableMetadata tableMetadata = keySpaceMeta.getTable(columnFamily);
+        final KeyspaceMetadata keySpaceMeta = this.cluster.getMetadata().getKeyspace(ks);
+        final TableMetadata tableMetadata = keySpaceMeta.getTable(cf);
 
         // check if the table exists
         if (tableMetadata != null) {
@@ -150,7 +154,7 @@ public class CassandraIntervalCollectionPersistor implements IntervalCollectionP
                 "  " + KEY_COLUMN + " text,\n" +
                 "  " + COLL_COLUMN + " blob,\n" +
                 "  PRIMARY KEY (" + KEY_COLUMN + ")\n" +
-                ");", columnFamily);
+                ");", cf);
 
         getSession().execute(stmt);
     }
@@ -272,7 +276,14 @@ public class CassandraIntervalCollectionPersistor implements IntervalCollectionP
 
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try (final ObjectOutputStream out = new ObjectOutputStream(byteStream)) {
-            out.writeObject(event.getCollection());
+            final IntervalCollection coll = event.getCollection();
+
+            if (Serializable.class.isInstance(coll)) {
+                out.writeObject(coll);
+            } else {
+                throw new IllegalConfiguration("The collection to be written is not serializable.");
+            }
+
             out.flush();
         } catch (final IOException e) {
             throw new FailedIO("Unable ot upsert instance for " + event.getKey(), e);
