@@ -15,18 +15,13 @@ public interface IntervalCollectionObserver extends Observer {
     @Override
     default void update(final Observable o, final Object arg) {
         if (o instanceof ObservableIntervalCollection) {
-            final ObservableIntervalCollection coll = ObservableIntervalCollection.class.cast(o);
-
             if (arg instanceof IntervalCollectionEvent) {
                 final IntervalCollectionEvent event = IntervalCollectionEvent.class.cast(arg);
 
-                switch (event.getEventType()) {
-                    case REMOVED:
-                        remove(event);
-                        break;
-                    case UPSERTED:
-                        upsert(event);
-                        break;
+                if (IntervalCollectionEventType.REMOVED == event.getEventType()) {
+                    remove(event);
+                } else if (IntervalCollectionEventType.UPSERTED == event.getEventType()) {
+                    upsert(event);
                 }
             }
         }
