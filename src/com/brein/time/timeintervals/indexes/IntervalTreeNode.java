@@ -7,7 +7,6 @@ import com.brein.time.timeintervals.collections.ObservableIntervalCollection;
 import com.brein.time.timeintervals.collections.UnmodifiableIntervalCollection;
 import com.brein.time.timeintervals.filters.IntervalFilter;
 import com.brein.time.timeintervals.intervals.IInterval;
-import org.apache.log4j.Logger;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -20,8 +19,6 @@ import java.util.Objects;
 
 public class IntervalTreeNode extends IntervalTreeNodeContext
         implements Externalizable, Iterable<IInterval>, Comparable<IntervalTreeNode> {
-    private static final Logger LOGGER = Logger.getLogger(IntervalTreeNode.class);
-
     private transient WeakReference<IntervalCollection> referenceCollection;
     private IntervalCollection collection;
 

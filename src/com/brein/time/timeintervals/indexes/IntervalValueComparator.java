@@ -7,6 +7,8 @@ import java.util.stream.Stream;
 
 @FunctionalInterface
 public interface IntervalValueComparator extends Serializable {
+    String ERROR_MSG = "The values '%s (%s)' and '%s (%s)' are not comparable.";
+
     List<Class<? extends Comparable<? extends Number>>> NUMBER_HIERARCHY = Arrays.asList(
             Byte.class,
             Short.class,
@@ -20,8 +22,7 @@ public interface IntervalValueComparator extends Serializable {
 
     static int compareLongs(final Object o1, final Object o2) {
         if (!Long.class.isAssignableFrom(o1.getClass()) || !Long.class.isAssignableFrom(o2.getClass())) {
-            throw new IllegalArgumentException(String.format("The values '%s (%s)' and '%s (%s)' " +
-                    "are not comparable.", o1, o1.getClass(), o2, o2.getClass()));
+            throw new IllegalArgumentException(String.format(ERROR_MSG, o1, o1.getClass(), o2, o2.getClass()));
         } else {
             return Long.class.cast(o1).compareTo(Long.class.cast(o2));
         }
@@ -29,8 +30,7 @@ public interface IntervalValueComparator extends Serializable {
 
     static int compareInts(final Object o1, final Object o2) {
         if (!Integer.class.isAssignableFrom(o1.getClass()) || !Integer.class.isAssignableFrom(o2.getClass())) {
-            throw new IllegalArgumentException(String.format("The values '%s (%s)' and '%s (%s)' " +
-                    "are not comparable.", o1, o1.getClass(), o2, o2.getClass()));
+            throw new IllegalArgumentException(String.format(ERROR_MSG, o1, o1.getClass(), o2, o2.getClass()));
         } else {
             return Integer.class.cast(o1).compareTo(Integer.class.cast(o2));
         }
@@ -38,8 +38,7 @@ public interface IntervalValueComparator extends Serializable {
 
     static int compareDoubles(final Object o1, final Object o2) {
         if (!Double.class.isAssignableFrom(o1.getClass()) || !Double.class.isAssignableFrom(o2.getClass())) {
-            throw new IllegalArgumentException(String.format("The values '%s (%s)' and '%s (%s)' " +
-                    "are not comparable.", o1, o1.getClass(), o2, o2.getClass()));
+            throw new IllegalArgumentException(String.format(ERROR_MSG, o1, o1.getClass(), o2, o2.getClass()));
         } else {
             return Double.class.cast(o1).compareTo(Double.class.cast(o2));
         }
@@ -48,8 +47,7 @@ public interface IntervalValueComparator extends Serializable {
     static int compareNumbers(final Object o1, final Object o2) {
 
         if (!Number.class.isAssignableFrom(o1.getClass()) || !Number.class.isAssignableFrom(o2.getClass())) {
-            throw new IllegalArgumentException(String.format("The values '%s (%s)' and '%s (%s)' " +
-                    "are not comparable.", o1, o1.getClass(), o2, o2.getClass()));
+            throw new IllegalArgumentException(String.format(ERROR_MSG, o1, o1.getClass(), o2, o2.getClass()));
         } else if (Comparable.class.isAssignableFrom(o1.getClass()) && o1.getClass().equals(o2.getClass())) {
             //noinspection unchecked
             return Comparable.class.cast(o1).compareTo(o2);
