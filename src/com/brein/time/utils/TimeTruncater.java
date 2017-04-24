@@ -36,7 +36,13 @@ public class TimeTruncater {
     public static long toDay(final long unixTimeStamp) {
         final Instant instant = Instant.ofEpochSecond(unixTimeStamp);
         final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, UTC);
-        return zonedDateTime.with(LocalTime.of(0, 0)).toEpochSecond();
+        return zonedDateTime.with(LocalTime.of(0, 0, 0)).toEpochSecond();
+    }
+
+    public static long toEndOfDay(final long unixTimeStamp) {
+        final Instant instant = Instant.ofEpochSecond(unixTimeStamp);
+        final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, UTC);
+        return zonedDateTime.with(LocalTime.of(23, 59, 59)).toEpochSecond();
     }
 
     /**
