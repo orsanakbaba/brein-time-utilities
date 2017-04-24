@@ -2,11 +2,11 @@ package com.brein.time.utils;
 
 import org.apache.log4j.Logger;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,6 +29,13 @@ public class TimeUtils {
         ZoneId.getAvailableZoneIds().stream()
                 .map(ZoneId::of)
                 .forEach(zoneId -> ZONES.put(zoneId.getId().toLowerCase(), zoneId));
+    }
+
+    private TimeUtils() {
+        /*
+         * Utility classes, which are a collection of static members,
+         * are not meant to be instantiated.
+         */
     }
 
     public static String format(final long unixTimeStamp) {
@@ -187,6 +194,7 @@ public class TimeUtils {
      * @param time unix-timestamp (in seconds)
      *
      * @return the midnight's time
+     *
      * @deprecated since 1.1.0 use {@link TimeTruncater#toDay(long)} instead
      */
     @Deprecated()
@@ -210,24 +218,52 @@ public class TimeUtils {
     public static long dateStringToUnixTimestamp(final String dateString,
                                                  final String format,
                                                  final String timezone) {
+        return dateStringToUnixTimestamp(dateString, DateTimeFormatter.ofPattern(format), timezone);
+    }
+
+    public static long dateStringToUnixTimestamp(final String dateString,
+                                                 final DateTimeFormatter formatter,
+                                                 final String timezone) {
         if (dateString == null || dateString.isEmpty()) {
             return -1;
         }
 
-        final DateFormat dateFormat = new SimpleDateFormat(format);
-        if (timezone != null) {
-            dateFormat.setTimeZone(TimeZone.getTimeZone(timezone));
+        try {
+            return LocalDateTime.parse(dateString, formatter)
+                    .atZone(getZone(timezone))
+                    .toEpochSecond();
+        } catch (final DateTimeParseException e) {
+            LOGGER.error("Unable to parse date '" + dateString + "'");
+            return -1;
+        }
+    }
+
+    public static long dateStringModifyToUnixTimestamp(final String dateString,
+                                                       final String format,
+                                                       final String timezone,
+                                                       final TimeModifier modifier) {
+        return dateStringModifyToUnixTimestamp(dateString, DateTimeFormatter.ofPattern(format), timezone, modifier);
+    }
+
+    public static long dateStringModifyToUnixTimestamp(final String dateString,
+                                                       final DateTimeFormatter formatter,
+                                                       final String timezone,
+                                                       final TimeModifier modifier) {
+        if (dateString == null || dateString.isEmpty()) {
+            return -1;
         }
 
         try {
-            final Date parsedDate = dateFormat.parse(dateString);
-            if (parsedDate == null) {
-                return -1;
-            } else {
-                return parsedDate.getTime() / 1000L;
+            ZonedDateTime dateTime = LocalDateTime.parse(dateString, formatter)
+                    .atZone(getZone(timezone));
+
+            if (modifier != null) {
+                dateTime = modifier.applyModifier(dateTime);
             }
-        } catch (final ParseException e) {
-            LOGGER.error("Unable to parse date '" + dateString + "' with format: " + format);
+
+            return dateTime.toEpochSecond();
+        } catch (final DateTimeParseException e) {
+            LOGGER.error("Unable to parse date '" + dateString + "'");
             return -1;
         }
     }
@@ -276,5 +312,9 @@ public class TimeUtils {
             }
             return Math.round(converted) + " " + type;
         }
+    }
+
+    protected static ZoneId getZone(final String timezone) {
+        return timezone == null ? UTC : ZoneId.of(timezone);
     }
 }

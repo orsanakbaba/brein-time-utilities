@@ -32,6 +32,31 @@ public class TestTimeUtils {
 
         Assert.assertEquals(1480447581L, TimeUtils.dateStringToUnixTimestamp("2016-11-30 4:26:21",
                 "yyyy-MM-dd HH:mm:ss", "Asia/Seoul"));
+
+        Assert.assertEquals(1480447581L, TimeUtils.dateStringToUnixTimestamp("2016-11-30 4:26:21",
+                "yyyy-MM-dd HH:mm:ss", "Asia/Seoul"));
+
+        Assert.assertEquals(1435019400L, TimeUtils.dateStringToUnixTimestamp("2015-06-22 17:30:00",
+                "yyyy-MM-dd HH:mm:ss", "America/Los_Angeles"));
+        Assert.assertEquals(1493148300L, TimeUtils.dateStringToUnixTimestamp("2017-04-25 15:25:00",
+                "yyyy-MM-dd HH:mm:ss", "America/New_York"));
+        Assert.assertEquals(1492348192L, TimeUtils.dateStringToUnixTimestamp("2017-04-16 08:09:52",
+                "yyyy-MM-dd HH:mm:ss", "America/Chicago"));
+    }
+
+    @Test
+    public void testDateStringModification() {
+        Assert.assertEquals(1480492799L, TimeUtils.dateStringModifyToUnixTimestamp("2016-11-29 11:11:30",
+                "yyyy-MM-dd HH:mm:ss", "America/Los_Angeles", TimeModifier.END_OF_DAY));
+
+        Assert.assertEquals(1480406400L, TimeUtils.dateStringModifyToUnixTimestamp("2016-11-29 11:11:30",
+                "yyyy-MM-dd HH:mm:ss", "America/Los_Angeles", TimeModifier.START_OF_DAY));
+
+        Assert.assertEquals(1480485599L, TimeUtils.dateStringModifyToUnixTimestamp("2016-11-29 11:11:30",
+                "yyyy-MM-dd HH:mm:ss", "America/Chicago", TimeModifier.END_OF_DAY));
+
+        Assert.assertEquals(1480399200L, TimeUtils.dateStringModifyToUnixTimestamp("2016-11-29 11:11:30",
+                "yyyy-MM-dd HH:mm:ss", "America/Chicago", TimeModifier.START_OF_DAY));
     }
 
     @Test
@@ -63,12 +88,12 @@ public class TestTimeUtils {
     }
 
     @Test
-    public void testResolveUTC(){
+    public void testResolveUTC() {
         Assert.assertNotNull(TimeUtils.zoneId(TimeUtils.UTC.getId(), false));
     }
 
     @Test
-    public void testSecondsToPrettyString(){
+    public void testSecondsToPrettyString() {
         Assert.assertEquals("0 seconds", TimeUtils.secondsToPrettyString(0));
         Assert.assertEquals("1 second", TimeUtils.secondsToPrettyString(1));
         Assert.assertEquals("10 seconds", TimeUtils.secondsToPrettyString(10));
@@ -92,7 +117,6 @@ public class TestTimeUtils {
         Assert.assertEquals("-12 days", TimeUtils.secondsToPrettyString(-1000000));
         Assert.assertEquals("-17 weeks", TimeUtils.secondsToPrettyString(-10000000));
         Assert.assertEquals("-3 years", TimeUtils.secondsToPrettyString(-100000000));
-
 
         Assert.assertEquals("119 seconds", TimeUtils.secondsToPrettyString(119));
         Assert.assertEquals("2 minutes", TimeUtils.secondsToPrettyString(120));
