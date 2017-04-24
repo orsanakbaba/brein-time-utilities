@@ -9,7 +9,8 @@
 </p>
 
 # Time-Utilities 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities) 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/hyperium/hyper/master/LICENSE)
 <sup>Features: **IntervalTree**, **BucketTimeSeries**, **ContainerBucketTimeSeries**</sup>
 
 ## When should I use the Library
