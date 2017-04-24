@@ -32,12 +32,12 @@ public class TestTimeUtils {
 
         Assert.assertEquals(1480447581L, TimeUtils.dateStringToUnixTimestamp("2016-11-30 04:26:21",
                 "yyyy-MM-dd HH:mm:ss", "Asia/Seoul"));
-
         Assert.assertEquals(1480447581L, TimeUtils.dateStringToUnixTimestamp("2016-11-30 4:26:21",
                 "yyyy-MM-dd H:mm:ss", "Asia/Seoul"));
-
         Assert.assertEquals(1480447581L, TimeUtils.dateStringToUnixTimestamp("2016-11-30 04:26:21",
                 "yyyy-MM-dd H:mm:ss", "Asia/Seoul"));
+        Assert.assertEquals(1480447581L, TimeUtils.dateStringToUnixTimestamp("2016-11-30 4:26:21",
+                "yyyy-MM-dd HH:mm:ss", "Asia/Seoul"));
 
         Assert.assertEquals(1435019400L, TimeUtils.dateStringToUnixTimestamp("2015-06-22 17:30:00",
                 "yyyy-MM-dd HH:mm:ss", "America/Los_Angeles"));
