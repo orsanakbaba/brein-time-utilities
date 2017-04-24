@@ -10,7 +10,7 @@
 
 # Time-Utilities 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.breinify/brein-time-utilities)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/Breinify/brein-time-utilities)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 <sup>Features: **IntervalTree**, **BucketTimeSeries**, **ContainerBucketTimeSeries**</sup>
 
 ## When should I use the Library
