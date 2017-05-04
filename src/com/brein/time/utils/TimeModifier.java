@@ -22,4 +22,15 @@ public enum TimeModifier {
             throw new IllegalArgumentException("Unexpected TimeModifier: " + this);
         }
     }
+
+    /**
+     * A unix timestamp to apply the modification to.
+     *
+     * @param timestamp the timestamp to apply the modification to
+     *
+     * @return the modified unix timestamp
+     */
+    public long applyModifier(final long timestamp) {
+        return this.applyModifier(TimeUtils.toZone(timestamp, TimeUtils.UTC)).toEpochSecond();
+    }
 }
