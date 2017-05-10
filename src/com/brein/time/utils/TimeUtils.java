@@ -101,6 +101,10 @@ public class TimeUtils {
         return cal;
     }
 
+    /**
+     * @deprecated please use {@link TimeModifier#START_OF_MONTH}
+     */
+    @Deprecated
     public static long firstOfNextMonthTime(final long unixTimestamp) {
         final Calendar cal = createFirstOfMonthCal(unixTimestamp);
         cal.add(Calendar.MONTH, 1);
@@ -195,11 +199,11 @@ public class TimeUtils {
      *
      * @return the midnight's time
      *
-     * @deprecated since 1.1.0 use {@link TimeTruncater#toDay(long)} instead
+     * @deprecated since 1.6.2 use {@link TimeModifier#START_OF_DAY} instead
      */
     @Deprecated()
     public static long toMidnight(final long time) {
-        return TimeTruncater.toDay(time);
+        return TimeModifier.START_OF_DAY.applyModifier(time);
     }
 
     /**

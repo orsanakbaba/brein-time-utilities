@@ -1,11 +1,12 @@
 package com.brein.time.utils;
 
-import java.time.Instant;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 
+/**
+ * @deprecated since 1.6.2, please use {@link TimeModifier} instead.
+ */
+@Deprecated
 public class TimeTruncater {
     private static final ZoneId UTC = ZoneOffset.UTC;
 
@@ -16,13 +17,12 @@ public class TimeTruncater {
      * @param unixTimeStamp the time-stamp to be truncated
      *
      * @return the date information only
+     *
+     * @deprecated since 1.6.2, use {@link TimeModifier#START_OF_MONTH}
      */
+    @Deprecated
     public static long toMonth(final long unixTimeStamp) {
-        final Instant instant = Instant.ofEpochSecond(unixTimeStamp);
-        final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, UTC);
-        return zonedDateTime.withDayOfMonth(1)
-                .with(LocalTime.of(0, 0))
-                .toEpochSecond();
+        return TimeModifier.START_OF_MONTH.applyModifier(unixTimeStamp);
     }
 
     /**
@@ -32,17 +32,20 @@ public class TimeTruncater {
      * @param unixTimeStamp the time-stamp to be truncated
      *
      * @return the date information only
+     *
+     * @deprecated since 1.6.2, use {@link TimeModifier#START_OF_DAY}
      */
+    @Deprecated
     public static long toDay(final long unixTimeStamp) {
-        final Instant instant = Instant.ofEpochSecond(unixTimeStamp);
-        final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, UTC);
-        return zonedDateTime.with(LocalTime.of(0, 0, 0)).toEpochSecond();
+        return TimeModifier.START_OF_DAY.applyModifier(unixTimeStamp);
     }
 
+    /**
+     * @deprecated since 1.6.2, use {@link TimeModifier#END_OF_DAY}
+     */
+    @Deprecated
     public static long toEndOfDay(final long unixTimeStamp) {
-        final Instant instant = Instant.ofEpochSecond(unixTimeStamp);
-        final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, UTC);
-        return zonedDateTime.with(LocalTime.of(23, 59, 59)).toEpochSecond();
+        return TimeModifier.END_OF_DAY.applyModifier(unixTimeStamp);
     }
 
     /**
@@ -52,11 +55,12 @@ public class TimeTruncater {
      * @param unixTimeStamp the time-stamp to be truncated
      *
      * @return the truncated time-stamp
+     *
+     * @deprecated since 1.6.2, use {@link TimeModifier#START_OF_HOUR}
      */
+    @Deprecated
     public static long toHour(final long unixTimeStamp) {
-        final Instant instant = Instant.ofEpochSecond(unixTimeStamp);
-        final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, UTC);
-        return zonedDateTime.with(LocalTime.of(zonedDateTime.getHour(), 0)).toEpochSecond();
+        return TimeModifier.START_OF_HOUR.applyModifier(unixTimeStamp);
     }
 
     /**
@@ -66,10 +70,11 @@ public class TimeTruncater {
      * @param unixTimeStamp the time-stamp to be truncated
      *
      * @return the truncated time-stamp
+     *
+     * @deprecated since 1.6.2, use {@link TimeModifier#START_OF_MINUTE}
      */
+    @Deprecated
     public static long toMinute(final long unixTimeStamp) {
-        final Instant instant = Instant.ofEpochSecond(unixTimeStamp);
-        final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, UTC);
-        return zonedDateTime.with(LocalTime.of(zonedDateTime.getHour(), zonedDateTime.getMinute())).toEpochSecond();
+        return TimeModifier.START_OF_MINUTE.applyModifier(unixTimeStamp);
     }
 }
