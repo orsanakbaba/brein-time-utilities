@@ -21,7 +21,7 @@ tree.insert(new IdInterval<>("ID1", 1L, 5L));
 tree.insert(new IdInterval<>("ID2", 1L, 5L));
 ```
 
-If I know would like to validate if a specific interval can be found (or using `Collection` wording: 
+If I would like to validate, if a specific interval can be found (or using `Collection` wording: 
 "is `contained`") within the `tree`, I can do:
 
 ```java
