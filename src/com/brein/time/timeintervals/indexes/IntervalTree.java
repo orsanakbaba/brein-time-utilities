@@ -381,7 +381,6 @@ public class IntervalTree implements Collection<IInterval>, Externalizable {
                         rootNode + "' from tree.");
             }
 
-            final IntervalTreeNodeChildType nodeChildType = node.determineChildType();
             final IntervalTreeNodeContext nodeCtx = node.detach();
             final IntervalTreeNodeChildType replacementChildType = rootNode.determineChildType();
             final IntervalTreeNodeContext replacementCtx = rootNode.detach();

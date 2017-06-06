@@ -5,6 +5,13 @@ import com.brein.time.timeintervals.intervals.IInterval;
 
 public class IntervalFilters {
 
+    private IntervalFilters() {
+        /*
+         * Utility classes, which are a collection of static members,
+         * are not meant to be instantiated.
+         */
+    }
+
     public static boolean weakEqual(final IntervalValueComparator cmp,
                                     final IInterval i1,
                                     final IInterval i2) {

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -333,7 +334,6 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
          *    to a normalized bucket, so the bucket would be, e.g., [1000, 1005).
          */
         final int bucketSize = config.getBucketSize();
-        final double ratio = timeStamp / bucketSize;
         final long offset = timeStamp % bucketSize;
         final long start = timeStamp - offset;
         final long end = start + config.getBucketSize();
@@ -394,10 +394,14 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
 
             @Override
             public T next() {
-                final int idx = BucketTimeSeries.this.idx(currentIdx + offset);
-                offset++;
+                if (hasNext()) {
+                    final int idx = BucketTimeSeries.this.idx((long) currentIdx + offset);
+                    offset++;
 
-                return BucketTimeSeries.this.timeSeries[idx];
+                    return BucketTimeSeries.this.timeSeries[idx];
+                } else {
+                    throw new NoSuchElementException("No further elements available.");
+                }
             }
         };
     }
@@ -497,7 +501,7 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
 
     public void combine(final BucketTimeSeries<T> timeSeries, final BiFunction<T, T, T> cmb) throws
             IllegalConfiguration {
-        final BucketTimeSeries<T> syncedTs = sync(timeSeries, (ts) -> new BucketTimeSeries<>(ts.getConfig(), ts
+        final BucketTimeSeries<T> syncedTs = sync(timeSeries, ts -> new BucketTimeSeries<>(ts.getConfig(), ts
                 .timeSeries, ts
                 .getNow()));
 
