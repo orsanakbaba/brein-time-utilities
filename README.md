@@ -84,7 +84,7 @@ Furthermore, the provided implementation offers the following features:
 - `Interval` (see [documentation](docs/Interval.md)) implements [Allen's Interval Algebra](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
 - store, cache, and persist, see [documentation](docs/StoreCachePersist.md) (since 1.6.0)
   - use `IntervalCollectionObserver` and `ObservableIntervalCollection` to keep your database (storage) up-to-date
-  - use the (sample) cache-implementation `CaffeineIntervalCollectionFactory`, utilizing [Caffeine](https://github.com/ben-names/caffeine)
+  - use the (sample) cache-implementation `CaffeineIntervalCollectionFactory`, utilizing [Caffeine](https://github.com/ben-manes/caffeine)
   - persist the in-memory `IntervalTree` on shut-down and avoid re-building, utilizing the methods `IntervalTreeBuilder.saveToFile()` and `IntervalTreeBuilder.loadFromFile()`
 - auto-balancing, disable balancing, and manuel balancing
   - auto-balancing (activated by default): `IntervalTree.setAutoBalancing(true)` (since 1.5.0)

@@ -408,8 +408,29 @@ public class TestIntervalTree {
         Assert.assertTrue(tree.contains(node.getIntervals().iterator().next()));
         Assert.assertTrue(tree.overlap(node.getIntervals().iterator().next()).size() > 0);
 
+        // check the maximum value defined
+        final Comparable leftMax = node.hasLeft() ? node.getLeft().getMax() : null;
+        final Comparable rightMax = node.hasRight() ? node.getRight().getMax() : null;
+        final Comparable leftRightMax = max(leftMax, rightMax);
+        final Comparable nodeMax = max(node.getStart(), node.getEnd());
+        final Comparable overallMax = max(nodeMax, leftRightMax);
+        Assert.assertEquals(node.getMax(), overallMax);
+
         if (balancing) {
             Assert.assertTrue(tree.toString(), tree.isBalanced());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Comparable max(final Comparable a, final Comparable b) {
+        if (a == null && b == null) {
+            return null;
+        } else if (a == null) {
+            return b;
+        } else if (b == null) {
+            return a;
+        } else {
+            return a.compareTo(b) > 0 ? a : b;
         }
     }
 

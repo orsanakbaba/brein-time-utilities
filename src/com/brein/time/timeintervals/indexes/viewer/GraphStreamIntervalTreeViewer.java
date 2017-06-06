@@ -49,7 +49,7 @@ public class GraphStreamIntervalTreeViewer {
     }
 
     public void visualize() {
-        final Viewer viewer = graph.display(false);
+        final Viewer viewer = getGraph().display(false);
         viewer.disableAutoLayout();
     }
 

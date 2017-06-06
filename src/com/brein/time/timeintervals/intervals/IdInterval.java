@@ -126,6 +126,11 @@ public class IdInterval<I extends Comparable<I> & Serializable, T extends Compar
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public <I extends IInterval<T>> I interval() {
+        return (I) wrappedInterval;
+    }
+
     @Override
     public int hashCode() {
         return this.id.hashCode();

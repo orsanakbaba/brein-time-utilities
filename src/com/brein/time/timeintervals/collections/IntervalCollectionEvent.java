@@ -39,4 +39,9 @@ public class IntervalCollectionEvent {
     public IntervalCollectionEventType getEventType() {
         return eventType;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s: %s (%s)", eventType, key, interval);
+    }
 }

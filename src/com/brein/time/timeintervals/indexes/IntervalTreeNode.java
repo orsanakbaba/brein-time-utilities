@@ -93,8 +93,13 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         } else {
             final Comparable leftMax = getLeft().max;
             final Comparable rightMax = getRight().max;
+            final Comparable thisMax = this.end;
 
-            setMax(compare(leftMax, rightMax) < 0 ? rightMax : leftMax);
+            if (compare(leftMax, rightMax) < 0) {
+                setMax(compare(thisMax, rightMax) < 0 ? rightMax : thisMax);
+            } else {
+                setMax(compare(thisMax, leftMax) < 0 ? leftMax : thisMax);
+            }
         }
     }
 
