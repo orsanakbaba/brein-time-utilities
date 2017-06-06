@@ -28,27 +28,6 @@ public class PositionedNode {
         this.y = y;
     }
 
-    public String getId() {
-        return this.node.getId();
-    }
-
-    public IntervalTreeNode getNode() {
-        return this.node;
-    }
-
-    public long getX() {
-        return this.x;
-    }
-
-    public long getY() {
-        return this.y;
-    }
-    
-    @Override
-    public String toString() {
-        return String.format("[%d, %d] - %s", this.x, this.y, this.node);
-    }
-
     public static PositionedNode moveUp(final IntervalTreeNode parent,
                                         final PositionedNode child,
                                         final long offset) {
@@ -72,5 +51,26 @@ public class PositionedNode {
                                            final long offset) {
         final long x = Double.valueOf(parent.getX() * Math.pow(2, offset)).longValue() + offset;
         return new PositionedNode(right, x, parent.getY() + offset);
+    }
+
+    public String getId() {
+        return this.node.getId();
+    }
+
+    public IntervalTreeNode getNode() {
+        return this.node;
+    }
+
+    public long getX() {
+        return this.x;
+    }
+
+    public long getY() {
+        return this.y;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%d, %d] - %s", this.x, this.y, this.node);
     }
 }

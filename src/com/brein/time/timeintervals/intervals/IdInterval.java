@@ -38,6 +38,10 @@ public class IdInterval<I extends Comparable<I> & Serializable, T extends Compar
         init(id, createInterval(start, end, clazz));
     }
 
+    public IdInterval(final I id, final IInterval<T> wrappedInterval) {
+        init(id, wrappedInterval);
+    }
+
     @SuppressWarnings("unchecked")
     protected IInterval<T> createInterval(final T start, final T end, final Class<T> clazz) {
         if (Number.class.isAssignableFrom(clazz)) {
@@ -48,10 +52,6 @@ public class IdInterval<I extends Comparable<I> & Serializable, T extends Compar
                     "clazz '" + clazz + "', you can override the `createInterval` method, if an interval-type is " +
                     "known.");
         }
-    }
-
-    public IdInterval(final I id, final IInterval<T> wrappedInterval) {
-        init(id, wrappedInterval);
     }
 
     protected void init(final I id, final IInterval<T> wrappedInterval) {
@@ -76,19 +76,6 @@ public class IdInterval<I extends Comparable<I> & Serializable, T extends Compar
     @Override
     public String getUniqueIdentifier() {
         return wrappedInterval.getUniqueIdentifier();
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (obj == this) {
-            return true;
-        } else if (obj == null) {
-            return false;
-        } else if (IInterval.class.isInstance(obj)) {
-            return compareTo(IInterval.class.cast(obj)) == 0;
-        } else {
-            return false;
-        }
     }
 
     @Override
@@ -137,6 +124,24 @@ public class IdInterval<I extends Comparable<I> & Serializable, T extends Compar
     }
 
     @Override
+    public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        } else if (obj == null) {
+            return false;
+        } else if (IInterval.class.isInstance(obj)) {
+            return compareTo(IInterval.class.cast(obj)) == 0;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s@%s", this.id, this.wrappedInterval);
+    }
+
+    @Override
     public void writeExternal(final ObjectOutput out) throws IOException {
         out.writeObject(this.id);
         out.writeObject(this.wrappedInterval);
@@ -147,10 +152,5 @@ public class IdInterval<I extends Comparable<I> & Serializable, T extends Compar
     public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
         this.id = (I) in.readObject();
         this.wrappedInterval = (IInterval<T>) in.readObject();
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s@%s", this.id, this.wrappedInterval);
     }
 }

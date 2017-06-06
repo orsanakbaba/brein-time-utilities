@@ -15,9 +15,11 @@ public class TestContainerBucketTimeSeries {
     public void testCombineByContent() {
         final long now = TimeUtils.now();
         final ContainerBucketTimeSeries<HashSet<Integer>, Integer> ts1 =
-                new ContainerBucketTimeSeries<>(HashSet::new, new BucketTimeSeriesConfig<>(HashSet.class, TimeUnit.HOURS, 1, 1));
+                new ContainerBucketTimeSeries<>(HashSet::new, new BucketTimeSeriesConfig<>(HashSet.class, TimeUnit
+                        .HOURS, 1, 1));
         final ContainerBucketTimeSeries<HashSet<Integer>, Integer> ts2 =
-                new ContainerBucketTimeSeries<>(HashSet::new, new BucketTimeSeriesConfig<>(HashSet.class, TimeUnit.HOURS, 1, 1));
+                new ContainerBucketTimeSeries<>(HashSet::new, new BucketTimeSeriesConfig<>(HashSet.class, TimeUnit
+                        .HOURS, 1, 1));
 
         ts1.add(now, 100);
         ts1.add(now, 101);

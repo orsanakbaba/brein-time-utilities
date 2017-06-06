@@ -12,16 +12,6 @@ public class ShallowIntervalCollection implements IntervalCollection {
     public static final ShallowIntervalCollection SHALLOW_COLLECTION = new ShallowIntervalCollection();
 
     @Override
-    public boolean isEmpty() {
-        return true;
-    }
-
-    @Override
-    public int size() {
-        return 0;
-    }
-
-    @Override
     public Iterator<IInterval> iterator() {
         return Collections.emptyIterator();
     }
@@ -34,6 +24,16 @@ public class ShallowIntervalCollection implements IntervalCollection {
     @Override
     public boolean remove(final IInterval o) {
         return false;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return true;
+    }
+
+    @Override
+    public int size() {
+        return 0;
     }
 
     @Override

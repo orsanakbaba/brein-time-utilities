@@ -70,15 +70,6 @@ public class BucketTimeSeriesConfig<T> implements Serializable {
     }
 
     @Override
-    public String toString() {
-        return String.format("%s-timeSeries[%d]'[%d]'(%s)",
-                getTimeUnit().name().toLowerCase(),
-                getTimeSeriesSize(),
-                getBucketSize(),
-                getBucketContent().getSimpleName());
-    }
-
-    @Override
     public int hashCode() {
         return Objects.hash(this.timeUnit, this.timeSeriesSize,
                 this.bucketSize, this.bucketContent, this.fillNumberWithZero);
@@ -102,5 +93,14 @@ public class BucketTimeSeriesConfig<T> implements Serializable {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s-timeSeries[%d]'[%d]'(%s)",
+                getTimeUnit().name().toLowerCase(),
+                getTimeSeriesSize(),
+                getBucketSize(),
+                getBucketContent().getSimpleName());
     }
 }

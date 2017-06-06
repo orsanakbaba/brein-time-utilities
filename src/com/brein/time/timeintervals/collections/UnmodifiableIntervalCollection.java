@@ -27,23 +27,6 @@ public class UnmodifiableIntervalCollection implements IntervalCollection {
     }
 
     @Override
-    public Iterator<IInterval> iterator() {
-        final Iterator<IInterval> it = wrappedCollection.iterator();
-        return new Iterator<IInterval>() {
-
-            @Override
-            public boolean hasNext() {
-                return it.hasNext();
-            }
-
-            @Override
-            public IInterval next() {
-                return it.next();
-            }
-        };
-    }
-
-    @Override
     public boolean isEmpty() {
         return wrappedCollection.isEmpty();
     }
@@ -73,5 +56,22 @@ public class UnmodifiableIntervalCollection implements IntervalCollection {
     @Override
     public String getUniqueIdentifier() {
         return wrappedCollection.getUniqueIdentifier();
+    }
+
+    @Override
+    public Iterator<IInterval> iterator() {
+        final Iterator<IInterval> it = wrappedCollection.iterator();
+        return new Iterator<IInterval>() {
+
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+
+            @Override
+            public IInterval next() {
+                return it.next();
+            }
+        };
     }
 }

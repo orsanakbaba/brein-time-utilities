@@ -29,7 +29,8 @@ public class BucketEndPoints implements Serializable, Comparable<BucketEndPoints
      */
     public BucketEndPoints(final long unixTimeStampStart, final long unixTimeStampEnd) throws IllegalBucketEndPoints {
         if (unixTimeStampEnd <= unixTimeStampStart) {
-            throw new IllegalBucketEndPoints(String.format("The defined boundaries are invalid: %d (end) <= %d (start)", unixTimeStampEnd, unixTimeStampStart));
+            throw new IllegalBucketEndPoints(String.format("The defined boundaries are invalid: %d (end) <= %d " +
+                    "(start)", unixTimeStampEnd, unixTimeStampStart));
         }
 
         this.start = unixTimeStampStart;
@@ -61,7 +62,9 @@ public class BucketEndPoints implements Serializable, Comparable<BucketEndPoints
          * no sense.
          */
         if (size != other.size() || (start - other.start) % size != 0) {
-            throw new IllegalBucketEndPoints(String.format("The buckets %s and %s do not belong to the same configuration and cannot be compared, or better the difference between these bucket end points cannot be determined.", this, other));
+            throw new IllegalBucketEndPoints(String.format("The buckets %s and %s do not belong to the same " +
+                    "configuration and cannot be compared, or better the difference between these bucket end points " +
+                    "cannot be determined.", this, other));
         }
 
         return (other.start - start) / size;
@@ -77,8 +80,19 @@ public class BucketEndPoints implements Serializable, Comparable<BucketEndPoints
     }
 
     @Override
-    public String toString() {
-        return String.format("[%d, %d) == [%s, %s)", start, end, TimeUtils.format(start), TimeUtils.format(end));
+    @SuppressWarnings("NullableProblems")
+    public int compareTo(final BucketEndPoints other) {
+        int res = Long.compare(start, other.start);
+        if (res == 0) {
+            res = Long.compare(end, other.end);
+        }
+
+        return res;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(Long.hashCode(start), Long.hashCode(end));
     }
 
     @Override
@@ -97,18 +111,7 @@ public class BucketEndPoints implements Serializable, Comparable<BucketEndPoints
     }
 
     @Override
-    @SuppressWarnings("NullableProblems")
-    public int compareTo(final BucketEndPoints other) {
-        int res = Long.compare(start, other.start);
-        if (res == 0) {
-            res = Long.compare(end, other.end);
-        }
-
-        return res;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(Long.hashCode(start), Long.hashCode(end));
+    public String toString() {
+        return String.format("[%d, %d) == [%s, %s)", start, end, TimeUtils.format(start), TimeUtils.format(end));
     }
 }

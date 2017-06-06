@@ -30,7 +30,8 @@ public class TestContainerBucketTimeSeriesTypeConverter {
 
         final Random rnd = new Random();
         final ContainerBucketTimeSeries<HashSet<Integer>, Integer> ts =
-                new ContainerBucketTimeSeries<>(HashSet::new, new BucketTimeSeriesConfig<>(HashSet.class, TimeUnit.SECONDS, 10, 1));
+                new ContainerBucketTimeSeries<>(HashSet::new, new BucketTimeSeriesConfig<>(HashSet.class, TimeUnit
+                        .SECONDS, 10, 1));
 
         res = gson.fromJson(gson.toJson(ts), ContainerBucketTimeSeries.class);
         Assert.assertArrayEquals(ts.order(), res.order());
@@ -50,7 +51,8 @@ public class TestContainerBucketTimeSeriesTypeConverter {
 
         final Random rnd = new Random();
         final ContainerBucketTimeSeries<HashSet<UUID>, UUID> ts =
-                new ContainerBucketTimeSeries<>(HashSet::new, new BucketTimeSeriesConfig<>(HashSet.class, TimeUnit.MINUTES, 2, 15));
+                new ContainerBucketTimeSeries<>(HashSet::new, new BucketTimeSeriesConfig<>(HashSet.class, TimeUnit
+                        .MINUTES, 2, 15));
 
         res = gson.fromJson(gson.toJson(ts), ContainerBucketTimeSeries.class);
         Assert.assertArrayEquals(ts.order(), res.order());

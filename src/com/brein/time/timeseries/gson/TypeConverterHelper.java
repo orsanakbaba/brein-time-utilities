@@ -34,10 +34,13 @@ public class TypeConverterHelper {
     }
 
     public static Object[] deserialize(final JsonElement jsonElement, final JsonDeserializationContext context) {
-        return deserialize(jsonElement, context, (bucketContent, el) -> context.deserialize(el, TypeConverterHelper.arrayClass(bucketContent)));
+        return deserialize(jsonElement, context,
+                (bucketContent, el) -> context.deserialize(el, TypeConverterHelper.arrayClass(bucketContent)));
     }
 
-    public static Object[] deserialize(final JsonElement jsonElement, final JsonDeserializationContext context, final BiFunction<Class<?>, JsonElement, Serializable[]> timeSeriesDeserializer) {
+    public static Object[] deserialize(final JsonElement jsonElement,
+                                       final JsonDeserializationContext context,
+                                       final BiFunction<Class<?>, JsonElement, Serializable[]> timeSeriesDeserializer) {
         final JsonObject jsonObject = jsonElement.getAsJsonObject();
 
         if (LOG.isTraceEnabled()) {
@@ -62,12 +65,15 @@ public class TypeConverterHelper {
         final Serializable[] timeSeries = timeSeriesDeserializer.apply(bucketContent, jsonObject.get("timeSeries"));
 
         @SuppressWarnings("unchecked")
-        final BucketTimeSeriesConfig config = new BucketTimeSeriesConfig(bucketContent, timeUnit, timeSeries.length, bucketSize, fillNumberWithZero);
+        final BucketTimeSeriesConfig config =
+                new BucketTimeSeriesConfig(bucketContent, timeUnit, timeSeries.length, bucketSize, fillNumberWithZero);
         return new Object[]{config, timeSeries, now};
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Class<T> resolveClass(final String key, final JsonObject jsonObject, final JsonDeserializationContext context) {
+    public static <T> Class<T> resolveClass(final String key,
+                                            final JsonObject jsonObject,
+                                            final JsonDeserializationContext context) {
         final String clazz = context.deserialize(jsonObject.get(key), String.class);
         if (clazz == null) {
             return null;

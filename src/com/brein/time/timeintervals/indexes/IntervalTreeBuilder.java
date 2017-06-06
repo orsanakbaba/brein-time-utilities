@@ -22,81 +22,33 @@ import java.io.ObjectOutputStream;
 
 public class IntervalTreeBuilder {
 
-    public enum IntervalType {
-
-        /**
-         * If you plan to hold {@link NumberInterval} instances within the tree, use this type. Also use this type if
-         * you plan to mix the different types of {@code NumberIntervals}, e.g., {@link IntegerInterval}, {@code
-         * LongInterval}.
-         */
-        NUMBER(NumberInterval.class,
-                IntervalFilters::weakEqual,
-                IntervalValueComparator::compareNumbers,
-                IntervalValueComparator::compareNumbers),
-        /**
-         * If you plan to hold {@link IntegerInterval} instances within the tree, use this type.
-         */
-        INTEGER(IntegerInterval.class,
-                IntervalFilters::weakEqual,
-                IntervalValueComparator::compareNumbers,
-                IntervalValueComparator::compareInts),
-        /**
-         * If you plan to hold {@link LongInterval} instances within the tree, use this type.
-         */
-        LONG(LongInterval.class,
-                IntervalFilters::weakEqual,
-                IntervalValueComparator::compareNumbers,
-                IntervalValueComparator::compareLongs),
-        /**
-         * If you plan to hold {@link DoubleInterval} instances within the tree, use this type.
-         */
-        DOUBLE(DoubleInterval.class,
-                IntervalFilters::weakEqual,
-                IntervalValueComparator::compareNumbers,
-                IntervalValueComparator::compareDoubles),
-        /**
-         * If you plan to hold {@link TimestampInterval} instances within the tree, use this type.
-         */
-        TIMESTAMP(TimestampInterval.class,
-                IntervalFilters::weakEqual,
-                IntervalValueComparator::compareNumbers,
-                IntervalValueComparator::compareLongs);
-
-        private final Class<? extends IInterval> clazz;
-        private final IntervalFilter intervalFilter;
-        private final IntervalValueComparator comparator;
-        private final IntervalValueComparator strictComparator;
-
-        IntervalType(final Class<? extends IInterval> clazz,
-                     final IntervalFilter intervalFilter,
-                     final IntervalValueComparator comparator,
-                     final IntervalValueComparator strictComparator) {
-            this.clazz = clazz;
-            this.intervalFilter = intervalFilter;
-            this.comparator = comparator;
-            this.strictComparator = comparator;
-        }
-
-        public IntervalFilter getIntervalFilter() {
-            return intervalFilter;
-        }
-
-        public IntervalValueComparator getComparator(final boolean strict) {
-            return strict ? strictComparator : comparator;
-        }
-    }
-
     private File file = null;
     private IntervalCollectionPersistor persistor = null;
     private IntervalCollectionFactory factory = null;
     private IntervalFilter filter = null;
     private IntervalValueComparator valueComparator = null;
-
     private boolean autoBalancing = true;
     private boolean writeCollections = false;
 
     public static IntervalTreeBuilder newBuilder() {
         return new IntervalTreeBuilder();
+    }
+
+    public static void saveToFile(final File file, final IntervalTree tree) throws FailedIO {
+        final File parent = file.getParentFile();
+        if (parent != null && !parent.exists()) {
+            if (!parent.mkdirs()) {
+                throw new FailedIO("Could not create parent directory: " + parent);
+            }
+        }
+
+        try (final FileOutputStream fos = new FileOutputStream(file, false);
+             final ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            tree.getConfiguration().writeExternal(oos);
+            tree.writeExternal(oos);
+        } catch (final IOException e) {
+            throw new FailedIO("Could not save the tree to the file: " + file, e);
+        }
     }
 
     public IntervalTreeBuilder loadFromFile(final File file) {
@@ -194,20 +146,67 @@ public class IntervalTreeBuilder {
         return tree;
     }
 
-    public static void saveToFile(final File file, final IntervalTree tree) throws FailedIO {
-        final File parent = file.getParentFile();
-        if (parent != null && !parent.exists()) {
-            if (!parent.mkdirs()) {
-                throw new FailedIO("Could not create parent directory: " + parent);
-            }
+    public enum IntervalType {
+
+        /**
+         * If you plan to hold {@link NumberInterval} instances within the tree, use this type. Also use this type if
+         * you plan to mix the different types of {@code NumberIntervals}, e.g., {@link IntegerInterval}, {@code
+         * LongInterval}.
+         */
+        NUMBER(NumberInterval.class,
+                IntervalFilters::weakEqual,
+                IntervalValueComparator::compareNumbers,
+                IntervalValueComparator::compareNumbers),
+        /**
+         * If you plan to hold {@link IntegerInterval} instances within the tree, use this type.
+         */
+        INTEGER(IntegerInterval.class,
+                IntervalFilters::weakEqual,
+                IntervalValueComparator::compareNumbers,
+                IntervalValueComparator::compareInts),
+        /**
+         * If you plan to hold {@link LongInterval} instances within the tree, use this type.
+         */
+        LONG(LongInterval.class,
+                IntervalFilters::weakEqual,
+                IntervalValueComparator::compareNumbers,
+                IntervalValueComparator::compareLongs),
+        /**
+         * If you plan to hold {@link DoubleInterval} instances within the tree, use this type.
+         */
+        DOUBLE(DoubleInterval.class,
+                IntervalFilters::weakEqual,
+                IntervalValueComparator::compareNumbers,
+                IntervalValueComparator::compareDoubles),
+        /**
+         * If you plan to hold {@link TimestampInterval} instances within the tree, use this type.
+         */
+        TIMESTAMP(TimestampInterval.class,
+                IntervalFilters::weakEqual,
+                IntervalValueComparator::compareNumbers,
+                IntervalValueComparator::compareLongs);
+
+        private final Class<? extends IInterval> clazz;
+        private final IntervalFilter intervalFilter;
+        private final IntervalValueComparator comparator;
+        private final IntervalValueComparator strictComparator;
+
+        IntervalType(final Class<? extends IInterval> clazz,
+                     final IntervalFilter intervalFilter,
+                     final IntervalValueComparator comparator,
+                     final IntervalValueComparator strictComparator) {
+            this.clazz = clazz;
+            this.intervalFilter = intervalFilter;
+            this.comparator = comparator;
+            this.strictComparator = comparator;
         }
 
-        try (final FileOutputStream fos = new FileOutputStream(file, false);
-             final ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            tree.getConfiguration().writeExternal(oos);
-            tree.writeExternal(oos);
-        } catch (final IOException e) {
-            throw new FailedIO("Could not save the tree to the file: " + file, e);
+        public IntervalFilter getIntervalFilter() {
+            return intervalFilter;
+        }
+
+        public IntervalValueComparator getComparator(final boolean strict) {
+            return strict ? strictComparator : comparator;
         }
     }
 }

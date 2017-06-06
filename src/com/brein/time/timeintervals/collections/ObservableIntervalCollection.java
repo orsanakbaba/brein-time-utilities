@@ -29,28 +29,6 @@ public class ObservableIntervalCollection extends Observable implements Interval
     }
 
     @Override
-    public Collection<IInterval> find(final IInterval interval, final IntervalValueComparator cmp) {
-        return this.collection.find(interval, cmp);
-    }
-
-    @Override
-    public Collection<IInterval> find(final IInterval interval,
-                                      final IntervalValueComparator cmp,
-                                      final IntervalFilter filter) {
-        return this.collection.find(interval, cmp, filter);
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return this.collection.isEmpty();
-    }
-
-    @Override
-    public int size() {
-        return this.collection.size();
-    }
-
-    @Override
     @SuppressWarnings("NullableProblems")
     public Iterator<IInterval> iterator() {
 
@@ -80,6 +58,33 @@ public class ObservableIntervalCollection extends Observable implements Interval
         return notifyObservers(interval, IntervalCollectionEventType.REMOVED, this.collection.remove(interval));
     }
 
+    @Override
+    public boolean isEmpty() {
+        return this.collection.isEmpty();
+    }
+
+    @Override
+    public int size() {
+        return this.collection.size();
+    }
+
+    @Override
+    public Collection<IInterval> find(final IInterval interval, final IntervalValueComparator cmp) {
+        return this.collection.find(interval, cmp);
+    }
+
+    @Override
+    public Collection<IInterval> find(final IInterval interval,
+                                      final IntervalValueComparator cmp,
+                                      final IntervalFilter filter) {
+        return this.collection.find(interval, cmp, filter);
+    }
+
+    @Override
+    public Stream<IInterval> stream() {
+        return this.collection.stream();
+    }
+
     public boolean notifyObservers(final IInterval interval,
                                    final IntervalCollectionEventType eventType,
                                    final boolean result) {
@@ -105,6 +110,11 @@ public class ObservableIntervalCollection extends Observable implements Interval
     }
 
     @Override
+    public int hashCode() {
+        return this.collection.hashCode();
+    }
+
+    @Override
     public boolean equals(final Object obj) {
         if (obj == this) {
             return true;
@@ -116,16 +126,6 @@ public class ObservableIntervalCollection extends Observable implements Interval
         } else {
             return false;
         }
-    }
-
-    @Override
-    public int hashCode() {
-        return this.collection.hashCode();
-    }
-
-    @Override
-    public Stream<IInterval> stream() {
-        return this.collection.stream();
     }
 
     @Override

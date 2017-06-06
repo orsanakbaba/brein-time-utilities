@@ -1,6 +1,6 @@
 package com.brein.time.exceptions;
 
-public class FailedConnection  extends RuntimeException {
+public class FailedConnection extends RuntimeException {
 
     public FailedConnection() {
         super();

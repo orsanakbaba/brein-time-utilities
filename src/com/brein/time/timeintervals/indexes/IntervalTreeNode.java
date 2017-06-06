@@ -158,12 +158,6 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
     }
 
     @Override
-    public String toString() {
-        return String.format("[%s, %s] (max: %s, count: %d, level: %d, height: %d)",
-                this.start, this.end, this.max, getCollection().size(), this.level, this.height);
-    }
-
-    @Override
     @SuppressWarnings("NullableProblems")
     public int compareTo(final IntervalTreeNode node) {
         return compareTo(node.start, node.end);
@@ -197,6 +191,12 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
     @Override
     public void setRight(final IntervalTreeNode right) {
         setChild(right, IntervalTreeNodeChildType.RIGHT);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%s, %s] (max: %s, count: %d, level: %d, height: %d)",
+                this.start, this.end, this.max, getCollection().size(), this.level, this.height);
     }
 
     protected void setChild(final IntervalTreeNode node, final IntervalTreeNodeChildType childType) {
@@ -282,6 +282,11 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(getStart(), getEnd());
+    }
+
+    @Override
     public boolean equals(final Object obj) {
         if (obj == this) {
             return true;
@@ -293,11 +298,6 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         } else {
             return false;
         }
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getStart(), getEnd());
     }
 
     @Override

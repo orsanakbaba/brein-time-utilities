@@ -13,20 +13,25 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.stream.Stream;
 
-public class BucketTimeSeriesTypeConverter implements JsonSerializer<BucketTimeSeries>, JsonDeserializer<BucketTimeSeries> {
+public class BucketTimeSeriesTypeConverter
+        implements JsonSerializer<BucketTimeSeries>, JsonDeserializer<BucketTimeSeries> {
 
     public Class<BucketTimeSeries> getType() {
         return BucketTimeSeries.class;
     }
 
     @Override
-    public JsonElement serialize(final BucketTimeSeries bucketTimeSeries, final Type type, final JsonSerializationContext context) {
+    public JsonElement serialize(final BucketTimeSeries bucketTimeSeries,
+                                 final Type type,
+                                 final JsonSerializationContext context) {
         return TypeConverterHelper.serialize(bucketTimeSeries, context);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public BucketTimeSeries deserialize(final JsonElement jsonElement, final Type type, final JsonDeserializationContext context) throws JsonParseException {
+    public BucketTimeSeries deserialize(final JsonElement jsonElement,
+                                        final Type type,
+                                        final JsonDeserializationContext context) throws JsonParseException {
         final Object[] values = TypeConverterHelper.deserialize(jsonElement, context);
 
         if (values == null || values.length != 3 ||
@@ -36,7 +41,8 @@ public class BucketTimeSeriesTypeConverter implements JsonSerializer<BucketTimeS
                         .orElse(null) == null) {
             return null;
         } else {
-            return new BucketTimeSeries((BucketTimeSeriesConfig) values[0], (Serializable[]) values[1], (long) values[2]);
+            return new BucketTimeSeries((BucketTimeSeriesConfig) values[0],
+                    (Serializable[]) values[1], (long) values[2]);
         }
     }
 }

@@ -54,14 +54,6 @@ public class CaffeineIntervalCollectionFactory extends PersistableIntervalCollec
         return result;
     }
 
-    public long size() {
-        return this.cache.estimatedSize();
-    }
-
-    public void clear() {
-        this.cache.cleanUp();
-    }
-
     @Override
     public void writeExternal(final ObjectOutput out) throws IOException {
         super.writeExternal(out);
@@ -79,5 +71,13 @@ public class CaffeineIntervalCollectionFactory extends PersistableIntervalCollec
         final long expire = in.readLong();
         final TimeUnit timeUnit = TimeUnit.class.cast(in.readObject());
         this.cache = createCache(cacheSize, expire, timeUnit);
+    }
+
+    public long size() {
+        return this.cache.estimatedSize();
+    }
+
+    public void clear() {
+        this.cache.cleanUp();
     }
 }

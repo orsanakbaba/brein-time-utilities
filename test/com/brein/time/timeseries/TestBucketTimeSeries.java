@@ -107,7 +107,6 @@ public class TestBucketTimeSeries {
         Assert.assertEquals(1457028000, res.getUnixTimeStampEnd());
         Assert.assertEquals(15 * 60 * 60, res.getUnixTimeStampEnd() - res.getUnixTimeStampStart());
 
-
         // [2016-03-03 04:41:00 UTC, 2016-03-03 04:41:05 UTC)
         res = seconds_10_5_ts.normalizeUnixTimeStamp(unixTimeStamp);
         LOG.info(String.format("Result with %s: %s", seconds_10_5_ts.getConfig(), res));

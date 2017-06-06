@@ -1,11 +1,10 @@
 package com.brein.time.timeintervals.indexes;
 
 public class IntervalTreeNodeContext {
-    private transient IntervalTreeNode parent;
-
     // the left and right are
     protected IntervalTreeNode left;
     protected IntervalTreeNode right;
+    private transient IntervalTreeNode parent;
 
     public IntervalTreeNodeContext() {
         // nothing

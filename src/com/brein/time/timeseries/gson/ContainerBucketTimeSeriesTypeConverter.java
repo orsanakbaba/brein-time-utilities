@@ -17,14 +17,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Supplier;
 
-public class ContainerBucketTimeSeriesTypeConverter implements JsonSerializer<ContainerBucketTimeSeries>, JsonDeserializer<ContainerBucketTimeSeries> {
+public class ContainerBucketTimeSeriesTypeConverter
+        implements JsonSerializer<ContainerBucketTimeSeries>, JsonDeserializer<ContainerBucketTimeSeries> {
 
     public Class<ContainerBucketTimeSeries> getType() {
         return ContainerBucketTimeSeries.class;
     }
 
     @Override
-    public JsonElement serialize(final ContainerBucketTimeSeries o, final Type type, final JsonSerializationContext context) {
+    public JsonElement serialize(final ContainerBucketTimeSeries o,
+                                 final Type type,
+                                 final JsonSerializationContext context) {
         final JsonObject jsonObject = TypeConverterHelper.serialize(o, context);
         jsonObject.add("supplier", TypeConverterHelper.serializeClass(o.getCollectionType(), context));
         jsonObject.add("collectionContent", TypeConverterHelper.serializeClass(o.getCollectionContent(), context));
@@ -33,10 +36,13 @@ public class ContainerBucketTimeSeriesTypeConverter implements JsonSerializer<Co
     }
 
     @Override
-    public ContainerBucketTimeSeries deserialize(final JsonElement jsonElement, final Type type, final JsonDeserializationContext context) throws JsonParseException {
+    public ContainerBucketTimeSeries deserialize(final JsonElement jsonElement,
+                                                 final Type type,
+                                                 final JsonDeserializationContext context) throws JsonParseException {
         final JsonObject jsonObject = jsonElement.getAsJsonObject();
 
-        final Class<? extends Collection> supplierClass = TypeConverterHelper.resolveClass("supplier", jsonObject, context);
+        final Class<? extends Collection> supplierClass =
+                TypeConverterHelper.resolveClass("supplier", jsonObject, context);
         final Supplier<Collection> supplier = () -> {
             if (supplierClass == null) {
                 throw new NullPointerException();

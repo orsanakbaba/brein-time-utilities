@@ -42,28 +42,28 @@ public class IntervalTreeConfiguration implements Externalizable {
         this.factory = IntervalCollectionFactory.class.cast(in.readObject());
     }
 
-    public void setAutoBalancing(final boolean autoBalancing) {
-        this.autoBalancing = autoBalancing;
-    }
-
     public boolean isAutoBalancing() {
         return autoBalancing;
     }
 
-    public void setValueComparator(final IntervalValueComparator valueComparator) {
-        this.valueComparator = valueComparator;
+    public void setAutoBalancing(final boolean autoBalancing) {
+        this.autoBalancing = autoBalancing;
     }
 
     public IntervalValueComparator getValueComparator() {
         return valueComparator;
     }
 
-    public void setFactory(final IntervalCollectionFactory factory) {
-        this.factory = factory;
+    public void setValueComparator(final IntervalValueComparator valueComparator) {
+        this.valueComparator = valueComparator;
     }
 
     public IntervalCollectionFactory getFactory() {
         return this.factory;
+    }
+
+    public void setFactory(final IntervalCollectionFactory factory) {
+        this.factory = factory;
     }
 
     public void setPersistor(final IntervalCollectionPersistor persistor) throws IllegalConfiguration {

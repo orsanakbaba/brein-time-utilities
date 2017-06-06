@@ -18,8 +18,6 @@ public interface IntervalValueComparator extends Serializable {
             Double.class
     );
 
-    int compare(final Object o1, final Object o2);
-
     static int compareLongs(final Object o1, final Object o2) {
         if (!Long.class.isAssignableFrom(o1.getClass()) || !Long.class.isAssignableFrom(o2.getClass())) {
             throw new IllegalArgumentException(String.format(ERROR_MSG, o1, o1.getClass(), o2, o2.getClass()));
@@ -94,4 +92,6 @@ public interface IntervalValueComparator extends Serializable {
             throw new IllegalArgumentException("The class '" + clazz + "' is not supported.");
         }
     }
+
+    int compare(final Object o1, final Object o2);
 }

@@ -31,17 +31,6 @@ public class IntervalTree implements Collection<IInterval>, Externalizable {
 
     private long size = 0L;
 
-    @Override
-    @SuppressWarnings("SimplifiableIfStatement")
-    public boolean contains(final Object o) {
-
-        if (o instanceof IInterval) {
-            return !find(IInterval.class.cast(o)).isEmpty();
-        } else {
-            return false;
-        }
-    }
-
     public Collection<IInterval> find(final IInterval query) {
         return find(query, this.configuration.getIntervalFilter());
     }
@@ -72,55 +61,6 @@ public class IntervalTree implements Collection<IInterval>, Externalizable {
         }
     }
 
-    @Override
-    public boolean containsAll(final Collection<?> c) {
-        for (final Object o : c) {
-            if (!contains(o)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean addAll(final Collection<? extends IInterval> c) {
-        final AtomicBoolean changed = new AtomicBoolean(false);
-        c.forEach(interval -> changed.compareAndSet(false, add(interval)));
-        return changed.get();
-    }
-
-    @Override
-    public boolean removeAll(final Collection<?> c) {
-        final AtomicBoolean changed = new AtomicBoolean(false);
-        c.forEach(interval -> changed.compareAndSet(false, remove(interval)));
-        return changed.get();
-    }
-
-    @Override
-    public boolean retainAll(final Collection<?> c) {
-        final List<IInterval> contained = c.stream()
-                .filter(this::contains)
-                .map(IInterval.class::cast)
-                .collect(Collectors.toList());
-
-        // if there is nothing to be removed, we can return false
-        if (contained.size() == this.size()) {
-            return false;
-        }
-
-        clear();
-        addAll(contained);
-
-        return true;
-    }
-
-    @Override
-    public void clear() {
-        this.root = null;
-        this.size = 0;
-    }
-
     public Collection<IInterval> overlap(final IInterval query) {
         if (this.root == null) {
             return Collections.emptyList();
@@ -149,16 +89,6 @@ public class IntervalTree implements Collection<IInterval>, Externalizable {
         }
 
         this._overlap(node.getRight(), query, result);
-    }
-
-    @Override
-    public boolean add(final IInterval interval) {
-        final AtomicBoolean changed = new AtomicBoolean(false);
-
-        this.root = _add(this.root, interval, changed);
-        this.size += changed.get() ? 1 : 0;
-
-        return changed.get();
     }
 
     public IntervalTree insert(final IInterval interval) {
@@ -271,24 +201,6 @@ public class IntervalTree implements Collection<IInterval>, Externalizable {
     public IntervalTree delete(final IInterval interval) {
         remove(interval);
         return this;
-    }
-
-    @Override
-    @SuppressWarnings("SimplifiableIfStatement")
-    public boolean remove(final Object o) {
-        final IInterval interval;
-        if (o instanceof IInterval) {
-            interval = IInterval.class.cast(o);
-        } else {
-            return false;
-        }
-
-        final AtomicBoolean changed = new AtomicBoolean(false);
-
-        this.root = _remove(this.root, interval, changed);
-        this.size -= changed.get() ? 1 : 0;
-
-        return changed.get();
     }
 
     protected IntervalTreeNode _remove(final IntervalTreeNode node,
@@ -525,16 +437,39 @@ public class IntervalTree implements Collection<IInterval>, Externalizable {
     }
 
     @Override
+    @SuppressWarnings("SimplifiableIfStatement")
+    public boolean contains(final Object o) {
+
+        if (o instanceof IInterval) {
+            return !find(IInterval.class.cast(o)).isEmpty();
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public Iterator<IInterval> iterator() {
         final Iterator<IntervalTreeNode> outerNodeIt = nodeIterator();
 
         return new Iterator<IInterval>() {
-            private IInterval next = findNext();
             private Iterator<IInterval> nodeCollectionIt = null;
+            private IInterval next = findNext();
 
             @Override
             public boolean hasNext() {
                 return this.next != null;
+            }
+
+            protected IInterval findNext() {
+                if (this.nodeCollectionIt != null && this.nodeCollectionIt.hasNext()) {
+                    // nothing to do, next will return something
+                } else if (outerNodeIt.hasNext()) {
+                    this.nodeCollectionIt = outerNodeIt.next().iterator();
+                } else {
+                    return null;
+                }
+
+                return this.nodeCollectionIt.next();
             }
 
             @Override
@@ -549,18 +484,118 @@ public class IntervalTree implements Collection<IInterval>, Externalizable {
                 return result;
             }
 
-            protected IInterval findNext() {
-                if (this.nodeCollectionIt != null && this.nodeCollectionIt.hasNext()) {
-                    // nothing to do, next will return something
-                } else if (outerNodeIt.hasNext()) {
-                    this.nodeCollectionIt = outerNodeIt.next().iterator();
-                } else {
-                    return null;
-                }
-
-                return this.nodeCollectionIt.next();
-            }
         };
+    }
+
+    @Override
+    public Object[] toArray() {
+        if (this.size() == 0L) {
+            return new IInterval[0];
+        }
+
+        final IInterval[] intervals = new IInterval[size()];
+        final AtomicInteger pos = new AtomicInteger(0);
+        iterator().forEachRemaining(i -> intervals[pos.getAndIncrement()] = i);
+
+        return intervals;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T[] toArray(final T[] arr) {
+
+        final T[] intervals;
+        if (arr.length < this.size) {
+            intervals = (T[]) Array.newInstance(arr.getClass().getComponentType(), size());
+        } else {
+            intervals = arr;
+        }
+
+        final AtomicInteger pos = new AtomicInteger(0);
+        iterator().forEachRemaining(i -> intervals[pos.getAndIncrement()] = (T) i);
+
+        for (int i = intervals.length; i < size(); i++) {
+            intervals[i] = null;
+        }
+
+        return intervals;
+    }
+
+    @Override
+    public boolean add(final IInterval interval) {
+        final AtomicBoolean changed = new AtomicBoolean(false);
+
+        this.root = _add(this.root, interval, changed);
+        this.size += changed.get() ? 1 : 0;
+
+        return changed.get();
+    }
+
+    @Override
+    @SuppressWarnings("SimplifiableIfStatement")
+    public boolean remove(final Object o) {
+        final IInterval interval;
+        if (o instanceof IInterval) {
+            interval = IInterval.class.cast(o);
+        } else {
+            return false;
+        }
+
+        final AtomicBoolean changed = new AtomicBoolean(false);
+
+        this.root = _remove(this.root, interval, changed);
+        this.size -= changed.get() ? 1 : 0;
+
+        return changed.get();
+    }
+
+    @Override
+    public boolean containsAll(final Collection<?> c) {
+        for (final Object o : c) {
+            if (!contains(o)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean addAll(final Collection<? extends IInterval> c) {
+        final AtomicBoolean changed = new AtomicBoolean(false);
+        c.forEach(interval -> changed.compareAndSet(false, add(interval)));
+        return changed.get();
+    }
+
+    @Override
+    public boolean removeAll(final Collection<?> c) {
+        final AtomicBoolean changed = new AtomicBoolean(false);
+        c.forEach(interval -> changed.compareAndSet(false, remove(interval)));
+        return changed.get();
+    }
+
+    @Override
+    public boolean retainAll(final Collection<?> c) {
+        final List<IInterval> contained = c.stream()
+                .filter(this::contains)
+                .map(IInterval.class::cast)
+                .collect(Collectors.toList());
+
+        // if there is nothing to be removed, we can return false
+        if (contained.size() == this.size()) {
+            return false;
+        }
+
+        clear();
+        addAll(contained);
+
+        return true;
+    }
+
+    @Override
+    public void clear() {
+        this.root = null;
+        this.size = 0;
     }
 
     public Iterator<IntervalTreeNode> nodeIterator() {
@@ -650,40 +685,6 @@ public class IntervalTree implements Collection<IInterval>, Externalizable {
     }
 
     @Override
-    public Object[] toArray() {
-        if (this.size() == 0L) {
-            return new IInterval[0];
-        }
-
-        final IInterval[] intervals = new IInterval[size()];
-        final AtomicInteger pos = new AtomicInteger(0);
-        iterator().forEachRemaining(i -> intervals[pos.getAndIncrement()] = i);
-
-        return intervals;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T[] toArray(final T[] arr) {
-
-        final T[] intervals;
-        if (arr.length < this.size) {
-            intervals = (T[]) Array.newInstance(arr.getClass().getComponentType(), size());
-        } else {
-            intervals = arr;
-        }
-
-        final AtomicInteger pos = new AtomicInteger(0);
-        iterator().forEachRemaining(i -> intervals[pos.getAndIncrement()] = (T) i);
-
-        for (int i = intervals.length; i < size(); i++) {
-            intervals[i] = null;
-        }
-
-        return intervals;
-    }
-
-    @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         toString("", this.root, sb, true);
@@ -733,16 +734,16 @@ public class IntervalTree implements Collection<IInterval>, Externalizable {
         return this.configuration.isAutoBalancing();
     }
 
+    public IntervalTreeConfiguration getConfiguration() {
+        return configuration;
+    }
+
     public void setConfiguration(final IntervalTreeConfiguration configuration) {
         if (this.root != null) {
             throw new IllegalConfiguration("The configuration cannot be changed once the tree is created.");
         }
 
         this.configuration = configuration;
-    }
-
-    public IntervalTreeConfiguration getConfiguration() {
-        return configuration;
     }
 
     public void saveToFile(final File file) throws FailedIO {

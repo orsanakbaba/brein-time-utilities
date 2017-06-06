@@ -195,10 +195,6 @@ public class NumberInterval<T extends Number & Comparable<T>> implements IInterv
         return norm(this.start, this.openStart, true);
     }
 
-    public T getEnd() {
-        return end;
-    }
-
     @Override
     public T getNormEnd() {
         return norm(this.end, this.openEnd, false);
@@ -207,6 +203,10 @@ public class NumberInterval<T extends Number & Comparable<T>> implements IInterv
     @Override
     public String getUniqueIdentifier() {
         return "[" + unique(getNormStart()) + "," + unique(getNormEnd()) + "]";
+    }
+
+    public T getEnd() {
+        return end;
     }
 
     protected String unique(final T value) {
@@ -336,6 +336,11 @@ public class NumberInterval<T extends Number & Comparable<T>> implements IInterv
     }
 
     @Override
+    public int hashCode() {
+        return getUniqueIdentifier().hashCode();
+    }
+
+    @Override
     public boolean equals(final Object obj) {
         if (obj == this) {
             return true;
@@ -347,11 +352,6 @@ public class NumberInterval<T extends Number & Comparable<T>> implements IInterv
         } else {
             return false;
         }
-    }
-
-    @Override
-    public int hashCode() {
-        return getUniqueIdentifier().hashCode();
     }
 
     @Override
