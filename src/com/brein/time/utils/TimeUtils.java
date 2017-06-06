@@ -20,9 +20,9 @@ import java.util.TimeZone;
 
 public class TimeUtils {
     private static final Logger LOGGER = Logger.getLogger(TimeUtils.class);
+    protected static final Map<String, ZoneId> ZONES = new HashMap<>();
 
     public static final ZoneId UTC = ZoneId.of("UTC");
-    public static final Map<String, ZoneId> ZONES = new HashMap<>();
 
     // fill the zones
     static {
