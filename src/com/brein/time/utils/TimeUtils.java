@@ -12,9 +12,12 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -315,6 +318,33 @@ public class TimeUtils {
             }
             return Math.round(converted) + " " + type;
         }
+    }
+
+    /**
+     * Creates a list of days between the specified start (inclusive) and end (inclusive).
+     *
+     * @param startUnixTimestamp the start
+     * @param endUnixTimestamp   the end
+     *
+     * @return the unix timestamps for each day between start and end
+     */
+    public static List<Long> createTimestampList(final long startUnixTimestamp,
+                                            final long endUnixTimestamp) {
+        if (startUnixTimestamp > endUnixTimestamp) {
+            return Collections.emptyList();
+        }
+
+        // normalize the start and end (next day's start)
+        final long normStart = TimeModifier.START_OF_DAY.applyModifier(startUnixTimestamp);
+        final long normEnd = TimeModifier.moveDays(endUnixTimestamp, true, 1);
+
+        // determine which times we have to query for
+        final List<Long> times = new ArrayList<>();
+        for (long time = normStart; time < normEnd; time += 24 * 60 * 60) {
+            times.add(time);
+        }
+
+        return times;
     }
 
     protected static ZoneId getZone(final String timezone) {

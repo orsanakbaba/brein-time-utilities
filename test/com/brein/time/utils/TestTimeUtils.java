@@ -3,6 +3,9 @@ package com.brein.time.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 public class TestTimeUtils {
 
     @Test
@@ -128,5 +131,19 @@ public class TestTimeUtils {
         Assert.assertEquals("119 seconds", TimeUtils.secondsToPrettyString(119));
         Assert.assertEquals("2 minutes", TimeUtils.secondsToPrettyString(120));
         Assert.assertEquals("2 minutes", TimeUtils.secondsToPrettyString(121));
+    }
+
+    @Test
+    public void testCreateTimestampList() {
+        Assert.assertEquals(Collections.emptyList(), TimeUtils.createTimestampList(1L, 0L));
+
+        Assert.assertEquals(Collections.singletonList(1497225600L),
+                TimeUtils.createTimestampList(1497226525L, 1497226525L));
+
+        Assert.assertEquals(Collections.singletonList(1497225600L),
+                TimeUtils.createTimestampList(1497226025L, 1497226525L));
+
+        Assert.assertEquals(Arrays.asList(1497052800L, 1497139200L, 1497225600L, 1497312000L),
+                TimeUtils.createTimestampList(1497126525L, 1497326525L));
     }
 }
