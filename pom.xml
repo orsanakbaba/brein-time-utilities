@@ -45,11 +45,11 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- only used for CassandraIntervalCollectionPersistor -->
         <dependency>
             <groupId>com.datastax.cassandra</groupId>
             <artifactId>cassandra-driver-core</artifactId>
             <version>3.3.0</version>
-            <!-- only used for CassandraIntervalCollectionPersistor -->
             <optional>true</optional>
         </dependency>
 
