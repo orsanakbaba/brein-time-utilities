@@ -126,6 +126,11 @@ public class TimeUtils {
         return cal.getTimeInMillis() / 1000L;
     }
 
+    public static long firstOfCurrentMonthTime(final long unixTimestamp) {
+        final Calendar cal = createFirstOfMonthCal(unixTimestamp);
+        return cal.getTimeInMillis() / 1000L;
+    }
+
     public static boolean isSameMonth(final long unixTimestamp1,
                                       final long unixTimestamp2) {
         final Calendar cal1 = createCal(unixTimestamp1);
