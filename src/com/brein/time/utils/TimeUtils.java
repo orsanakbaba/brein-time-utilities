@@ -52,6 +52,10 @@ public class TimeUtils {
         return format(format, unixTimeStamp, UTC);
     }
 
+    public static String format(final String format, final long unixTimeStamp, final String zone) {
+        return format(format, unixTimeStamp, zoneId(zone));
+    }
+
     public static String format(final String format, final long unixTimeStamp, final ZoneId zone) {
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
         return Instant.ofEpochSecond(unixTimeStamp)

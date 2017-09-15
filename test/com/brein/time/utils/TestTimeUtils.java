@@ -29,6 +29,12 @@ public class TestTimeUtils {
     }
 
     @Test
+    public void testFormat() {
+        Assert.assertEquals("Tue Nov 29 2016 11:11:30 GMT-0800 (PST)",
+                TimeUtils.format("E MMM dd yyyy HH:mm:ss 'GMT'Z (z)", 1480446690L, "America/Los_Angeles"));
+    }
+
+    @Test
     public void testDateStringToUnixTimestamp() {
         Assert.assertEquals(1480446690L, TimeUtils.dateStringToUnixTimestamp("2016-11-29 11:11:30",
                 "yyyy-MM-dd HH:mm:ss", "America/Los_Angeles"));
