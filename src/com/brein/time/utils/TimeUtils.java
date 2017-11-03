@@ -227,7 +227,7 @@ public class TimeUtils {
      */
     public static long dateStringToUnixTimestamp(final String dateString,
                                                  final String format) {
-        return dateStringToUnixTimestamp(dateString, format, null);
+        return dateStringToUnixTimestamp(dateString, format, UTC);
     }
 
     public static long dateStringToUnixTimestamp(final String dateString,
@@ -237,15 +237,27 @@ public class TimeUtils {
     }
 
     public static long dateStringToUnixTimestamp(final String dateString,
+                                                 final String format,
+                                                 final ZoneId zone) {
+        return dateStringToUnixTimestamp(dateString, DateTimeFormatter.ofPattern(format), zone);
+    }
+
+    public static long dateStringToUnixTimestamp(final String dateString,
                                                  final DateTimeFormatter formatter,
                                                  final String timezone) {
+        return dateStringToUnixTimestamp(dateString, formatter, getZone(timezone));
+    }
+
+    public static long dateStringToUnixTimestamp(final String dateString,
+                                                 final DateTimeFormatter formatter,
+                                                 final ZoneId zone) {
         if (dateString == null || dateString.isEmpty()) {
             return -1;
         }
 
         try {
             return LocalDateTime.parse(dateString, formatter)
-                    .atZone(getZone(timezone))
+                    .atZone(zone)
                     .toEpochSecond();
         } catch (final DateTimeParseException e) {
             LOGGER.error("Unable to parse date '" + dateString + "'");
