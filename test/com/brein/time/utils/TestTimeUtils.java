@@ -109,6 +109,15 @@ public class TestTimeUtils {
     }
 
     @Test
+    public void testZoneId() {
+        Assert.assertNotNull(TimeUtils.zoneId(TimeUtils.UTC.getId(), false));
+        Assert.assertNotNull(TimeUtils.zoneId("America/Chicago", false));
+        Assert.assertNull(TimeUtils.zoneId("fake/timezone", false));
+        Assert.assertNull(TimeUtils.zoneId("", false));
+        Assert.assertNull(TimeUtils.zoneId(null, false));
+    }
+
+    @Test
     public void testSecondsToPrettyString() {
         Assert.assertEquals("0 seconds", TimeUtils.secondsToPrettyString(0));
         Assert.assertEquals("1 second", TimeUtils.secondsToPrettyString(1));
