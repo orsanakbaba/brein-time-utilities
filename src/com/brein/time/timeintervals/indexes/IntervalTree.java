@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -21,6 +20,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("NullableProblems")
 public class IntervalTree implements Collection<IInterval>, Externalizable {
@@ -43,6 +43,18 @@ public class IntervalTree implements Collection<IInterval>, Externalizable {
         }
     }
 
+    /**
+     * Returns the <b>current</b> root of the tree. It is not recommended to store the result of this method in any
+     * other than a local variable. The root of the tree will change whenever it is rebalanced.
+     *
+     * @return the current root of the tree
+     *
+     * @see #balance()
+     */
+    protected IntervalTreeNode getRoot() {
+        return root;
+    }
+
     protected Collection<IInterval> _find(final IntervalTreeNode node,
                                           final IInterval query,
                                           final IntervalFilter filter) {
@@ -61,34 +73,52 @@ public class IntervalTree implements Collection<IInterval>, Externalizable {
         }
     }
 
+    public Stream<IInterval> overlapStream(final IInterval query) {
+        if (this.root == null) {
+            return Stream.empty();
+        } else {
+            return _overlap(this.root, query);
+        }
+    }
+
+    protected Stream<IInterval> _overlap(final IntervalTreeNode node, final IInterval query) {
+
+        if (node == null) {
+            return Stream.empty();
+        }
+
+        // we create three streams:
+        //  1. the one of the current node
+        //  2. the one coming from the left
+        //  3. the one coming form the right
+        final Stream<IInterval> nodeStream;
+        final Stream<IInterval> leftNodeStream;
+        final Stream<IInterval> rightNodeStream;
+
+        if (node.compare(node.getStart(), query.getNormEnd()) <= 0 &&
+                node.compare(node.getEnd(), query.getNormStart()) >= 0) {
+            nodeStream = node.getIntervals().stream();
+        } else {
+            nodeStream = Stream.empty();
+        }
+
+        if (node.hasLeft() && node.compare(node.getLeft().getMax(), query.getNormStart()) >= 0) {
+            leftNodeStream = this._overlap(node.getLeft(), query);
+        } else {
+            leftNodeStream = Stream.empty();
+        }
+
+        rightNodeStream = this._overlap(node.getRight(), query);
+
+        return Stream.of(nodeStream, leftNodeStream, rightNodeStream).flatMap(s -> s);
+    }
+
     public Collection<IInterval> overlap(final IInterval query) {
         if (this.root == null) {
             return Collections.emptyList();
         } else {
-            final List<IInterval> result = new ArrayList<>();
-            _overlap(this.root, query, result);
-            return result;
+            return _overlap(this.root, query).collect(Collectors.toList());
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    protected void _overlap(final IntervalTreeNode node, final IInterval query, final Collection<IInterval> result) {
-
-        if (node == null) {
-            return;
-        }
-
-        // check if the current node overlaps
-        if (node.compare(node.getStart(), query.getNormEnd()) <= 0 &&
-                node.compare(node.getEnd(), query.getNormStart()) >= 0) {
-            node.getIntervals().forEach(result::add);
-        }
-
-        if (node.hasLeft() && node.compare(node.getLeft().getMax(), query.getNormStart()) >= 0) {
-            this._overlap(node.getLeft(), query, result);
-        }
-
-        this._overlap(node.getRight(), query, result);
     }
 
     public IntervalTree insert(final IInterval interval) {
