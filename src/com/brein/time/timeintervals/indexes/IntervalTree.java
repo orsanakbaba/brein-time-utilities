@@ -81,6 +81,14 @@ public class IntervalTree implements Collection<IInterval>, Externalizable {
         }
     }
 
+    public Collection<IInterval> overlap(final IInterval query) {
+        if (this.root == null) {
+            return Collections.emptyList();
+        } else {
+            return _overlap(this.root, query).collect(Collectors.toList());
+        }
+    }
+
     protected Stream<IInterval> _overlap(final IntervalTreeNode node, final IInterval query) {
 
         if (node == null) {
@@ -111,14 +119,6 @@ public class IntervalTree implements Collection<IInterval>, Externalizable {
         rightNodeStream = this._overlap(node.getRight(), query);
 
         return Stream.of(nodeStream, leftNodeStream, rightNodeStream).flatMap(s -> s);
-    }
-
-    public Collection<IInterval> overlap(final IInterval query) {
-        if (this.root == null) {
-            return Collections.emptyList();
-        } else {
-            return _overlap(this.root, query).collect(Collectors.toList());
-        }
     }
 
     public IntervalTree insert(final IInterval interval) {

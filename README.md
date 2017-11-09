@@ -81,6 +81,7 @@ Furthermore, the provided implementation offers the following features:
   - calling `insert(new IdInteval<>("ID1", 1, 2)))` and `insert(new IdInteval<>("ID2", 1, 2)))` will inserted two intervals (independent of the storage)
 - easy extendable `IInterval` type, so that every type of data associated to intervals can be handled (since 1.5.0)
 - `IntervalTree` implements `Collection` interface (since 1.5.0)
+- `IntervalTree` provides a real `Stream` for `overlap(...)` operation, see [Streaming](docs/Streaming.md) (since 1.6.3)
 - `Interval` (see [documentation](docs/Interval.md)) implements [Allen's Interval Algebra](https://en.wikipedia.org/wiki/Allen's_interval_algebra) (since 1.5.2)
 - store, cache, and persist, see [documentation](docs/StoreCachePersist.md) (since 1.6.0)
   - use `IntervalCollectionObserver` and `ObservableIntervalCollection` to keep your database (storage) up-to-date
