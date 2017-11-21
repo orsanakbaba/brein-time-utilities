@@ -209,6 +209,18 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         return now.move(bucketsFromNow);
     }
 
+    /**
+     * Gets the time-stamp representing the beginning of the specified bucket, i.e., if {@code offset} is {@code 0}, the
+     * value returned will be the current bucket's start.
+     *
+     * @param offset the zero-based position, i.e., 0 is now, 1 is the first bucket before now, ...
+     *
+     * @return the start time-stamp of the bucket at the offset position
+     */
+    public long getTimeStamp(final int offset) {
+        return getEndPoints(-1 * offset).getUnixTimeStampStart();
+    }
+
     public void set(final long unixTimeStamp, final T value) {
         final int idx = handleDataUnixTimeStamp(unixTimeStamp);
         if (idx == -1) {
