@@ -71,8 +71,9 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
      * @param timeSeries the initiale time series
      * @param now        the current now timestamp
      */
-    public BucketTimeSeries(final BucketTimeSeriesConfig<T> config, final T[] timeSeries, final long now) throws
-            IllegalValueRegardingConfiguration {
+    public BucketTimeSeries(final BucketTimeSeriesConfig<T> config,
+                            final T[] timeSeries,
+                            final long now) throws IllegalValueRegardingConfiguration {
         this.config = config;
         this.timeSeries = timeSeries;
 
@@ -88,8 +89,7 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
 
     @SuppressWarnings("unchecked")
     protected T[] createEmptyArray() {
-        final T[] array = (T[]) Array.newInstance(config.getBucketContent(),
-                config.getTimeSeriesSize());
+        final T[] array = (T[]) Array.newInstance(config.getBucketContent(), config.getTimeSeriesSize());
 
         if (applyZero()) {
             Arrays.fill(array, 0, array.length, zero());
@@ -128,8 +128,7 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         final T[] result;
 
         if (this.timeSeries != null && this.currentNowIdx != -1) {
-            result = (T[]) Array.newInstance(config.getBucketContent(),
-                    config.getTimeSeriesSize());
+            result = (T[]) Array.newInstance(config.getBucketContent(), config.getTimeSeriesSize());
 
             final AtomicInteger i = new AtomicInteger(0);
             forEach(val -> result[i.getAndIncrement()] = val);
@@ -499,11 +498,10 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         combine(timeSeries, this::addition);
     }
 
-    public void combine(final BucketTimeSeries<T> timeSeries, final BiFunction<T, T, T> cmb) throws
-            IllegalConfiguration {
-        final BucketTimeSeries<T> syncedTs = sync(timeSeries, ts -> new BucketTimeSeries<>(ts.getConfig(), ts
-                .timeSeries, ts
-                .getNow()));
+    public void combine(final BucketTimeSeries<T> timeSeries,
+                        final BiFunction<T, T, T> cmb) throws IllegalConfiguration {
+        final BucketTimeSeries<T> syncedTs = sync(timeSeries, ts ->
+                new BucketTimeSeries<>(ts.getConfig(), ts.timeSeries, ts.getNow()));
 
         for (int i = 0; i < config.getTimeSeriesSize(); i++) {
             final int idx = idx(currentNowIdx + i);
