@@ -112,10 +112,16 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         fromIndex = fromIndex == -1 ? 0 : fromIndex;
         endIndex = endIndex == -1 || endIndex > this.timeSeries.length ? this.timeSeries.length : endIndex;
 
+        final T val;
         if (applyZero()) {
-            Arrays.fill(this.timeSeries, fromIndex, endIndex, zero());
+            val = zero();
         } else {
-            Arrays.fill(this.timeSeries, fromIndex, endIndex, null);
+            val = null;
+        }
+
+        // set the values
+        for (int i = fromIndex; i < endIndex; i++) {
+            set(i, val);
         }
     }
 
