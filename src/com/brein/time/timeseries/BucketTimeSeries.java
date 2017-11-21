@@ -219,12 +219,16 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
     }
 
     public void modify(final long unixTimeStamp, final Function<T, T> mod) {
+        modify(unixTimeStamp, (ignore, val) -> mod.apply(val));
+    }
+
+    public void modify(final long unixTimeStamp, final BiFunction<Integer, T, T> mod) {
         final int idx = handleDataUnixTimeStamp(unixTimeStamp);
         if (idx == -1) {
             return;
         }
 
-        modify(idx, mod);
+        set(idx, mod.apply(idx, get(idx)));
     }
 
     public void modify(final int idx, final Function<T, T> mod) {
