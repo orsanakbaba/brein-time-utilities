@@ -72,6 +72,10 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         this.observer = observer;
     }
 
+    public void setObserver(final BiConsumer<Integer, T> observer) {
+        this.observer = observer;
+    }
+
     /**
      * Constructor to create a pre-set time series.
      *
