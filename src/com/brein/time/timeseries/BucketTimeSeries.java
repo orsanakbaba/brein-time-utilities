@@ -261,7 +261,6 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
 
     public void set(final int idx, final T value) throws IllegalTimePointIndex {
         validateIdx(idx);
-
         this.timeSeries[idx] = value;
 
         // call the observer on a value change
