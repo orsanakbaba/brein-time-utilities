@@ -23,8 +23,8 @@ public class IdInterval<I extends Comparable<I> & Serializable, T extends Compar
     public IdInterval(final I id, final T start, final T end) {
         final Class<T> clazz;
         if (start == null && end == null) {
-            throw new IllegalTimeInterval("Please use the constructor with specified clazz, if start and end are null" +
-                    ".");
+            throw new IllegalTimeInterval("Please use the constructor with specified clazz, " +
+                    "if start and end are null.");
         } else if (start == null) {
             clazz = (Class<T>) end.getClass();
         } else {
@@ -114,8 +114,8 @@ public class IdInterval<I extends Comparable<I> & Serializable, T extends Compar
     }
 
     @SuppressWarnings("unchecked")
-    public <I extends IInterval<T>> I interval() {
-        return (I) wrappedInterval;
+    public <X extends IInterval<T>> X interval() {
+        return (X) wrappedInterval;
     }
 
     @Override
