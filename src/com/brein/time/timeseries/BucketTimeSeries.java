@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -58,10 +59,17 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
     protected BucketEndPoints now = null;
 
     protected int currentNowIdx = -1;
+    protected BiConsumer<Integer, T> observer;
 
     public BucketTimeSeries(final BucketTimeSeriesConfig<T> config) {
+        this(config, null);
+    }
+
+    public BucketTimeSeries(final BucketTimeSeriesConfig<T> config,
+                            final BiConsumer<Integer, T> observer) {
         this.config = config;
         this.timeSeries = createEmptyArray();
+        this.observer = observer;
     }
 
     /**
@@ -251,6 +259,11 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         validateIdx(idx);
 
         this.timeSeries[idx] = value;
+
+        // call the observer on a value change
+        if (this.observer != null) {
+            this.observer.accept(idx, value);
+        }
     }
 
     /**
