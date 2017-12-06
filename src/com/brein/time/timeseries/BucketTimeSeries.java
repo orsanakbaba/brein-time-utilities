@@ -269,6 +269,19 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         }
     }
 
+    public void set(final long now, final int currentNowIdx) {
+        if (this.now == null && this.currentNowIdx == -1) {
+            this.now = normalizeUnixTimeStamp(now);
+            this.currentNowIdx = currentNowIdx;
+        } else {
+            throw new IllegalTimePointMovement("Cannot modify the now and the currentIdx once values where added.");
+        }
+    }
+
+    public int getCurrentNowIdx() {
+        return currentNowIdx;
+    }
+
     /**
      * Gets the value for the specified {@code idx}.
      *
