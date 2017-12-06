@@ -269,17 +269,13 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
         }
     }
 
-    public void set(final long now, final int currentNowIdx) {
+    public void initNow(final long now, final int currentNowIdx) {
         if (this.now == null && this.currentNowIdx == -1) {
             this.now = normalizeUnixTimeStamp(now);
             this.currentNowIdx = currentNowIdx;
         } else {
             throw new IllegalTimePointMovement("Cannot modify the now and the currentIdx once values where added.");
         }
-    }
-
-    public int getCurrentNowIdx() {
-        return currentNowIdx;
     }
 
     /**
@@ -431,6 +427,7 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
     }
 
     @Override
+    @SuppressWarnings("NullableProblems")
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             final int currentIdx = getNowIdx();
