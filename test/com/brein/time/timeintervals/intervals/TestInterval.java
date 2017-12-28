@@ -163,7 +163,9 @@ public class TestInterval {
 
     @Test
     public void testDetermineRelation() {
-        Assert.assertEquals(AllenIntervalRelation.AFTER, new LongInterval(1L, 5L).ir(new LongInterval(8L, 10L)));
+        Assert.assertEquals(AllenIntervalRelation.BEFORE, new LongInterval(1L, 5L).ir(new LongInterval(8L, 10L)));
+        Assert.assertEquals(AllenIntervalRelation.AFTER, new LongInterval(8L, 10L).ir(new LongInterval(1L, 5L)));
+        Assert.assertEquals(AllenIntervalRelation.EQUALS, new LongInterval(8L, 10L).ir(new LongInterval(8L, 10L)));
         Assert.assertEquals(AllenIntervalRelation.OVERLAPS, new LongInterval(1L, 5L).ir(new LongInterval(4L, 10L)));
         Assert.assertEquals(AllenIntervalRelation.ENDS_DIRECTLY_BEFORE,
                 new LongInterval(1L, 5L).ir(new LongInterval(5L, 10L)));
