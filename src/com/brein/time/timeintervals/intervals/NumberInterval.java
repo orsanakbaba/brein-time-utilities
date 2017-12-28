@@ -274,12 +274,13 @@ public class NumberInterval<T extends Number & Comparable<T>> implements IInterv
 
     public boolean irOverlaps(final IInterval interval) {
         return compare(getNormStart(), interval.getNormStart()) < 0 &&
-                compare(interval.getNormStart(), getNormEnd()) < 0 &&
+                compare(interval.getNormStart(), getNormEnd()) <= 0 &&
                 compare(getNormEnd(), interval.getNormEnd()) < 0;
     }
 
     public boolean irIsOverlappedBy(final IInterval interval) {
         return compare(interval.getNormStart(), getNormStart()) < 0 &&
+                compare(getNormStart(), interval.getNormEnd()) <= 0 &&
                 compare(interval.getNormEnd(), getNormEnd()) < 0;
     }
 

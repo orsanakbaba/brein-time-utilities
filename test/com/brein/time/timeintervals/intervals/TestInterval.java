@@ -167,10 +167,12 @@ public class TestInterval {
         Assert.assertEquals(AllenIntervalRelation.AFTER, new LongInterval(8L, 10L).ir(new LongInterval(1L, 5L)));
         Assert.assertEquals(AllenIntervalRelation.EQUALS, new LongInterval(8L, 10L).ir(new LongInterval(8L, 10L)));
         Assert.assertEquals(AllenIntervalRelation.OVERLAPS, new LongInterval(1L, 5L).ir(new LongInterval(4L, 10L)));
+        Assert.assertEquals(AllenIntervalRelation.IS_OVERLAPPED_BY,
+                new LongInterval(4L, 10L).ir(new LongInterval(1L, 5L)));
         Assert.assertEquals(AllenIntervalRelation.ENDS_DIRECTLY_BEFORE,
-                new LongInterval(1L, 5L).ir(new LongInterval(5L, 10L)));
+                new LongInterval(1L, 5L).ir(new LongInterval(6L, 10L)));
         Assert.assertEquals(AllenIntervalRelation.STARTS_DIRECTLY_BEFORE,
-                new LongInterval(5L, 10L).ir(new LongInterval(1L, 5L)));
+                new LongInterval(6L, 10L).ir(new LongInterval(1L, 5L)));
     }
 
     @Test
