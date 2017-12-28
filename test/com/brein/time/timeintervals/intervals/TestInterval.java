@@ -81,6 +81,7 @@ public class TestInterval {
         Assert.assertFalse(new LongInterval(null, null).irOverlaps(new LongInterval(1L, 1L)));
         Assert.assertFalse(new LongInterval(1L, 10L).irOverlaps(new LongInterval(2L, 10L)));
         Assert.assertFalse(new LongInterval(1L, 10L).irOverlaps(new LongInterval(1L, 11L)));
+        Assert.assertFalse(new LongInterval(1L, 5L).irOverlaps(new LongInterval(8L, 10L)));
 
         Assert.assertFalse(new LongInterval(1L, 11L).irIsOverlappedBy(new LongInterval(1L, 10L)));
         Assert.assertTrue(new LongInterval(2L, 11L).irIsOverlappedBy(new LongInterval(1L, 10L)));
@@ -158,6 +159,16 @@ public class TestInterval {
         Assert.assertFalse(new LongInterval(1L, 1L).contains(0L));
         Assert.assertFalse(new NumberInterval<>(Long.class, 1L, 2L, false, true).contains(2));
         Assert.assertTrue(new NumberInterval<>(Long.class, 1L, 2L, false, false).contains(2));
+    }
+
+    @Test
+    public void testDetermineRelation() {
+        Assert.assertEquals(AllenIntervalRelation.AFTER, new LongInterval(1L, 5L).ir(new LongInterval(8L, 10L)));
+        Assert.assertEquals(AllenIntervalRelation.OVERLAPS, new LongInterval(1L, 5L).ir(new LongInterval(4L, 10L)));
+        Assert.assertEquals(AllenIntervalRelation.ENDS_DIRECTLY_BEFORE,
+                new LongInterval(1L, 5L).ir(new LongInterval(5L, 10L)));
+        Assert.assertEquals(AllenIntervalRelation.STARTS_DIRECTLY_BEFORE,
+                new LongInterval(5L, 10L).ir(new LongInterval(1L, 5L)));
     }
 
     @Test
