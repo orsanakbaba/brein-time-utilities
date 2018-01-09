@@ -132,7 +132,6 @@ public class IntervalTreeNode extends IntervalTreeNodeContext
         return new UnmodifiableIntervalCollection(getCollection());
     }
 
-    @SuppressWarnings("SimplifiableIfStatement")
     public boolean addInterval(final IInterval interval) {
         assert this.key.equals(interval.getUniqueIdentifier());
         assert compareTo(interval) == 0;
