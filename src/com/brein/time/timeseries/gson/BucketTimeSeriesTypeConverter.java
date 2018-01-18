@@ -11,6 +11,7 @@ import com.google.gson.JsonSerializer;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class BucketTimeSeriesTypeConverter
@@ -36,7 +37,7 @@ public class BucketTimeSeriesTypeConverter
 
         if (values == null || values.length != 3 ||
                 Stream.of(values)
-                        .filter(v -> v != null)
+                        .filter(Objects::nonNull)
                         .findAny()
                         .orElse(null) == null) {
             return null;
