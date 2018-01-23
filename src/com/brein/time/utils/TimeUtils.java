@@ -260,7 +260,7 @@ public class TimeUtils {
                     .atZone(zone)
                     .toEpochSecond();
         } catch (final DateTimeParseException e) {
-            LOGGER.error("Unable to parse date '" + dateString + "'");
+            LOGGER.error("Unable to parse date '" + dateString + "'", e);
             return -1;
         }
     }
