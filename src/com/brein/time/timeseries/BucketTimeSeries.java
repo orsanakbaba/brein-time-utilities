@@ -51,7 +51,7 @@ import java.util.function.Function;
  * @author Philipp
  */
 public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     protected final BucketTimeSeriesConfig<T> config;
 
@@ -59,7 +59,9 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
     protected BucketEndPoints now = null;
 
     protected int currentNowIdx = -1;
-    protected BiConsumer<Integer, T> observer;
+
+    // the observer has to be reset everytime it gets deserialized
+    protected transient BiConsumer<Integer, T> observer;
 
     public BucketTimeSeries(final BucketTimeSeriesConfig<T> config) {
         this(config, null);
