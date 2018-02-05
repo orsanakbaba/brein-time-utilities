@@ -60,7 +60,7 @@ public class BucketTimeSeries<T extends Serializable> implements Iterable<T>, Se
 
     protected int currentNowIdx = -1;
 
-    // the observer has to be reset everytime it gets deserialized
+    // the observer has to be reset every time it gets deserialized
     protected transient BiConsumer<Integer, T> observer;
 
     public BucketTimeSeries(final BucketTimeSeriesConfig<T> config) {
