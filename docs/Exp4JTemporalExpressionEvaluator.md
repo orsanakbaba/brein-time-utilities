@@ -2,7 +2,17 @@
 
 The [exp4j](https://github.com/fasseg/exp4j) library was developed as a "A tiny math expression evaluator for the Java 
 programming language". The library itself provides the functionality to add additional `operators`, `functions`, and 
-`variables`. The [`Exp4JTemporalExpressionEvaluator`](../src/com/brein/time/expressions/Exp4JTemporalExpressionEvaluator.java) 
+`variables`. Please ensure that the following dependency is added and resolved:
+
+```pom
+<dependency>
+    <groupId>net.objecthunter</groupId>
+    <artifactId>exp4j</artifactId>
+    <version>0.4.8</version>
+</dependency>
+```
+
+The [`Exp4JTemporalExpressionEvaluator`](../src/com/brein/time/expressions/Exp4JTemporalExpressionEvaluator.java) 
 implementation of the [`ITemporalExpressionEvaluator`](../src/com/brein/time/expressions/ITemporalExpressionEvaluator.java) 
 interface is based on this library, by extending it by some temporal `operators`, `functions`, and `variables`.
 
