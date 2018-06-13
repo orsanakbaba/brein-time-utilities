@@ -72,8 +72,8 @@ each-other, since the `exp4j` implementation does not allow to keep track of add
 current unit of the intermediate results), e.g., let's assume that the lowest granularity is `milliseconds`, the 
 formula `toSeconds(5min)` is correct and would return `5 * 60 = 300`, whereby the formula `toMinutes(toSeconds(5min))` 
 would return an incorrect result:
-```
-                      5min:       5 min --> 300000 ms
-           toSeconds(5min):  300000 ms  -->    300 s    // the system understands that as [ms] furtherone
-toMinutes(toSeconds(5min)):     300 ms  -->      0 min
-```
+  ```
+                        5min:       5 min --> 300000 ms
+             toSeconds(5min):  300000 ms  -->    300 s    // the system understands that as [ms] furtherone
+  toMinutes(toSeconds(5min)):     300 ms  -->      0 min
+  ```
