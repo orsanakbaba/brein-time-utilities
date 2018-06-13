@@ -91,7 +91,7 @@ Furthermore, the provided implementation offers the following features:
   - auto-balancing (activated by default): `IntervalTree.setAutoBalancing(true)` (since 1.5.0)
   - disable balancing: `IntervalTree.setAutoBalancing(false)` (since 1.5.0)
   - manual balancing: `IntervalTree.balance()`  (since 1.5.0)
-- time optimized (handling temporal intervals) (to be added in 1.7.0)
+- time optimized (handling temporal intervals) (to be added in 1.8.0)
 
 Further information regarding this implementation of the `IntervalTree` are documented [here](docs/README.md).
 
@@ -152,3 +152,17 @@ the data structure is updated using:
      if it is zero => done, otherwise => erase the fields in between and reset
      to zero or null
 ```
+
+## Miscellaneous
+The current implementation of the library offers the following additional utilities:
+- `com.brein.time.expressions.Exp4JTemporalExpressionEvaluator` (since 1.7.0)
+
+### Temporal Expression Evaluator
+With version 1.7.0 of the library a new feature was added, which enables developers to evaluate "temporal" expressions. 
+In general, a `TemporalExpression` can be understood as a formel expression (i.e., a formula), which contains temporal 
+elements, e.g., `now() + 4h`. The syntax of the expression may depend on the underlying implementation, thus it is 
+recommended to have a closer look at the provided documentation (for the selected implementation).
+
+The following concrete implementations are currently available:
+- [Exp4JTemporalExpressionEvaluator](docs/Exp4JTemporalExpressionEvaluator.md), which is based on the [exp4j](https://github.com/fasseg/exp4j) library
+

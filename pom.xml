@@ -45,13 +45,22 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- only used for CassandraIntervalCollectionPersistor -->
+        <!-- Cassanra is needed for: CassandraIntervalCollectionPersistor -->
         <dependency>
             <groupId>com.datastax.cassandra</groupId>
             <artifactId>cassandra-driver-core</artifactId>
             <version>3.3.0</version>
             <optional>true</optional>
         </dependency>
+
+        <!-- Exp4J is needed for: Exp4JEvaluator -->
+        <dependency>
+            <groupId>net.objecthunter</groupId>
+            <artifactId>exp4j</artifactId>
+            <version>0.4.8</version>
+            <optional>true</optional>
+        </dependency>
+
 
         <dependency>
             <groupId>org.slf4j</groupId>

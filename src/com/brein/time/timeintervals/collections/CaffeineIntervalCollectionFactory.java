@@ -9,8 +9,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.concurrent.TimeUnit;
 
-public class CaffeineIntervalCollectionFactory extends PersistableIntervalCollectionFactory
-        implements Externalizable {
+public class CaffeineIntervalCollectionFactory extends PersistableIntervalCollectionFactory implements Externalizable {
 
     private transient LoadingCache<String, IntervalCollection> cache;
 
