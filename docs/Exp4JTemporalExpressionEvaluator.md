@@ -67,7 +67,13 @@ The current implementation provides the following default implementations:
 
 - The functions and constants are only available if the defined lowest time granularity allows it, e.g., `μs` is 
 not available if the lowest time granularity is set to seconds. 
-- In addition, the `to...` methods cannot be nested within each-other, since the `exp4j` implementation does not allow 
-to keep track of additional information (in that case the current unit of the intermediate results), e.g., let's assume that
-the lowest granularity is `milliseconds`, the formula `toSeconds(5min)` is correct, whereby the formula `toHours(toSeconds(5min))`
-would return an incorrect value.
+- The available `to...` methods can only be used to transform the final result of a formula and cannot be nested within 
+each-other, since the `exp4j` implementation does not allow to keep track of additional information (in that case the 
+current unit of the intermediate results), e.g., let's assume that the lowest granularity is `milliseconds`, the 
+formula `toSeconds(5min)` is correct and would return `5 * 60 = 300`, whereby the formula `toMinutes(toSeconds(5min))` 
+would return an incorrect result:
+```
+                      5min:       5 min --> 300000 ms
+           toSeconds(5min):  300000 ms  -->    300 s    // the system understands that as [ms] furtherone
+toMinutes(toSeconds(5min)):     300 ms  -->      0 min
+```
