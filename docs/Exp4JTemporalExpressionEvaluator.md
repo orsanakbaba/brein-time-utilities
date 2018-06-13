@@ -74,6 +74,6 @@ formula `toSeconds(5min)` is correct and would return `5 * 60 = 300`, whereby th
 would return an incorrect result:
   ```
                         5min:       5 min --> 300000 ms
-             toSeconds(5min):  300000 ms  -->    300 s    // the system understands that as [ms] furtherone
+             toSeconds(5min):  300000 ms  -->    300 s    // the impl. uses [ms]
   toMinutes(toSeconds(5min)):     300 ms  -->      0 min
   ```
