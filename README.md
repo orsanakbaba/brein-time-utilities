@@ -97,8 +97,8 @@ Further information regarding this implementation of the `IntervalTree` are docu
 
 ## Available Data Structures
 The current implementation of the library offers the following data structures:
-- `com.brein.time.timeseries.BucketTimeSeries` (since v1.0.0)
-- `com.brein.time.timeseries.ContainerBucketTimeSeries` (since v1.0.0)
+- `com.brein.time.timeseries.BucketTimeSeries` (since 1.0.0)
+- `com.brein.time.timeseries.ContainerBucketTimeSeries` (since 1.0.0)
 
 ### BucketTimeSeries
 The BucketTimeSeries is used to group time-points into buckets and keep a time-series
