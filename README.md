@@ -19,7 +19,7 @@ The library provides index- and data-structures used to handle real-time tempora
 
 ## Usage: Maven Central
 
-The library is available on [Maven Central](https://search.maven.org/#search%7Cga%7C1%7Ca%3A%22brein-time-utilities%22). Just 
+The library is available on [Maven Central](https://mvnrepository.com/artifact/com.breinify/brein-time-utilities). Just 
 download the library or add it as dependency.
 
 ```pom
