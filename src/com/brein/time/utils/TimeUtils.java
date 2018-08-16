@@ -67,6 +67,10 @@ public class TimeUtils {
         return Instant.now().getEpochSecond();
     }
 
+    public static long nowMillis() {
+        return Instant.now().toEpochMilli();
+    }
+
     public static int secondsToFullMinute(final long now) {
         return secondsToFullMinute(now, 0);
     }
