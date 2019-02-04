@@ -3,6 +3,7 @@ package com.brein.time.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -160,5 +161,18 @@ public class TestTimeUtils {
 
         Assert.assertEquals(Arrays.asList(1497052800L, 1497139200L, 1497225600L, 1497312000L),
                 TimeUtils.createTimestampList(1497126525L, 1497326525L));
+    }
+
+    @Test
+    public void testSecondsAfterMidnight() {
+        long val;
+
+        // 19:42:54
+        val = TimeUtils.getSecondsAfterMidnight(1549338174L, ZoneId.of("America/Los_Angeles"));
+        Assert.assertEquals(19 * 60 * 60 + 42 * 60 + 54, val);
+
+        // 22:42:54
+        val = TimeUtils.getSecondsAfterMidnight(1549338174L, ZoneId.of("America/New_York"));
+        Assert.assertEquals(22 * 60 * 60 + 42 * 60 + 54, val);
     }
 }

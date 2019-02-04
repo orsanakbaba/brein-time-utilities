@@ -12,6 +12,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -221,6 +222,23 @@ public class TimeUtils {
         return TimeModifier.START_OF_DAY.applyModifier(time);
     }
 
+    public static long getSecondsAfterMidnight(final long unixTimestamp,
+                                               final String timezone) {
+        final ZonedDateTime zone = toZone(unixTimestamp, timezone);
+        return getSecondsAfterMidnight(zone);
+    }
+
+    public static long getSecondsAfterMidnight(final long unixTimestamp,
+                                               final ZoneId toZone) {
+        final ZonedDateTime zone = toZone(unixTimestamp, toZone);
+        return getSecondsAfterMidnight(zone);
+    }
+
+    public static long getSecondsAfterMidnight(final ZonedDateTime zonedDateTime) {
+        final ZonedDateTime midnight = TimeModifier.START_OF_DAY.applyModifier(zonedDateTime);
+        return ChronoUnit.SECONDS.between(midnight, zonedDateTime);
+    }
+
     /**
      * Converts specified date string with given format to a unix timestamp. Returns -1 if there was a failure
      *
@@ -354,7 +372,7 @@ public class TimeUtils {
      * @return the unix timestamps for each day between start and end
      */
     public static List<Long> createTimestampList(final long startUnixTimestamp,
-                                            final long endUnixTimestamp) {
+                                                 final long endUnixTimestamp) {
         if (startUnixTimestamp > endUnixTimestamp) {
             return Collections.emptyList();
         }
