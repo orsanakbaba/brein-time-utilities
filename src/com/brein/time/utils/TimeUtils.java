@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 public class TimeUtils {
     public static final ZoneId UTC = ZoneId.of("UTC");
@@ -388,6 +389,56 @@ public class TimeUtils {
         }
 
         return times;
+    }
+
+    public static TimeUnit convert(final ChronoUnit chronoUnit) {
+        if (chronoUnit == null) {
+            return null;
+        }
+
+        switch (chronoUnit) {
+            case DAYS:
+                return TimeUnit.DAYS;
+            case HOURS:
+                return TimeUnit.HOURS;
+            case MINUTES:
+                return TimeUnit.MINUTES;
+            case SECONDS:
+                return TimeUnit.SECONDS;
+            case MICROS:
+                return TimeUnit.MICROSECONDS;
+            case MILLIS:
+                return TimeUnit.MILLISECONDS;
+            case NANOS:
+                return TimeUnit.NANOSECONDS;
+            default:
+                return null;
+        }
+    }
+
+    public static ChronoUnit convert(final TimeUnit timeUnit) {
+        if (timeUnit == null) {
+            return null;
+        }
+
+        switch (timeUnit) {
+            case DAYS:
+                return ChronoUnit.DAYS;
+            case HOURS:
+                return ChronoUnit.HOURS;
+            case MINUTES:
+                return ChronoUnit.MINUTES;
+            case SECONDS:
+                return ChronoUnit.SECONDS;
+            case MICROSECONDS:
+                return ChronoUnit.MICROS;
+            case MILLISECONDS:
+                return ChronoUnit.MILLIS;
+            case NANOSECONDS:
+                return ChronoUnit.NANOS;
+            default:
+                return null;
+        }
     }
 
     protected static ZoneId getZone(final String timezone) {
