@@ -391,6 +391,30 @@ public class TimeUtils {
         return times;
     }
 
+    public static ChronoUnit convertToChronoUnit(final String chronoUnit) {
+        if (chronoUnit == null) {
+            return null;
+        }
+
+        try {
+            return ChronoUnit.valueOf(chronoUnit.toUpperCase());
+        } catch (final IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    public static TimeUnit convertToTimeUnit(final String timeUnit) {
+        if (timeUnit == null) {
+            return null;
+        }
+
+        try {
+            return TimeUnit.valueOf(timeUnit.toUpperCase());
+        } catch (final IllegalArgumentException e) {
+            return null;
+        }
+    }
+
     public static TimeUnit convert(final ChronoUnit chronoUnit) {
         if (chronoUnit == null) {
             return null;
