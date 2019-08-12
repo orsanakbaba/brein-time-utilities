@@ -59,6 +59,18 @@ public class TestTimeUtils {
                 "yyyy-MM-dd HH:mm:ss", "America/New_York"));
         Assert.assertEquals(1492348192L, TimeUtils.dateStringToUnixTimestamp("2017-04-16 08:09:52",
                 "yyyy-MM-dd HH:mm:ss", "America/Chicago"));
+        Assert.assertEquals(1492348192L, TimeUtils.dateStringToUnixTimestamp("2017-04-16 08:09:52",
+                "yyyy-MM-dd HH:mm:ss", "America/Chicago"));
+
+
+        Assert.assertEquals(1492348192L, TimeUtils.dateStringToUnixTimestamp("2017-4-16 8:09:52",
+                "yyyy-M-d H:m:s", "America/Chicago"));
+
+        Assert.assertEquals(1492348192L, TimeUtils.dateStringToUnixTimestamp("2017-04-16 08:09:52",
+                "yyyy-M-d H:m:s", "America/Chicago"));
+
+        Assert.assertEquals(1492348192L, TimeUtils.dateStringToUnixTimestamp("2017-04-16 8:9:52",
+                "yyyy-M-d H:m:s", "America/Chicago"));
     }
 
     @Test
