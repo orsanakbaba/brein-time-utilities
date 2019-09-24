@@ -202,6 +202,7 @@ public class TimeUtils {
             try {
                 return ZoneId.of(tzId);
             } catch (final Exception e) {
+                LOGGER.warn("Problem looking up time zone id " + tzId, e);
                 return null;
             }
         } else {
@@ -399,6 +400,9 @@ public class TimeUtils {
         try {
             return ChronoUnit.valueOf(chronoUnit.toUpperCase());
         } catch (final IllegalArgumentException e) {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Couldn't get value of " + chronoUnit, e);
+            }
             return null;
         }
     }
@@ -411,6 +415,9 @@ public class TimeUtils {
         try {
             return TimeUnit.valueOf(timeUnit.toUpperCase());
         } catch (final IllegalArgumentException e) {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Couldn't get value of " + timeUnit, e);
+            }
             return null;
         }
     }
