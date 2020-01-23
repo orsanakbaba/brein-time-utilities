@@ -11,14 +11,12 @@ import com.brein.time.timeintervals.intervals.DoubleInterval;
 import com.brein.time.timeintervals.intervals.IntegerInterval;
 import com.brein.time.timeintervals.intervals.LongInterval;
 import com.brein.time.timeintervals.intervals.NumberInterval;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+@Ignore
 public class TestCassandraIntervalTree {
 
     private CassandraIntervalCollectionPersistor persistor;
