@@ -9,6 +9,10 @@
     <name>brein-time-utilities</name>
     <description>Common Library for time dependent things, especially time-series.</description>
     <packaging>jar</packaging>
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
+    </build>
 
     <scm>
         <url>https://github.com/Breinify/brein-time-utilities</url>
@@ -19,6 +23,13 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
