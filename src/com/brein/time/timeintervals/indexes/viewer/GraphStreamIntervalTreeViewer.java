@@ -1,8 +1,6 @@
 package com.brein.time.timeintervals.indexes.viewer;
 
-import com.brein.time.timeintervals.indexes.IntervalTree;
-import com.brein.time.timeintervals.indexes.IntervalTreeNode;
-import com.brein.time.timeintervals.indexes.PositionedNode;
+import com.brein.time.timeintervals.indexes.*;
 import com.brein.time.timeintervals.intervals.LongInterval;
 import com.brein.time.timeintervals.intervals.TimestampInterval;
 import org.graphstream.graph.Graph;
@@ -34,6 +32,10 @@ public class GraphStreamIntervalTreeViewer {
     public static void main(final String[] args) {
         final IntervalTree tree = new IntervalTree();
 
+
+        IntervalTreeConfiguration longValComp = new IntervalTreeConfiguration();
+        longValComp.setValueComparator(IntervalTreeBuilder.IntervalType.LONG.getComparator(false));
+        tree.setConfiguration(longValComp);
         //addRandomTimeStamps(tree);
         addFullTree(tree);
         //tree.remove(new NumberInterval(2L, 2L));
