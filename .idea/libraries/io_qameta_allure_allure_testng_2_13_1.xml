@@ -1,0 +1,21 @@
+<component name="libraryTable">
+  <library name="io.qameta.allure:allure-testng:2.13.1" type="repository">
+    <properties maven-id="io.qameta.allure:allure-testng:2.13.1" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/io/qameta/allure/allure-testng/2.13.1/allure-testng-2.13.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/io/qameta/allure/allure-java-commons/2.13.1/allure-java-commons-2.13.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/io/qameta/allure/allure-model/2.13.1/allure-model-2.13.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-databind/2.9.8/jackson-databind-2.9.8.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-annotations/2.9.0/jackson-annotations-2.9.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/fasterxml/jackson/core/jackson-core/2.9.8/jackson-core-2.9.8.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/tika/tika-core/1.20/tika-core-1.20.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/jooq/joor-java-8/0.9.10/joor-java-8-0.9.10.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/testng/testng/6.14.3/testng-6.14.3.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/beust/jcommander/1.72/jcommander-1.72.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache-extras/beanshell/bsh/2.0b6/bsh-2.0b6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

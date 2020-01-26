@@ -1,4 +1,4 @@
-package Training;
+package Training.UnnecessaryRepeats;
 
 
 import com.brein.time.utils.TimeUtils;
