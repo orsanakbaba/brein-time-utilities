@@ -200,6 +200,6 @@ public class TestTimeUtils {
 
     @Test
     public void toZone_NullZoneIdTest() {
-        Assert.assertNull(TimeUtils.toZone(ZonedDateTime.now(), (ZoneId) null));
+        Assert.assertNull(TimeUtils.toZone(ZonedDateTime.now(TimeUtils.UTC), (ZoneId) null));
     }
 }
