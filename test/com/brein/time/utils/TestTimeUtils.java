@@ -1,11 +1,19 @@
 package com.brein.time.utils;
 
+import io.qameta.allure.*;
+import io.qameta.allure.junit4.DisplayName;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
+
+
 
 public class TestTimeUtils {
 
@@ -176,6 +184,7 @@ public class TestTimeUtils {
     }
 
     @Test
+    @Story("User application code obtains SecondsAfterMidnight for a given DateTime with ZoneId ")
     public void testSecondsAfterMidnight() {
         long val;
 
@@ -186,5 +195,21 @@ public class TestTimeUtils {
         // 22:42:54
         val = TimeUtils.getSecondsAfterMidnight(1549338174L, ZoneId.of("America/New_York"));
         Assert.assertEquals(22 * 60 * 60 + 42 * 60 + 54, val);
+    }
+
+
+    @Test
+    public void toZone_NullTimeZoneTest() {
+        Assert.assertNull(TimeUtils.toZone(null, "Europe/Paris"));
+    }
+
+    @Test
+    @Owner("oakbaba") // Unit test writer name
+    @Severity(SeverityLevel.CRITICAL)   // Developer should tag severity of test one of the following : BLOCKER,CRITICAL,NORMAL,MINOR,TRIVIAL. TeamLead ot Tech.Manager may use this information to decide to step or not, if this test fail
+    @DisplayName("Null ZoneId input")
+    @Issue("KOVAN-547") // issueID on jira
+    @Description("Tests the TimeUtils toZone method null input for ZoneId parameter")
+    public void toZone_NullZoneIdTest() {
+        Assert.assertNull(TimeUtils.toZone(ZonedDateTime.now(TimeUtils.UTC), (ZoneId) null));
     }
 }
