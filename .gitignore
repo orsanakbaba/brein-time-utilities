@@ -24,3 +24,5 @@ src/config/dev-*.properties
 ######################
 .DS_Store
 .DS_Store?
+
+.idea/*
