@@ -26,3 +26,4 @@ src/config/dev-*.properties
 .DS_Store?
 
 .idea/*
+allure-results/*
