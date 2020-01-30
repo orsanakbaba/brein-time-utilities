@@ -83,5 +83,31 @@ public class UnitTestUtilsTest {
 
 
 
+    @Test
+    @Owner("hozdemir")
+    @Severity(SeverityLevel.NORMAL)
+    @Issue("KOVAN-125")
+    @Story("Birim test aynı zamanda bağımsız olmalıdır. testler birbirini etkilememelidir.")
+    @Description("Test the increase count number")
+    public void testIncreaseConutNumberReturnTrue() {
+        UnitTestUtils hu = new UnitTestUtils();
+        int result = hu.increaseCountNumber();
+
+        Assert.assertEquals(1,result);
+    }
+
+    @Test
+    @Owner("hozdemir")
+    @Severity(SeverityLevel.NORMAL)
+    @Issue("KOVAN-125")
+    @Story("Birim test aynı zamanda bağımsız olmalıdır. testler birbirini etkilememelidir.")
+    @Description("Test the increase count number")
+    public void testDecreaseConutNumberReturnTrue() {
+        UnitTestUtils hu = new UnitTestUtils();
+        int result = hu.decreaseCountNumber();
+
+        Assert.assertEquals(-1,result);
+    }
+
 
 }
