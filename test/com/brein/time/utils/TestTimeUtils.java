@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
 
 public class TestTimeUtils {
 
@@ -106,6 +107,11 @@ public class TestTimeUtils {
     }
 
     @Test
+    @Owner("hozdemir")
+    @Severity(SeverityLevel.MINOR)
+    @Issue("KOVAN-123")
+    @Story("Birim testlerde koşul ve döngü içeren yapılar bulunmamalıdır.")
+    @Description("Test SecondsToFullMinute")
     public void testSecondsToFullMinute() {
         Assert.assertEquals(46, TimeUtils.secondsToFullMinute(1473887714L));
         Assert.assertEquals(0, TimeUtils.secondsToFullMinute(1473887700L));
@@ -120,6 +126,26 @@ public class TestTimeUtils {
             Assert.assertEquals((60 - secondCounter) % 60, TimeUtils.secondsToFullMinute(i));
             secondCounter = (secondCounter + 1) % 60;
         }
+    }
+
+    @Test
+    @Owner("hozdemir")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("KOVAN-123")
+    @Story("Birim testlerde koşul ve döngü içeren yapılar bulunmamalıdır.")
+    @Description("Tests the Pretty Sting with given seconds ")
+    public void testSecondsToPrettyStringWitIFcase() {
+
+        Random random = new Random();
+        int seconds = random.nextInt(1000);
+        String string = TimeUtils.secondsToPrettyString(seconds);
+
+        if(seconds>=120){
+            Assert.assertTrue(string.endsWith("minutes"));
+        }else{
+            Assert.assertTrue(string.endsWith("seconds"));
+        }
+
     }
 
     @Test
