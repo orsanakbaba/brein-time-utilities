@@ -3,6 +3,7 @@ package com.brein.time.utils;
 
 import io.qameta.allure.*;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Date;
@@ -52,6 +53,7 @@ public class UnitTestUtilsTest {
     }
 
 
+    @Ignore
     @Test
     @Owner("hozdemir")
     @Severity(SeverityLevel.CRITICAL)
@@ -96,6 +98,7 @@ public class UnitTestUtilsTest {
         Assert.assertEquals(1,result);
     }
 
+    @Ignore
     @Test
     @Owner("hozdemir")
     @Severity(SeverityLevel.NORMAL)
