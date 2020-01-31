@@ -1,8 +1,8 @@
 package com.brein.time.AllureExamples;
 
-import org.testng.*;
 import io.qameta.allure.*;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class AllureExamplesTestNG {
 
