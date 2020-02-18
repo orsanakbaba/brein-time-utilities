@@ -5,6 +5,7 @@ import com.codahale.metrics.Counter;
 import jnr.ffi.annotations.In;
 import org.junit.*;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -18,7 +19,7 @@ public class DeterministicTestsGoodExample {
         final int numberOfThreads = 10;
         final CountDownLatch allThreadsComplete = new CountDownLatch(numberOfThreads);
         final int callsPerThread = 100;
-        final Set<Integer> values = new HashSet<Integer>();
+        final Set<Integer> values = Collections.synchronizedSet(new HashSet<Integer>());
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -29,9 +30,10 @@ public class DeterministicTestsGoodExample {
             }
         };
         for (int i = 0; i < numberOfThreads; i++) {
-            new Thread(runnable).start();
+            new Thread(runnable , "CounterThr" + i ).start();
         }
-        allThreadsComplete.await(10, TimeUnit.SECONDS);
+       allThreadsComplete.await(10, TimeUnit.SECONDS);
+        //allThreadsComplete.await();
         int expectedNoOfValues = numberOfThreads * callsPerThread;
         Assert.assertEquals(expectedNoOfValues, values.size());
     }
