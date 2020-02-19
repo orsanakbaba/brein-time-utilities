@@ -52,36 +52,6 @@ public class UnitTestUtilsTest {
     }
 
 
-    @Test
-    @Owner("hozdemir")
-    @Severity(SeverityLevel.CRITICAL)
-    @Issue("KOVAN-123")
-    @Story("testin yapılışında değişkenlik gösteren parametreler kullanılmamalıdır.")
-    @Description("Test the time of the day")
-    public void testGetTimeofDay_Bad() {
-
-        String timeOfDay = UnitTestUtils.getTimeofDay(new Date());
-        Assert.assertEquals("Morning", timeOfDay);
-
-    }
-
-
-    @Test
-    @Owner("hozdemir")
-    @Severity(SeverityLevel.CRITICAL)
-    @Issue("KOVAN-123")
-    @Story("testin yapılışında değişkenlik gösteren parametreler kullanılmamalıdır.")
-    @Description("Test the time of the day")
-    public void testGetTimeofDay_Good() {
-
-        Date date = new Date(2020,01,28,7,52);
-        String timeOfDay = UnitTestUtils.getTimeofDay(date);
-
-        Assert.assertEquals("Morning", timeOfDay);
-
-    }
-
-
 
 
 }
