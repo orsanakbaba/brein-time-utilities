@@ -1,10 +1,6 @@
 package com.brein.time.timeintervals.indexes;
 
-import com.brein.time.timeintervals.collections.CaffeineIntervalCollectionFactory;
-import com.brein.time.timeintervals.collections.CassandraIntervalCollectionPersistor;
-import com.brein.time.timeintervals.collections.IntervalCollection;
-import com.brein.time.timeintervals.collections.ListIntervalCollection;
-import com.brein.time.timeintervals.collections.SetIntervalCollection;
+import com.brein.time.timeintervals.collections.*;
 import com.brein.time.timeintervals.filters.IntervalFilters;
 import com.brein.time.timeintervals.indexes.IntervalTreeBuilder.IntervalType;
 import com.brein.time.timeintervals.intervals.DoubleInterval;

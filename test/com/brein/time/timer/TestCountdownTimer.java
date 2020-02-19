@@ -2,9 +2,7 @@ package com.brein.time.timer;
 
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;

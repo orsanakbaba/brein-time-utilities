@@ -1,7 +1,8 @@
 package Training.UnnecessaryRepeats;
 
 import com.brein.time.utils.TimeUtils;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.time.format.DateTimeFormatter;
 
