@@ -91,7 +91,7 @@ public class UnitTestUtilsTest {
     @Issue("KOVAN-125")
     @Story("Birim test aynı zamanda bağımsız olmalıdır. testler birbirini etkilememelidir.")
     @Description("Test the increase count number")
-    public void testIncreaseConutNumberReturnTrue() {
+    public void testIncreaseCountNumberReturnTrue() {
         UnitTestUtils hu = new UnitTestUtils();
         int result = hu.increaseCountNumber();
 
@@ -105,7 +105,7 @@ public class UnitTestUtilsTest {
     @Issue("KOVAN-125")
     @Story("Birim test aynı zamanda bağımsız olmalıdır. testler birbirini etkilememelidir.")
     @Description("Test the increase count number")
-    public void testDecreaseConutNumberReturnTrue() {
+    public void testDecreaseCountNumberReturnTrue() {
         UnitTestUtils hu = new UnitTestUtils();
         int result = hu.decreaseCountNumber();
 
