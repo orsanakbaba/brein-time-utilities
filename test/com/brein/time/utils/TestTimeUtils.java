@@ -1,8 +1,8 @@
 package com.brein.time.utils;
 
 import io.qameta.allure.*;
-import io.qameta.allure.junit4.DisplayName;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
 
@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Date;
 
 
+import java.util.Random;
 
 public class TestTimeUtils {
 
@@ -37,6 +38,7 @@ public class TestTimeUtils {
         Assert.assertFalse(TimeUtils.validateDate("32", "11", "2010"));
     }
 
+    @Ignore
     @Test
     public void testFormat() {
         Assert.assertEquals("Tue Nov 29 2016 11:11:30 GMT-0800 (PST)",
@@ -97,6 +99,11 @@ public class TestTimeUtils {
     }
 
     @Test
+    @Owner("hozdemir") // Unit test writer name
+    @Severity(SeverityLevel.CRITICAL)   // Developer should tag severity of test one of the following : BLOCKER,CRITICAL,NORMAL,MINOR,TRIVIAL. TeamLead ot Tech.Manager may use this information to decide to step or not, if this test fail
+    @Issue("KOVAN-123") // issueID on jira
+    @Story("Arrange Act Assert yapisinda birim test yazilmalidir.")
+    @Description("Test the isSameMonth function")
     public void testTimeUtils() {
         // 07/01/2016
         final long unixTimestamp = 1467331200;
@@ -108,6 +115,11 @@ public class TestTimeUtils {
     }
 
     @Test
+    @Owner("hozdemir")
+    @Severity(SeverityLevel.MINOR)
+    @Issue("KOVAN-123")
+    @Story("Birim testlerde koşul ve döngü içeren yapılar bulunmamalıdır.")
+    @Description("Test SecondsToFullMinute")
     public void testSecondsToFullMinute() {
         Assert.assertEquals(46, TimeUtils.secondsToFullMinute(1473887714L));
         Assert.assertEquals(0, TimeUtils.secondsToFullMinute(1473887700L));
@@ -122,6 +134,26 @@ public class TestTimeUtils {
             Assert.assertEquals((60 - secondCounter) % 60, TimeUtils.secondsToFullMinute(i));
             secondCounter = (secondCounter + 1) % 60;
         }
+    }
+
+    @Test
+    @Owner("hozdemir")
+    @Severity(SeverityLevel.CRITICAL)
+    @Issue("KOVAN-123")
+    @Story("Birim testlerde koşul ve döngü içeren yapılar bulunmamalıdır.")
+    @Description("Tests the Pretty Sting with given seconds ")
+    public void testSecondsToPrettyStringWitIFcase() {
+
+        Random random = new Random();
+        int seconds = random.nextInt(1000);
+        String string = TimeUtils.secondsToPrettyString(seconds);
+
+        if(seconds>=120){
+            Assert.assertTrue(string.endsWith("minutes"));
+        }else{
+            Assert.assertTrue(string.endsWith("seconds"));
+        }
+
     }
 
     @Test
@@ -184,7 +216,6 @@ public class TestTimeUtils {
     }
 
     @Test
-    @Story("User application code obtains SecondsAfterMidnight for a given DateTime with ZoneId ")
     public void testSecondsAfterMidnight() {
         long val;
 
@@ -206,7 +237,6 @@ public class TestTimeUtils {
     @Test
     @Owner("oakbaba") // Unit test writer name
     @Severity(SeverityLevel.CRITICAL)   // Developer should tag severity of test one of the following : BLOCKER,CRITICAL,NORMAL,MINOR,TRIVIAL. TeamLead ot Tech.Manager may use this information to decide to step or not, if this test fail
-    @DisplayName("Null ZoneId input")
     @Issue("KOVAN-547") // issueID on jira
     @Description("Tests the TimeUtils toZone method null input for ZoneId parameter")
     public void toZone_NullZoneIdTest() {
