@@ -208,6 +208,7 @@ public class TestBucketTimeSeries {
     @Test
     public void testTypes() {
         long[] res;
+
         final BucketTimeSeries<Integer> subject1 = new BucketTimeSeries<>(
                 new BucketTimeSeriesConfig<>(Integer.class,
                         TimeUnit.MINUTES, 5, 2));
@@ -217,6 +218,9 @@ public class TestBucketTimeSeries {
         subject1.set(1L, 100);
         res = subject1.create(Integer::longValue);
         Assert.assertArrayEquals(new long[]{100L, 0L, 0L, 0L, 0L}, res);
+
+
+
 
         final BucketTimeSeries<Double> subject2 = new BucketTimeSeries<>(
                 new BucketTimeSeriesConfig<>(Double.class,
