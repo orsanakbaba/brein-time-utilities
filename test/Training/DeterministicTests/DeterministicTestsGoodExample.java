@@ -14,27 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DeterministicTestsGoodExample {
 
-    @Test public void concurrentAccessFromMultipleThreads() throws Exception {
-        final AtomicInteger counter = new AtomicInteger();
-        final int numberOfThreads = 10;
-        final CountDownLatch allThreadsComplete = new CountDownLatch(numberOfThreads);
-        final int callsPerThread = 100;
-        final Set<Integer> values = Collections.synchronizedSet(new HashSet<Integer>());
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < callsPerThread; i++) {
-                    values.add(counter.getAndIncrement());
-                }
-                allThreadsComplete.countDown();
-            }
-        };
-        for (int i = 0; i < numberOfThreads; i++) {
-            new Thread(runnable , "CounterThr" + i ).start();
-        }
-       allThreadsComplete.await(10, TimeUnit.SECONDS);
-        //allThreadsComplete.await();
-        int expectedNoOfValues = numberOfThreads * callsPerThread;
-        Assert.assertEquals(expectedNoOfValues, values.size());
+    @Test
+    public void concurrentAccessFromMultipleThreads() throws Exception {
+       //Refer to DeterministicTestsBadExample
     }
 }

@@ -16,14 +16,5 @@ public class KosulDonguOlmamali {
     @Description("Tests the Pretty Sting with given seconds ")
     public void testSecondsToPrettyStringWitIFcase() {
 
-        Random random = new Random();
-        int seconds = random.nextInt(1000);
-        String string = TimeUtils.secondsToPrettyString(seconds);
-
-        if(seconds>=120){
-            Assert.assertTrue(string.endsWith("minutes"));
-        }else{
-            Assert.assertTrue(string.endsWith("seconds"));
-        }
     }
 }

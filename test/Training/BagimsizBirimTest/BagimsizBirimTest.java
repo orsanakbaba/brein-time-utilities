@@ -13,10 +13,7 @@ public class BagimsizBirimTest {
     @Story("Birim test aynı zamanda bağımsız olmalıdır. testler birbirini etkilememelidir.")
     @Description("Test the increase count number")
     public void testIncreaseCountNumberReturnTrue() {
-        UnitTestUtils hu = new UnitTestUtils();
-        int result = hu.increaseCountNumber();
 
-        Assert.assertEquals(1,result);
     }
 
     @Test
@@ -26,9 +23,6 @@ public class BagimsizBirimTest {
     @Story("Birim test aynı zamanda bağımsız olmalıdır. testler birbirini etkilememelidir.")
     @Description("Test the increase count number")
     public void testDecreaseCountNumberReturnTrue() {
-        UnitTestUtils hu = new UnitTestUtils();
-        int result = hu.decreaseCountNumber();
 
-        Assert.assertEquals(-1,result);
     }
 }

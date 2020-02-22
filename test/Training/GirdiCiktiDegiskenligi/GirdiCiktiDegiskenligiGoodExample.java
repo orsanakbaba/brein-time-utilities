@@ -16,10 +16,5 @@ public class GirdiCiktiDegiskenligiGoodExample {
     @Description("Test the time of the day")
     public void testGetTimeofDay_Good() {
 
-        Date date = new Date(2020,01,28,7,52);
-        String timeOfDay = UnitTestUtils.getTimeofDay(date);
-
-        Assert.assertEquals("Morning", timeOfDay);
-
     }
 }

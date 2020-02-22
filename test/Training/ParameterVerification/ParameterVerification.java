@@ -14,10 +14,6 @@ public class ParameterVerification {
     @Description("Tests the Default Config Values")
     public void testDefaultConfigValues(){
 
-        UnitTestConfig utc = new UnitTestConfig();
-        String issueId = utc.issueId;
-
-        Assert.assertEquals("KOVAN-123",issueId);
     }
 
     @Test
@@ -28,11 +24,6 @@ public class ParameterVerification {
     @Description("Tests the Explicitly Set Config Values")
     public void testSetConfigValues(){
 
-        String[] args= {"hozdemir", "kritik", "KOVAN-456"};
-        UnitTestConfig utc = new UnitTestConfig(args);
-        String issueId = utc.issueId;
-
-        Assert.assertEquals("KOVAN-456",issueId);
     }
 
     @Test (expected = ArrayIndexOutOfBoundsException.class)
@@ -42,9 +33,6 @@ public class ParameterVerification {
     @Story("testin icerisindeki hatalı kullanıcı girdileri dogru isleniyor mu")
     @Description("Test the config Errors")
     public void testConfigErrors(){
-
-        String[] args= {"KOVAN-456"};
-        UnitTestConfig utc = new UnitTestConfig(args);
 
     }
 }
