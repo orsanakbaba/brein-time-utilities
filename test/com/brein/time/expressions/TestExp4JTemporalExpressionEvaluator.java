@@ -2,6 +2,7 @@ package com.brein.time.expressions;
 
 import com.brein.time.utils.TimeUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -46,6 +47,7 @@ public class TestExp4JTemporalExpressionEvaluator {
         eval.close();
     }
 
+    @Ignore
     @Test
     public void testToFunctions() {
         final Exp4JTemporalExpressionEvaluator eval = new Exp4JTemporalExpressionEvaluator();

@@ -1,21 +1,9 @@
-package Training;
+package Training.FailFirst;
 
-import org.testng.*;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.*;
 
 
 public class FailFirst {
-    //These are the parameters expected to work with the feature.
-    @DataProvider(name = "DivisionFeatureParameters")
-    public Object[][] divParam() {
-        return new Object[][] {
-                {10, 5},
-                {11, 4},
-                {44.3, 12.5},
-                {87.31, 0}
-        };
-    }
 
     @Test
     public void testIntDivision_IntDividesInt() {
