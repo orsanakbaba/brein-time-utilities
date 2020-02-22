@@ -1,5 +1,6 @@
 package com.brein.time.timeseries;
 
+import com.brein.time.timeintervals.intervals.IntegerInterval;
 import org.apache.log4j.Logger;
 
 import java.io.Serializable;
@@ -20,11 +21,15 @@ public class BucketTimeSeriesConfig<T> implements Serializable {
         SUPPORTED_TIME_UNITS.add(TimeUnit.HOURS);
     }
 
-    private final TimeUnit timeUnit;
-    private final int bucketSize;
-    private final int timeSeriesSize;
-    private final Class<?> bucketContent;
-    private final boolean fillNumberWithZero;
+    private TimeUnit timeUnit =  TimeUnit.SECONDS;
+    private  int bucketSize = 1;
+    private  int timeSeriesSize = 100;
+    private  Class<?> bucketContent = IntegerInterval.class;
+    private  boolean fillNumberWithZero = true;
+
+
+    public BucketTimeSeriesConfig() {
+    }
 
     public BucketTimeSeriesConfig(final Class<?> bucketContent, final TimeUnit timeUnit, final int timeSeriesSize) {
         this(bucketContent, timeUnit, timeSeriesSize, 1);
