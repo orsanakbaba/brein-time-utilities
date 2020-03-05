@@ -2,10 +2,15 @@ package Training;
 
 public class AirConditioner {
 
+    private final TemperatureService service;
     private Config config;
 
-    public void initialize(int currentTemperature) {
-        if (currentTemperature > 20) {
+    public AirConditioner(TemperatureService service) {
+        this.service = service;
+    }
+
+    public void initialize() {
+        if (service.getCurrentTemperature() > 20) {
             config = Config.COOLING;
         } else {
             config = Config.HEATING;
