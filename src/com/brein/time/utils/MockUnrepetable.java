@@ -1,8 +1,10 @@
 package com.brein.time.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MockUnrepetable {
+
     public enum DangerLevel {
         NONE,
         LOW,
@@ -43,8 +45,8 @@ public class MockUnrepetable {
             return DangerLevel.HIGH;
         if(Arrays.asList(conditions).contains(WeatherConditions.HAIL) && Arrays.asList(conditions).contains(WeatherConditions.RAINY))
             return DangerLevel.MEDIUM;
+        if(Arrays.asList(conditions).contains(WeatherConditions.RAINY) && Arrays.asList(conditions).contains(WeatherConditions.THUNDERSTORM))
+            return DangerLevel.LOW;
         return DangerLevel.NONE;
-
     }
-
 }
