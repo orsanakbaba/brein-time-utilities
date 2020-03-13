@@ -1,9 +1,8 @@
 package Training.DeterministicTests;
 
 import com.brein.time.utils.TimeUtils;
-import com.codahale.metrics.Counter;
-import jnr.ffi.annotations.In;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -20,24 +19,27 @@ public class DeterministicTestsBadExample {
     }
 
     @Test
-    public void concurrentAccessFromMultipleThreads() throws Exception {
-                final AtomicInteger counter = new AtomicInteger();
-                final int callsPerThread = 100;
-                final Set<Integer> values = Collections.synchronizedSet(new HashSet<Integer>());
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        for (int i = 0; i < callsPerThread; i++) {
-                            values.add(counter.getAndIncrement());
-                        }
-                    }
-                };
+    public void concurrentAccessFromMultipleThreads() {
+        final int numberOfThreads = 10;
+        final int callsPerThread = 100;
+        int expectedNoOfValues = numberOfThreads * callsPerThread;
 
-                int threads = 10;
-                for (int i = 0; i < threads; i++) {
-                    new Thread(runnable).start();
+        final AtomicInteger counter = new AtomicInteger();
+        final Set<Integer> values = Collections.synchronizedSet(new HashSet<Integer>());
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < callsPerThread; i++) {
+                    values.add(counter.getAndIncrement());
+                }
+            }
+        };
+
+        for (int i = 0; i < numberOfThreads; i++) {
+            new Thread(runnable).start();
         }
-        int expectedNoOfValues = threads * callsPerThread;
+
         Assert.assertEquals(expectedNoOfValues, values.size());
     }
 }
