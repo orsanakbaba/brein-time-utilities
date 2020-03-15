@@ -26,4 +26,5 @@ src/config/dev-*.properties
 .DS_Store?
 
 .idea/*
+*.iml
 allure-results/*
