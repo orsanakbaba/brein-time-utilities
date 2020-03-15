@@ -1,4 +1,5 @@
-package Training;
+package Training.Mock.NonDeterministic;
+
 
 import java.util.Random;
 

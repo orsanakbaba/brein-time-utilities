@@ -1,4 +1,4 @@
-package Training;
+package Training.Mock.NonDeterministic;
 
 import org.junit.Assert;
 import org.junit.Test;

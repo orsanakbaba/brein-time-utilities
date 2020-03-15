@@ -1,4 +1,4 @@
-package Training;
+package Training.Mock.NonDeterministic;
 
 public class AirConditioner {
 
