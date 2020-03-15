@@ -1,6 +1,8 @@
 package com.brein.time.AllureExamples;
-import org.junit.*;
+
 import io.qameta.allure.*;
+import org.junit.Assert;
+import org.junit.Test;
 
 //These classes are for showing some common allure annotations.
 @Epic("Allure Examples")
