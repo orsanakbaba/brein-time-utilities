@@ -1,4 +1,4 @@
-package Training.Mock.NonDeterministic;
+package Training.Mocking.NonDeterministic;
 
 //TODO 2 : Import junit.Test package.
 //TODO 4 : Import mockito.Mock package.

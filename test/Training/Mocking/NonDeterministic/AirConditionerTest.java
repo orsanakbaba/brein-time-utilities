@@ -1,17 +1,23 @@
-package Training.Mock.NonDeterministic;
+package Training.Mocking.NonDeterministic;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-// Bu testler her çalıştırıldığında farklı sonuçlar üretir.
-public class AirConditionerWrongTest {
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
+public class AirConditionerTest {
+
+    @Mock
     private TemperatureService service;
 
     @Test
     public void testAirConditionerInitialize_mustBeHeating() {
+        when(service.getCurrentTemperature()).thenReturn(15);
 
-        service = new TemperatureService();
         AirConditioner airConditioner = new AirConditioner(service);
         airConditioner.initialize();
 
@@ -20,8 +26,8 @@ public class AirConditionerWrongTest {
 
     @Test
     public void testAirConditionerInitialize_mustBeCooling() {
+        when(service.getCurrentTemperature()).thenReturn(30);
 
-        service = new TemperatureService();
         AirConditioner airConditioner = new AirConditioner(service);
         airConditioner.initialize();
 
